@@ -1,10 +1,14 @@
 [Documentation](../README.md) › [FetchResponse](fetchresponse.md)
 
-# Interface: FetchResponse
+# Interface: FetchResponse ‹**Resource**›
+
+## Type parameters
+
+▪ **Resource**
 
 ## Hierarchy
 
-  ↳ [ResponseDataWithErrors](responsedatawitherrors.md)
+* [ResponseDataWithErrors](responsedatawitherrors.md)‹Resource›
 
 * [Response](fetchresponse.md#response)
 
@@ -85,11 +89,11 @@ ___
 
 ### `Optional` data
 
-• **data**? : *JsonValue*
+• **data**? : *Resource*
 
 *Inherited from [FetchResponse](fetchresponse.md).[data](fetchresponse.md#optional-data)*
 
-*Defined in [src/types.ts:53](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L53)*
+*Defined in [src/types.ts:52](https://github.com/badbatch/getta/blob/ed88658/src/types.ts#L52)*
 
 ___
 
@@ -99,7 +103,7 @@ ___
 
 *Inherited from [FetchResponse](fetchresponse.md).[errors](fetchresponse.md#optional-errors)*
 
-*Defined in [src/types.ts:57](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L57)*
+*Defined in [src/types.ts:53](https://github.com/badbatch/getta/blob/ed88658/src/types.ts#L53)*
 
 ___
 

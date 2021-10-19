@@ -1,4 +1,4 @@
-import { JsonValue } from "type-fest";
+import { PlainObject } from "@repodog/types";
 
 export const ARRAY_BUFFER_FORMAT = "arrayBuffer" as const;
 export const BLOB_FORMAT = "blob" as const;
@@ -14,7 +14,7 @@ export const STREAM_READERS = {
   TEXT_FORMAT,
 };
 
-export const DEFAULT_BODY_PARSER = (body: JsonValue) => body;
+export const DEFAULT_BODY_PARSER = (body: PlainObject) => body;
 export const DEFAULT_FETCH_TIMEOUT = 5000 as const;
 export const DEFAULT_HEADERS = { "content-type": "application/json" };
 export const DEFAULT_MAX_REDIRECTS = 5 as const;

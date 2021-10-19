@@ -1,6 +1,5 @@
 import Cachemap from "@cachemap/core";
-import { Func, StringObject } from "@repodog/types";
-import { JsonObject, JsonValue } from "type-fest";
+import { Func, PlainObject, StringObject } from "@repodog/types";
 import { Required } from "utility-types";
 
 export type FetchMethod = "get" | "post" | "put" | "delete";
@@ -22,7 +21,7 @@ export interface ConstructorOptions {
   maxRetries?: number;
   pathTemplateCallback?: PathTemplateCallback;
   pathTemplateRegExp?: RegExp;
-  queryParams?: JsonObject;
+  queryParams?: PlainObject;
   requestRetryWait?: number;
   streamReader?: StreamReader;
 }
@@ -35,7 +34,7 @@ export interface FetchOptions {
   retries?: number;
 }
 
-export interface FetchResponse extends ResponseDataWithErrors, Response {}
+export interface FetchResponse<Resource = PlainObject> extends ResponseDataWithErrors<Resource>, Response {}
 
 export interface FetchRedirectHandlerOptions extends FetchOptions {
   status: number;
@@ -46,20 +45,17 @@ export interface RequestOptions {
   headers?: StringObject;
   method?: FetchMethod;
   pathTemplateData?: StringObject;
-  queryParams?: JsonObject;
+  queryParams?: PlainObject;
 }
 
-export interface ResponseData {
-  data?: JsonValue;
-}
-
-export interface ResponseDataWithErrors extends ResponseData {
+export interface ResponseDataWithErrors<Resource = PlainObject> {
+  data?: Resource;
   errors?: Error[];
 }
 
 export type PathTemplateCallback = (path: string, data: StringObject, pathTemplateRegExp: RegExp) => string;
 
-export type PendingRequestResolver = (value: FetchResponse) => void;
+export type PendingRequestResolver = (value: FetchResponse<PlainObject>) => void;
 
 export interface PendingRequestResolvers {
   resolve: PendingRequestResolver;

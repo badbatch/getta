@@ -3,7 +3,6 @@ import { Func, PlainObject, StringObject } from "@repodog/types";
 import Cacheability from "cacheability";
 import { merge } from "lodash";
 import md5 from "md5";
-import { JsonValue } from "type-fest";
 import { Required } from "utility-types";
 import {
   CACHE_CONTROL_HEADER,
@@ -116,9 +115,9 @@ export class Getta {
     }
 
     // @ts-ignore
-    this[name] = async (options: RequestOptions = {}) =>
+    this[name] = async <Resource extends PlainObject>(options: RequestOptions = {}) =>
       // @ts-ignore
-      this[method](path, merge({}, rest, options)) as Promise<FetchResponse>;
+      this[method](path, merge({}, rest, options)) as Promise<FetchResponse<Resource>>;
   }
 
   public async delete(path: string, options: RequestOptions = {}) {
@@ -147,7 +146,7 @@ export class Getta {
     }
   }
 
-  private async _cacheEntryGet(requestHash: string): Promise<JsonValue | undefined> {
+  private async _cacheEntryGet(requestHash: string): Promise<PlainObject | undefined> {
     if (!this._cache) return undefined;
 
     try {
@@ -167,7 +166,7 @@ export class Getta {
     }
   }
 
-  private async _cacheEntrySet(requestHash: string, data: JsonValue, cacheHeaders: CacheHeaders): Promise<void> {
+  private async _cacheEntrySet(requestHash: string, data: PlainObject, cacheHeaders: CacheHeaders): Promise<void> {
     if (!this._cache) return undefined;
 
     try {

@@ -1,6 +1,6 @@
 import Cachemap from "@cachemap/core";
 import map from "@cachemap/map";
-import { JsonValue } from "type-fest";
+import { PlainObject } from "@repodog/types";
 import { DEFAULT_PATH_TEMPLATE_REGEX } from "../../constants";
 import buildEndpoint from "../../helpers/build-endpoint";
 import defaultPathTemplateCallback from "../../helpers/default-path-template-callback";
@@ -36,7 +36,7 @@ export function getCache() {
 
 export function mockRequest(
   path: string,
-  body: JsonValue,
+  body: PlainObject,
   { headers = {}, pathTemplateData, queryParams }: RequestOptions = {},
   callback: (options: MockRequestCallbackParams) => void,
 ) {

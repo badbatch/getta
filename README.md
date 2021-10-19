@@ -3,7 +3,6 @@
 An isomorphic rest client based on the Fetch API.
 
 [![Build Status](https://travis-ci.com/badbatch/getta.svg?branch=master)](https://travis-ci.com/badbatch/getta)
-[![codecov](https://codecov.io/gh/badbatch/getta/branch/master/graph/badge.svg)](https://codecov.io/gh/badbatch/getta)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![npm version](https://badge.fury.io/js/getta.svg)](https://badge.fury.io/js/getta)
 

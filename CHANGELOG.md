@@ -1,3 +1,10 @@
+#### 0.1.7 (2021-10-19)
+
+##### Bug Fixes
+
+*  get build working by removing codecov step ([27ab9b09](https://github.com/badbatch/getta/commit/27ab9b093c880397cb2e3bd4c4fc95a4dea9d507))
+*  force correct return signature for shortcut methods ([f6551dc5](https://github.com/badbatch/getta/commit/f6551dc5416a5ba1b1011081b9ed1323ba9e0061))
+
 #### 0.1.6 (2021-05-20)
 
 ##### New Features

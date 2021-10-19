@@ -24,7 +24,7 @@
 
 • **body**? : *BodyInit*
 
-*Defined in [src/types.ts:30](https://github.com/badbatch/getta/blob/1922e95/src/types.ts#L30)*
+*Defined in [src/types.ts:30](https://github.com/badbatch/getta/blob/dc9995e/src/types.ts#L30)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **headers**: *StringObject*
 
-*Defined in [src/types.ts:31](https://github.com/badbatch/getta/blob/1922e95/src/types.ts#L31)*
+*Defined in [src/types.ts:31](https://github.com/badbatch/getta/blob/dc9995e/src/types.ts#L31)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **method**: *[FetchMethod](../README.md#fetchmethod)*
 
-*Defined in [src/types.ts:32](https://github.com/badbatch/getta/blob/1922e95/src/types.ts#L32)*
+*Defined in [src/types.ts:32](https://github.com/badbatch/getta/blob/dc9995e/src/types.ts#L32)*
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **redirects**? : *undefined | number*
 
-*Defined in [src/types.ts:33](https://github.com/badbatch/getta/blob/1922e95/src/types.ts#L33)*
+*Defined in [src/types.ts:33](https://github.com/badbatch/getta/blob/dc9995e/src/types.ts#L33)*
 
 ___
 
@@ -56,4 +56,4 @@ ___
 
 • **retries**? : *undefined | number*
 
-*Defined in [src/types.ts:34](https://github.com/badbatch/getta/blob/1922e95/src/types.ts#L34)*
+*Defined in [src/types.ts:34](https://github.com/badbatch/getta/blob/dc9995e/src/types.ts#L34)*

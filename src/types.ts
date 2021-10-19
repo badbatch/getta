@@ -7,7 +7,7 @@ export type FetchMethod = "get" | "post" | "put" | "delete";
 export type StreamReader = "arrayBuffer" | "blob" | "formData" | "json" | "text";
 
 export type ShortcutProperties<T extends string | number> = {
-  [K in T]: (...args: any[]) => Promise<FetchResponse>;
+  [K in T]: <Resource = PlainObject>(...args: any[]) => Promise<FetchResponse<Resource>>;
 };
 
 export interface ConstructorOptions {

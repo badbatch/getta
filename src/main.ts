@@ -116,7 +116,9 @@ export class Getta {
     }
 
     // @ts-ignore
-    this[name] = async (options: RequestOptions = {}) => this[method](path, merge({}, rest, options));
+    this[name] = async (options: RequestOptions = {}) =>
+      // @ts-ignore
+      this[method](path, merge({}, rest, options)) as Promise<FetchResponse>;
   }
 
   public async delete(path: string, options: RequestOptions = {}) {

@@ -1,3 +1,9 @@
+#### 0.1.8 (2021-10-19)
+
+##### Bug Fixes
+
+*  error in deploy script ([e75d9c93](https://github.com/badbatch/getta/commit/e75d9c932886a1a80881bf863145ec351338e0f1))
+
 #### 0.1.7 (2021-10-19)
 
 ##### Bug Fixes

@@ -1,3 +1,9 @@
+#### 0.1.10 (2021-10-19)
+
+##### New Features
+
+*  pass resource type into shorthand method ([1922e959](https://github.com/badbatch/getta/commit/1922e9599389ab75c5d47ccbd761d8b4cdd9ec49))
+
 #### 0.1.9 (2021-10-19)
 
 ##### Bug Fixes

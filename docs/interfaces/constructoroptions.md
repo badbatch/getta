@@ -30,7 +30,7 @@
 
 • **basePath**: *string*
 
-*Defined in [src/types.ts:15](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L15)*
+*Defined in [src/types.ts:15](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L15)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **bodyParser**? : *Func*
 
-*Defined in [src/types.ts:16](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L16)*
+*Defined in [src/types.ts:16](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L16)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **cache**? : *Cachemap*
 
-*Defined in [src/types.ts:17](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L17)*
+*Defined in [src/types.ts:17](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L17)*
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • **enableConditionalRequests**? : *undefined | false | true*
 
-*Defined in [src/types.ts:18](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L18)*
+*Defined in [src/types.ts:18](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L18)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **fetchTimeout**? : *undefined | number*
 
-*Defined in [src/types.ts:19](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L19)*
+*Defined in [src/types.ts:19](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L19)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • **headers**? : *StringObject*
 
-*Defined in [src/types.ts:20](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L20)*
+*Defined in [src/types.ts:20](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L20)*
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • **maxRedirects**? : *undefined | number*
 
-*Defined in [src/types.ts:21](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L21)*
+*Defined in [src/types.ts:21](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L21)*
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 • **maxRetries**? : *undefined | number*
 
-*Defined in [src/types.ts:22](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L22)*
+*Defined in [src/types.ts:22](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L22)*
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 • **pathTemplateCallback**? : *[PathTemplateCallback](../README.md#pathtemplatecallback)*
 
-*Defined in [src/types.ts:23](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L23)*
+*Defined in [src/types.ts:23](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L23)*
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • **pathTemplateRegExp**? : *RegExp*
 
-*Defined in [src/types.ts:24](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L24)*
+*Defined in [src/types.ts:24](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L24)*
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 • **queryParams**? : *JsonObject*
 
-*Defined in [src/types.ts:25](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L25)*
+*Defined in [src/types.ts:25](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L25)*
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 • **requestRetryWait**? : *undefined | number*
 
-*Defined in [src/types.ts:26](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L26)*
+*Defined in [src/types.ts:26](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L26)*
 
 ___
 
@@ -126,4 +126,4 @@ ___
 
 • **streamReader**? : *[StreamReader](../README.md#streamreader)*
 
-*Defined in [src/types.ts:27](https://github.com/badbatch/getta/blob/e75d9c9/src/types.ts#L27)*
+*Defined in [src/types.ts:27](https://github.com/badbatch/getta/blob/7da27bf/src/types.ts#L27)*

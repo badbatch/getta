@@ -1,3 +1,9 @@
+#### 0.1.9 (2021-10-19)
+
+##### Bug Fixes
+
+*  shortand return type is wrong ([7da27bf0](https://github.com/badbatch/getta/commit/7da27bf0e4207fdfe04f99bae9614bb9103c0c02))
+
 #### 0.1.8 (2021-10-19)
 
 ##### Bug Fixes

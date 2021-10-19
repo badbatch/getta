@@ -1,3 +1,9 @@
+#### 0.1.11 (2021-10-19)
+
+##### Bug Fixes
+
+*  update shorthand method signature ([7880912c](https://github.com/badbatch/getta/commit/7880912cbfc9083aa4f41d357a9bba6db7c4ccdf))
+
 #### 0.1.10 (2021-10-19)
 
 ##### New Features

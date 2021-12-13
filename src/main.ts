@@ -4,6 +4,7 @@ import Cacheability from "cacheability";
 import { merge } from "lodash";
 import md5 from "md5";
 import { Required } from "utility-types";
+import { OPTIONAL_PATH_TEMPLATE_REGEX } from ".";
 import {
   CACHE_CONTROL_HEADER,
   DEFAULT_BODY_PARSER,
@@ -62,6 +63,7 @@ export class Getta {
   private _headers: StringObject;
   private _maxRedirects: number;
   private _maxRetries: number;
+  private _optionalPathTemplateRegExp: RegExp;
   private _pathTemplateCallback: PathTemplateCallback;
   private _pathTemplateRegExp: RegExp;
   private _queryParams: PlainObject;
@@ -79,6 +81,7 @@ export class Getta {
       headers,
       maxRedirects = DEFAULT_MAX_REDIRECTS,
       maxRetries = DEFAULT_MAX_RETRIES,
+      optionalPathTemplateRegExp = OPTIONAL_PATH_TEMPLATE_REGEX,
       pathTemplateCallback = defaultPathTemplateCallback,
       pathTemplateRegExp = DEFAULT_PATH_TEMPLATE_REGEX,
       queryParams = {},
@@ -98,6 +101,7 @@ export class Getta {
     this._headers = { ...DEFAULT_HEADERS, ...(headers || {}) };
     this._maxRedirects = maxRedirects;
     this._maxRetries = maxRetries;
+    this._optionalPathTemplateRegExp = optionalPathTemplateRegExp;
     this._pathTemplateCallback = pathTemplateCallback;
     this._pathTemplateRegExp = pathTemplateRegExp;
     this._queryParams = queryParams;
@@ -178,6 +182,7 @@ export class Getta {
 
   private async _delete(path: string, { headers = {}, pathTemplateData, queryParams = {}, ...rest }: RequestOptions) {
     const endpoint = buildEndpoint(this._basePath, path, {
+      optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,
       pathTemplateData,
       pathTemplateRegExp: this._pathTemplateRegExp,
@@ -231,10 +236,9 @@ export class Getta {
           );
         }
 
-        resolve({
-          ...res,
-          data: res.body ? this._bodyParser(await res[this._streamReader]()) : undefined,
-        });
+        const fetchRes = res as FetchResponse;
+        fetchRes.data = res.body ? this._bodyParser(await res[this._streamReader]()) : undefined;
+        resolve(fetchRes);
       });
     } catch (error) {
       const errorRes = { errors: [error] };
@@ -273,6 +277,7 @@ export class Getta {
 
   private async _get(path: string, { headers = {}, pathTemplateData, queryParams = {} }: RequestOptions) {
     const endpoint = buildEndpoint(this._basePath, path, {
+      optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,
       pathTemplateData,
       pathTemplateRegExp: this._pathTemplateRegExp,
@@ -341,6 +346,7 @@ export class Getta {
     { body, headers, method, pathTemplateData, queryParams, ...rest }: Required<RequestOptions, "method">,
   ) {
     const endpoint = buildEndpoint(this._basePath, path, {
+      optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,
       pathTemplateData,
       pathTemplateRegExp: this._pathTemplateRegExp,

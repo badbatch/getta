@@ -20,6 +20,7 @@ export const DEFAULT_HEADERS = { "content-type": "application/json" };
 export const DEFAULT_MAX_REDIRECTS = 5 as const;
 export const DEFAULT_MAX_RETRIES = 3 as const;
 export const DEFAULT_PATH_TEMPLATE_REGEX = /({type})|({id})|({id,\+})|({brief\|standard})/g;
+export const OPTIONAL_PATH_TEMPLATE_REGEX = /({[a-zA-Z0-9_]+\?})/g;
 export const DEFAULT_REQUEST_RETRY_WAIT = 100;
 
 export const MISSING_BASE_PATH_ERROR = `Getta expected to receive 'basePath' in the constructor options,

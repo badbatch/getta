@@ -1,6 +1,7 @@
 import Cachemap from "@cachemap/core";
 import map from "@cachemap/map";
 import { PlainObject } from "@repodog/types";
+import { OPTIONAL_PATH_TEMPLATE_REGEX } from "../..";
 import { DEFAULT_PATH_TEMPLATE_REGEX } from "../../constants";
 import buildEndpoint from "../../helpers/build-endpoint";
 import defaultPathTemplateCallback from "../../helpers/default-path-template-callback";
@@ -43,6 +44,7 @@ export function mockRequest(
   callback({
     body: JSON.stringify(body),
     endpoint: buildEndpoint(basePath, path, {
+      optionalPathTemplateRegExp: OPTIONAL_PATH_TEMPLATE_REGEX,
       pathTemplateCallback: defaultPathTemplateCallback,
       pathTemplateData,
       pathTemplateRegExp: DEFAULT_PATH_TEMPLATE_REGEX,

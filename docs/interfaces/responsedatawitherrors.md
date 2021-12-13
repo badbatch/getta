@@ -25,7 +25,7 @@
 
 • **data**? : *Resource*
 
-*Defined in [src/types.ts:52](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L52)*
+*Defined in [src/types.ts:53](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L53)*
 
 ___
 
@@ -33,4 +33,4 @@ ___
 
 • **errors**? : *Error[]*
 
-*Defined in [src/types.ts:53](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L53)*
+*Defined in [src/types.ts:54](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L54)*

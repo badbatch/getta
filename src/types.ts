@@ -19,6 +19,7 @@ export interface ConstructorOptions {
   headers?: StringObject;
   maxRedirects?: number;
   maxRetries?: number;
+  optionalPathTemplateRegExp?: RegExp;
   pathTemplateCallback?: PathTemplateCallback;
   pathTemplateRegExp?: RegExp;
   queryParams?: PlainObject;

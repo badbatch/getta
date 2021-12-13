@@ -4,7 +4,13 @@ import { BuildEndpointOptions } from "./types";
 export default function buildEndpoint(
   basePath: string,
   path: string,
-  { pathTemplateCallback, pathTemplateData, pathTemplateRegExp, queryParams }: BuildEndpointOptions,
+  {
+    optionalPathTemplateRegExp,
+    pathTemplateCallback,
+    pathTemplateData,
+    pathTemplateRegExp,
+    queryParams,
+  }: BuildEndpointOptions,
 ) {
   const pathJoiner = basePath.endsWith("/") || path.startsWith("/") ? "" : "/";
   let endpoint = `${basePath}${pathJoiner}${path}`;
@@ -12,6 +18,8 @@ export default function buildEndpoint(
   if (pathTemplateData) {
     endpoint = pathTemplateCallback(endpoint, pathTemplateData, pathTemplateRegExp);
   }
+
+  endpoint = endpoint.replace(optionalPathTemplateRegExp, "");
 
   if (queryParams && Object.keys(queryParams).length) {
     const queryJoin = queryString.extract(endpoint) ? "&" : "?";

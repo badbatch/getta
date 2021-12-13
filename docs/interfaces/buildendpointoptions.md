@@ -12,16 +12,25 @@
 
 ### Properties
 
+* [optionalPathTemplateRegExp](buildendpointoptions.md#optionalpathtemplateregexp)
 * [pathTemplateCallback](buildendpointoptions.md#pathtemplatecallback)
 * [pathTemplateRegExp](buildendpointoptions.md#pathtemplateregexp)
 
 ## Properties
 
+###  optionalPathTemplateRegExp
+
+• **optionalPathTemplateRegExp**: *RegExp*
+
+*Defined in [src/helpers/build-endpoint/types.ts:4](https://github.com/badbatch/getta/blob/22e6d6c/src/helpers/build-endpoint/types.ts#L4)*
+
+___
+
 ###  pathTemplateCallback
 
 • **pathTemplateCallback**: *[PathTemplateCallback](../README.md#pathtemplatecallback)*
 
-*Defined in [src/helpers/build-endpoint/types.ts:4](https://github.com/badbatch/getta/blob/7880912/src/helpers/build-endpoint/types.ts#L4)*
+*Defined in [src/helpers/build-endpoint/types.ts:5](https://github.com/badbatch/getta/blob/22e6d6c/src/helpers/build-endpoint/types.ts#L5)*
 
 ___
 
@@ -29,4 +38,4 @@ ___
 
 • **pathTemplateRegExp**: *RegExp*
 
-*Defined in [src/helpers/build-endpoint/types.ts:5](https://github.com/badbatch/getta/blob/7880912/src/helpers/build-endpoint/types.ts#L5)*
+*Defined in [src/helpers/build-endpoint/types.ts:6](https://github.com/badbatch/getta/blob/22e6d6c/src/helpers/build-endpoint/types.ts#L6)*

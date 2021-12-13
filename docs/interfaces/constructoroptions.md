@@ -18,6 +18,7 @@
 * [headers](constructoroptions.md#optional-headers)
 * [maxRedirects](constructoroptions.md#optional-maxredirects)
 * [maxRetries](constructoroptions.md#optional-maxretries)
+* [optionalPathTemplateRegExp](constructoroptions.md#optional-optionalpathtemplateregexp)
 * [pathTemplateCallback](constructoroptions.md#optional-pathtemplatecallback)
 * [pathTemplateRegExp](constructoroptions.md#optional-pathtemplateregexp)
 * [queryParams](constructoroptions.md#optional-queryparams)
@@ -30,7 +31,7 @@
 
 • **basePath**: *string*
 
-*Defined in [src/types.ts:14](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L14)*
+*Defined in [src/types.ts:14](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L14)*
 
 ___
 
@@ -38,7 +39,7 @@ ___
 
 • **bodyParser**? : *Func*
 
-*Defined in [src/types.ts:15](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L15)*
+*Defined in [src/types.ts:15](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L15)*
 
 ___
 
@@ -46,7 +47,7 @@ ___
 
 • **cache**? : *Cachemap*
 
-*Defined in [src/types.ts:16](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L16)*
+*Defined in [src/types.ts:16](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L16)*
 
 ___
 
@@ -54,7 +55,7 @@ ___
 
 • **enableConditionalRequests**? : *undefined | false | true*
 
-*Defined in [src/types.ts:17](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L17)*
+*Defined in [src/types.ts:17](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L17)*
 
 ___
 
@@ -62,7 +63,7 @@ ___
 
 • **fetchTimeout**? : *undefined | number*
 
-*Defined in [src/types.ts:18](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L18)*
+*Defined in [src/types.ts:18](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L18)*
 
 ___
 
@@ -70,7 +71,7 @@ ___
 
 • **headers**? : *StringObject*
 
-*Defined in [src/types.ts:19](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L19)*
+*Defined in [src/types.ts:19](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L19)*
 
 ___
 
@@ -78,7 +79,7 @@ ___
 
 • **maxRedirects**? : *undefined | number*
 
-*Defined in [src/types.ts:20](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L20)*
+*Defined in [src/types.ts:20](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L20)*
 
 ___
 
@@ -86,7 +87,15 @@ ___
 
 • **maxRetries**? : *undefined | number*
 
-*Defined in [src/types.ts:21](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L21)*
+*Defined in [src/types.ts:21](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L21)*
+
+___
+
+### `Optional` optionalPathTemplateRegExp
+
+• **optionalPathTemplateRegExp**? : *RegExp*
+
+*Defined in [src/types.ts:22](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L22)*
 
 ___
 
@@ -94,7 +103,7 @@ ___
 
 • **pathTemplateCallback**? : *[PathTemplateCallback](../README.md#pathtemplatecallback)*
 
-*Defined in [src/types.ts:22](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L22)*
+*Defined in [src/types.ts:23](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L23)*
 
 ___
 
@@ -102,7 +111,7 @@ ___
 
 • **pathTemplateRegExp**? : *RegExp*
 
-*Defined in [src/types.ts:23](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L23)*
+*Defined in [src/types.ts:24](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L24)*
 
 ___
 
@@ -110,7 +119,7 @@ ___
 
 • **queryParams**? : *PlainObject*
 
-*Defined in [src/types.ts:24](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L24)*
+*Defined in [src/types.ts:25](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L25)*
 
 ___
 
@@ -118,7 +127,7 @@ ___
 
 • **requestRetryWait**? : *undefined | number*
 
-*Defined in [src/types.ts:25](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L25)*
+*Defined in [src/types.ts:26](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L26)*
 
 ___
 
@@ -126,4 +135,4 @@ ___
 
 • **streamReader**? : *[StreamReader](../README.md#streamreader)*
 
-*Defined in [src/types.ts:26](https://github.com/badbatch/getta/blob/7880912/src/types.ts#L26)*
+*Defined in [src/types.ts:27](https://github.com/badbatch/getta/blob/22e6d6c/src/types.ts#L27)*

@@ -32,6 +32,7 @@ export function getCache() {
   return new Cachemap({
     name: "cachemap",
     store: map(),
+    type: "test",
   });
 }
 

@@ -1,3 +1,9 @@
+#### 0.1.14 (2021-12-22)
+
+##### Chores
+
+*  bump cachemap dependencies ([b6a07030](https://github.com/badbatch/getta/commit/b6a07030d64db83ac937cab853774175f4d797b7))
+
 #### 0.1.11 (2021-10-19)
 
 ##### Bug Fixes

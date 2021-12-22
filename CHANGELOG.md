@@ -1,3 +1,9 @@
+#### 0.1.16 (2021-12-22)
+
+##### Bug Fixes
+
+*  circular dependency ([301b5cfb](https://github.com/badbatch/getta/commit/301b5cfbdbaf8a29a8250b614c87a15ca831ebfb))
+
 #### 0.1.15 (2021-12-22)
 
 ##### Bug Fixes

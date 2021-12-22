@@ -1,3 +1,9 @@
+#### 0.1.15 (2021-12-22)
+
+##### Bug Fixes
+
+*  add missing cachemap/controller dev dependency ([1de8279d](https://github.com/badbatch/getta/commit/1de8279d207fb7ed4e7ade01674624de181111d3))
+
 #### 0.1.14 (2021-12-22)
 
 ##### Chores

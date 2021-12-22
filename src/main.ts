@@ -4,7 +4,6 @@ import Cacheability from "cacheability";
 import { merge } from "lodash";
 import md5 from "md5";
 import { Required } from "utility-types";
-import { OPTIONAL_PATH_TEMPLATE_REGEX } from ".";
 import {
   CACHE_CONTROL_HEADER,
   DEFAULT_BODY_PARSER,
@@ -28,6 +27,7 @@ import {
   MISSING_BASE_PATH_ERROR,
   NOT_FOUND_STATUS_CODE,
   NOT_MODIFIED_STATUS_CODE,
+  OPTIONAL_PATH_TEMPLATE_REGEX,
   POST_METHOD,
   PUT_METHOD,
   REDIRECTION_REPSONSE,

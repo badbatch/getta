@@ -1,3 +1,9 @@
+#### 0.1.17 (2021-12-27)
+
+##### Chores
+
+*  upgrade cachemap core package ([f36d5aa1](https://github.com/badbatch/getta/commit/f36d5aa1c08d725b1e36d839d7d284be436390c2))
+
 #### 0.1.16 (2021-12-22)
 
 ##### Bug Fixes

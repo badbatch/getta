@@ -53,7 +53,7 @@
     }
   },
   "dependencies": {
-    "@cachemap/core": "3.2.0",
+    "@cachemap/core": "3.2.1",
     "@repodog/types": "^0.3.26",
     "@types/md5": "^2.1.33",
     "cacheability": "^3.0.1",

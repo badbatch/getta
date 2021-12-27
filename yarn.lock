@@ -1018,17 +1018,17 @@
   resolved "https://registry.yarnpkg.com/@cachemap/constants/-/constants-3.2.0.tgz#89740beceade5722eb602531eafde132a563e021"
   integrity sha512-h6slA21QxyGsCMtX+JKXhwKHm6LFstfUQg7T1pS4ltIBfaNdk7FZ/kh+EqnKuZEtu+AmnfXFDFrexXjE0gI3mw==
 
-"@cachemap/controller@^3.2.0":
+"@cachemap/controller@3.2.0":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@cachemap/controller/-/controller-3.2.0.tgz#056750ea296241d7491ce61f24abf8e9103deaf4"
   integrity sha512-v8B/Y2qDJI+Y/LitbgrykSO885o8HXLG/55GUuxRTDLxleVOzOBmFibzoSIafSfwYKyFeyMBx/mnoOJbJMLM1g==
   dependencies:
     eventemitter3 "4.0.7"
 
-"@cachemap/core@3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@cachemap/core/-/core-3.2.0.tgz#370da19dd157bdf213232249caa69ff6bfe2515f"
-  integrity sha512-4GsPnmMRz2mTGVsOY0b9ux3mDtcpRPIgjlBSUOcNSVmCwPmDhLyzsr0rFPqBcUy+jave20TbJy1zUTdlC00vwA==
+"@cachemap/core@3.2.1":
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/@cachemap/core/-/core-3.2.1.tgz#954bb34d5834f85f36a239c90ab796725c5cd4fb"
+  integrity sha512-2WxDnc6CA9hSuK6xTD3CXfg4+lW3vognJh4DVhlW4pWuzxBkGGChrj+naNMM2Rjt/oVAr9YfE9ZG7VA6qp9YIw==
   dependencies:
     cacheability "^3.0.1"
     crypto-js "^4.0.0"

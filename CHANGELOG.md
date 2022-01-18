@@ -1,3 +1,9 @@
+#### 0.1.19 (2022-01-18)
+
+##### Bug Fixes
+
+*  remove ending forward slash on endpoint if it exists ([23f007cb](https://github.com/badbatch/getta/commit/23f007cb100b0ea209fc42476f07a162ea24e187))
+
 #### 0.1.17 (2021-12-27)
 
 ##### Chores

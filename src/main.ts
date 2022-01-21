@@ -291,7 +291,7 @@ export class Getta {
       if (isCacheabilityValid(cacheability)) {
         return {
           data: await this._cacheEntryGet(requestHash),
-          headers: new Headers({ cacheControl: cacheability.printCacheControl() }),
+          headers: new Headers({ "cache-control": cacheability.printCacheControl() }),
         };
       }
 

@@ -30,7 +30,7 @@
 
 \+ **new Getta**(`options`: [ConstructorOptions](../interfaces/constructoroptions.md)): *[Getta](getta.md)*
 
-*Defined in [src/main.ts:72](https://github.com/badbatch/getta/blob/12ba1af/src/main.ts#L72)*
+*Defined in [src/main.ts:72](https://github.com/badbatch/getta/blob/be4e6c9/src/main.ts#L72)*
 
 **Parameters:**
 
@@ -46,7 +46,7 @@ Name | Type |
 
 • **get cache**(): *Cachemap | undefined*
 
-*Defined in [src/main.ts:112](https://github.com/badbatch/getta/blob/12ba1af/src/main.ts#L112)*
+*Defined in [src/main.ts:112](https://github.com/badbatch/getta/blob/be4e6c9/src/main.ts#L112)*
 
 **Returns:** *Cachemap | undefined*
 
@@ -56,7 +56,7 @@ Name | Type |
 
 ▸ **createShortcut**(`name`: string, `path`: string, `__namedParameters`: object): *void*
 
-*Defined in [src/main.ts:116](https://github.com/badbatch/getta/blob/12ba1af/src/main.ts#L116)*
+*Defined in [src/main.ts:116](https://github.com/badbatch/getta/blob/be4e6c9/src/main.ts#L116)*
 
 **Parameters:**
 
@@ -79,7 +79,7 @@ ___
 
 ▸ **delete**(`path`: string, `options`: [RequestOptions](../interfaces/requestoptions.md)): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
-*Defined in [src/main.ts:127](https://github.com/badbatch/getta/blob/12ba1af/src/main.ts#L127)*
+*Defined in [src/main.ts:127](https://github.com/badbatch/getta/blob/be4e6c9/src/main.ts#L127)*
 
 **Parameters:**
 
@@ -96,7 +96,7 @@ ___
 
 ▸ **get**(`path`: string, `options`: [RequestOptions](../interfaces/requestoptions.md)): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject› | object›*
 
-*Defined in [src/main.ts:131](https://github.com/badbatch/getta/blob/12ba1af/src/main.ts#L131)*
+*Defined in [src/main.ts:131](https://github.com/badbatch/getta/blob/be4e6c9/src/main.ts#L131)*
 
 **Parameters:**
 
@@ -113,7 +113,7 @@ ___
 
 ▸ **post**(`path`: string, `options`: Required‹[RequestOptions](../interfaces/requestoptions.md), "body"›): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
-*Defined in [src/main.ts:135](https://github.com/badbatch/getta/blob/12ba1af/src/main.ts#L135)*
+*Defined in [src/main.ts:135](https://github.com/badbatch/getta/blob/be4e6c9/src/main.ts#L135)*
 
 **Parameters:**
 
@@ -130,7 +130,7 @@ ___
 
 ▸ **put**(`path`: string, `options`: Required‹[RequestOptions](../interfaces/requestoptions.md), "body"›): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
-*Defined in [src/main.ts:139](https://github.com/badbatch/getta/blob/12ba1af/src/main.ts#L139)*
+*Defined in [src/main.ts:139](https://github.com/badbatch/getta/blob/be4e6c9/src/main.ts#L139)*
 
 **Parameters:**
 

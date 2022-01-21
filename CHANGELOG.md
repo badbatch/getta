@@ -1,3 +1,9 @@
+#### 0.1.20 (2022-01-21)
+
+##### Bug Fixes
+
+*  return headers with cache control if match found in cache ([be4e6c9b](https://github.com/badbatch/getta/commit/be4e6c9be7b18f73f16533863cdfdfe75fd6feb6))
+
 #### 0.1.19 (2022-01-18)
 
 ##### Bug Fixes

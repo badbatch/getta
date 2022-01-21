@@ -1,6 +1,6 @@
 {
   "name": "getta",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "An isomorphic rest client based on the Fetch API.",
   "keywords": [
     "api-client",

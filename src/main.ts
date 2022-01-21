@@ -289,7 +289,10 @@ export class Getta {
 
     if (cacheability) {
       if (isCacheabilityValid(cacheability)) {
-        return { data: await this._cacheEntryGet(requestHash) };
+        return {
+          data: await this._cacheEntryGet(requestHash),
+          headers: new Headers({ cacheControl: cacheability.printCacheControl() }),
+        };
       }
 
       if (this._conditionalRequestsEnabled) {

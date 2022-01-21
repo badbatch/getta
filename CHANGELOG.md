@@ -1,3 +1,21 @@
+#### 0.1.21 (2022-01-21)
+
+##### Chores
+
+* **deps:**
+  *  bump trim-off-newlines from 1.0.1 to 1.0.3 ([a0393578](https://github.com/badbatch/getta/commit/a0393578be20485d901bf0f5757dedda213718dd))
+  *  bump ws from 7.4.5 to 7.5.6 ([a305a8c9](https://github.com/badbatch/getta/commit/a305a8c9bfc6e5b3240d019f99e5fbb5025d5e90))
+  *  bump shelljs from 0.8.4 to 0.8.5 ([040c8a16](https://github.com/badbatch/getta/commit/040c8a164f4a8333a419cec6f6b6ab0048ab16e7))
+  *  bump tmpl from 1.0.4 to 1.0.5 ([aafc23ec](https://github.com/badbatch/getta/commit/aafc23ec2555e6b85f7e4813dd6f37090e746237))
+  *  bump semver-regex from 3.1.2 to 3.1.3 ([1ba20153](https://github.com/badbatch/getta/commit/1ba201531d39946909fc14ce5da201d65d86b0e3))
+  *  bump path-parse from 1.0.6 to 1.0.7 ([7b6ec209](https://github.com/badbatch/getta/commit/7b6ec209b3413563b88eb0174bca8e81126e6d4c))
+  *  bump underscore from 1.9.1 to 1.13.1 ([d150d17a](https://github.com/badbatch/getta/commit/d150d17a2842738d17a9fddf39153af33c48025d))
+  *  bump highlight.js from 9.18.1 to 9.18.5 ([314b8244](https://github.com/badbatch/getta/commit/314b824448a5a78c1a8b129d3e979d1b7fa1d5b4))
+
+##### Bug Fixes
+
+*  header key format when adding cache control ([7bd74d3f](https://github.com/badbatch/getta/commit/7bd74d3f964dd87a808f76ae7598bcc73ab9775c))
+
 #### 0.1.20 (2022-01-21)
 
 ##### Bug Fixes

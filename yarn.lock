@@ -1013,33 +1013,34 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@cachemap/constants@3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@cachemap/constants/-/constants-3.2.0.tgz#89740beceade5722eb602531eafde132a563e021"
-  integrity sha512-h6slA21QxyGsCMtX+JKXhwKHm6LFstfUQg7T1pS4ltIBfaNdk7FZ/kh+EqnKuZEtu+AmnfXFDFrexXjE0gI3mw==
+"@cachemap/constants@4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@cachemap/constants/-/constants-4.0.0.tgz#70f8f57f95c01999c98642bfde1b673b84959a18"
+  integrity sha512-X3SMo2E9iyfzfFhtVxrJxrohK8U6onU2fp4mhAmjmXr5xmlZB+DVo/6CtIbRM5PPDRsODEqbhVxjW8yagLdnTA==
 
-"@cachemap/controller@3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@cachemap/controller/-/controller-3.2.0.tgz#056750ea296241d7491ce61f24abf8e9103deaf4"
-  integrity sha512-v8B/Y2qDJI+Y/LitbgrykSO885o8HXLG/55GUuxRTDLxleVOzOBmFibzoSIafSfwYKyFeyMBx/mnoOJbJMLM1g==
+"@cachemap/controller@4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@cachemap/controller/-/controller-4.0.0.tgz#1352c28da7dba1ede6379f7311287721059fdccc"
+  integrity sha512-Ftyoe2Si2hOJlHwGDx5T9+wPw7OerOyA2b36GJC7RJCpqkIaOZ9xKAEONcoGF9IM5w2UX6THzEznA1xba2OzRA==
   dependencies:
     eventemitter3 "4.0.7"
 
-"@cachemap/core@3.2.1":
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/@cachemap/core/-/core-3.2.1.tgz#954bb34d5834f85f36a239c90ab796725c5cd4fb"
-  integrity sha512-2WxDnc6CA9hSuK6xTD3CXfg4+lW3vognJh4DVhlW4pWuzxBkGGChrj+naNMM2Rjt/oVAr9YfE9ZG7VA6qp9YIw==
+"@cachemap/core@4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@cachemap/core/-/core-4.0.0.tgz#8e185c80f6dcb8b60a6f7d5ad04c5c457471925e"
+  integrity sha512-/t6qjJiQ6dHGeam5BFfoMnsHkgp4EOxyKmAniX7wImJYtZwXP6F0xSZ8Aw+GafUsdooLPWu+QxVIXSDdBiRQnQ==
   dependencies:
     cacheability "^3.0.1"
     crypto-js "^4.0.0"
+    eventemitter3 "4.0.7"
     js-base64 "3.6.0"
     md5 "^2.2.1"
     object-sizeof "^1.5.3"
 
-"@cachemap/map@3.1.3":
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/@cachemap/map/-/map-3.1.3.tgz#7261bc4c06a93204ad151acdf46663880c79028b"
-  integrity sha512-A/Cj0I/LCknCFUezRa37snq58E6Yd7q0qTW7u7hgMN0grOkfpNR58rMHs8rxySDXyK4rlrgb5XZ1apJSZE47gA==
+"@cachemap/map@4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@cachemap/map/-/map-4.0.0.tgz#ef50ad509eb2a83a6790e3f564be62faabf0d974"
+  integrity sha512-9sgSVLoG5V0Q5BmDG0EzBz1Qo26wN6+M4JTitsK6teoFUaTExQCUlrR0CIVhJh6MEnATXBJfWW3/dTTVBgutbQ==
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
@@ -5740,12 +5741,7 @@ path-key@^3.0.0, path-key@^3.1.0:
   resolved "https://registry.yarnpkg.com/path-key/-/path-key-3.1.1.tgz#581f6ade658cbba65a0d3380de7753295054f375"
   integrity sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==
 
-path-parse@^1.0.6:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.7.tgz#fbc114b60ca42b30d9daf5858e4bd68bbedb6735"
-  integrity sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==
-
-path-parse@^1.0.7:
+path-parse@^1.0.6, path-parse@^1.0.7:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.7.tgz#fbc114b60ca42b30d9daf5858e4bd68bbedb6735"
   integrity sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==

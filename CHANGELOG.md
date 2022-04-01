@@ -1,3 +1,9 @@
+#### 0.1.22 (2022-04-01)
+
+##### Chores
+
+*  upgrade cachemap deps ([97864a27](https://github.com/badbatch/getta/commit/97864a2728961f4937a441c36188750508d466be))
+
 #### 0.1.21 (2022-01-21)
 
 ##### Chores

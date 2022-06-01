@@ -119,24 +119,24 @@ export class Getta {
     }
 
     // @ts-ignore
-    this[name] = async <Resource extends PlainObject>(options: RequestOptions = {}) =>
+    this[name] = async <Resource extends PlainObject>({ method: requestMethod, ...requestRest }: RequestOptions = {}) =>
       // @ts-ignore
-      this[method](path, merge({}, rest, options)) as Promise<FetchResponse<Resource>>;
+      this[requestMethod ?? method](path, merge({}, rest, requestRest)) as Promise<FetchResponse<Resource>>;
   }
 
-  public async delete(path: string, options: RequestOptions = {}) {
+  public async delete(path: string, options: Omit<RequestOptions, "method"> = {}) {
     return this._delete(path, options);
   }
 
-  public async get(path: string, options: RequestOptions = {}) {
+  public async get(path: string, options: Omit<RequestOptions, "method"> = {}) {
     return this._get(path, options);
   }
 
-  public async post(path: string, options: Required<RequestOptions, "body">) {
+  public async post(path: string, options: Omit<Required<RequestOptions, "body">, "method">) {
     return this._request(path, { ...options, method: POST_METHOD });
   }
 
-  public async put(path: string, options: Required<RequestOptions, "body">) {
+  public async put(path: string, options: Omit<Required<RequestOptions, "body">, "methood">) {
     return this._request(path, { ...options, method: PUT_METHOD });
   }
 
@@ -180,7 +180,10 @@ export class Getta {
     }
   }
 
-  private async _delete(path: string, { headers = {}, pathTemplateData, queryParams = {}, ...rest }: RequestOptions) {
+  private async _delete(
+    path: string,
+    { headers = {}, pathTemplateData, queryParams = {}, ...rest }: Omit<RequestOptions, "method">,
+  ) {
     const endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,
@@ -275,7 +278,10 @@ export class Getta {
     return this._fetch(endpoint, { retries, ...rest });
   }
 
-  private async _get(path: string, { headers = {}, pathTemplateData, queryParams = {} }: RequestOptions) {
+  private async _get(
+    path: string,
+    { headers = {}, pathTemplateData, queryParams = {} }: Omit<RequestOptions, "method">,
+  ) {
     const endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,

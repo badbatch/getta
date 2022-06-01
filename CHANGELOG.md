@@ -1,3 +1,9 @@
+### 0.2.0 (2022-06-01)
+
+##### New Features
+
+*  enable method overriding on shortcut properties ([053c3556](https://github.com/badbatch/getta/commit/053c35567d717d6e56c9ae4ed46c73af622b1734))
+
 #### 0.1.22 (2022-04-01)
 
 ##### Chores

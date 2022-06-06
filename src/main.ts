@@ -1,7 +1,7 @@
 import Cachemap, { CacheHeaders } from "@cachemap/core";
 import { Func, PlainObject, StringObject } from "@repodog/types";
 import Cacheability from "cacheability";
-import { merge } from "lodash";
+import { castArray, merge } from "lodash";
 import md5 from "md5";
 import { Required } from "utility-types";
 import {
@@ -240,11 +240,16 @@ export class Getta {
         }
 
         const fetchRes = res as FetchResponse;
-        fetchRes.data = res.body ? this._bodyParser(await res[this._streamReader]()) : undefined;
-        resolve(fetchRes);
+
+        try {
+          fetchRes.data = res.body ? this._bodyParser(await res[this._streamReader]()) : undefined;
+          resolve(fetchRes);
+        } catch (e) {
+          reject([e, new Error(`Unable to ${rest.method} ${endpoint} due to previous error`)]);
+        }
       });
     } catch (error) {
-      const errorRes = { errors: [error] };
+      const errorRes = { errors: castArray(error) };
       return errorRes as FetchResponse;
     }
   }

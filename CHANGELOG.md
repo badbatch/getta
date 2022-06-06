@@ -1,3 +1,9 @@
+#### 0.2.1 (2022-06-06)
+
+##### Bug Fixes
+
+*  catch response parsing error correctly ([07871c37](https://github.com/badbatch/getta/commit/07871c37979bcd02933d4e610e18e8c68b06532f))
+
 ### 0.2.0 (2022-06-01)
 
 ##### New Features

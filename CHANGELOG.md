@@ -1,3 +1,9 @@
+#### 0.2.2 (2022-06-24)
+
+##### Bug Fixes
+
+*  add second attempt to parse body when invalid json ([5a27b0ef](https://github.com/badbatch/getta/commit/5a27b0eff2855bec70d0d54cf75b8b53e71d076f))
+
 #### 0.2.1 (2022-06-06)
 
 ##### Bug Fixes

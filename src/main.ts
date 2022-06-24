@@ -240,12 +240,23 @@ export class Getta {
         }
 
         const fetchRes = res as FetchResponse;
+        const resClone = res.clone();
 
         try {
           fetchRes.data = res.body ? this._bodyParser(await res[this._streamReader]()) : undefined;
           resolve(fetchRes);
         } catch (e) {
-          reject([e, new Error(`Unable to ${rest.method} ${endpoint} due to previous error`)]);
+          try {
+            if (this._streamReader === "json" && res.body) {
+              const fetchResClone = resClone as FetchResponse;
+              fetchResClone.data = JSON.parse(await resClone.text());
+              resolve(fetchResClone);
+            } else {
+              reject([e, new Error(`Unable to ${rest.method} ${endpoint} due to previous error`)]);
+            }
+          } catch {
+            reject([e, new Error(`Unable to ${rest.method} ${endpoint} due to previous error`)]);
+          }
         }
       });
     } catch (error) {

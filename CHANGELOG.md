@@ -1,3 +1,9 @@
+#### 0.2.3 (2022-06-27)
+
+##### Refactors
+
+*  reorder code to make debugging easier ([3b3b89e7](https://github.com/badbatch/getta/commit/3b3b89e7177ff620a6dd35bb04d4b254d132c524))
+
 #### 0.2.2 (2022-06-24)
 
 ##### Bug Fixes

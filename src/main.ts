@@ -249,7 +249,8 @@ export class Getta {
           try {
             if (this._streamReader === "json" && res.body) {
               const fetchResClone = resClone as FetchResponse;
-              fetchResClone.data = JSON.parse(await resClone.text());
+              const text = await resClone.text();
+              fetchResClone.data = JSON.parse(text);
               resolve(fetchResClone);
             } else {
               reject([e, new Error(`Unable to ${rest.method} ${endpoint} due to previous error`)]);

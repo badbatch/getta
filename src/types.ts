@@ -23,6 +23,7 @@ export interface ConstructorOptions {
   pathTemplateCallback?: PathTemplateCallback;
   pathTemplateRegExp?: RegExp;
   queryParams?: PlainObject;
+  rateLimitPerSecond?: number;
   requestRetryWait?: number;
   streamReader?: StreamReader;
 }
@@ -48,6 +49,8 @@ export interface RequestOptions {
   pathTemplateData?: StringObject;
   queryParams?: PlainObject;
 }
+
+export type RequestQueue = [(value: FetchResponse) => void, string, FetchOptions][];
 
 export interface ResponseDataWithErrors<Resource = PlainObject> {
   data?: Resource;

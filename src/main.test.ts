@@ -657,4 +657,44 @@ describe("Getta", () => {
       });
     });
   });
+
+  describe("rate limiting", () => {
+    let restClient: Getta;
+
+    beforeAll(() => {
+      restClient = createRestClient({ basePath });
+    });
+
+    describe("WHEN the number of requests per second exceeds rateLimitPerSecond", () => {
+      beforeAll(async () => {
+        const requestKeys = [...Array(55).keys()];
+
+        requestKeys.forEach(key => {
+          mockRequest(`product/${key}`, {}, {}, ({ endpoint, ...rest }) => {
+            fetchMock.get(endpoint, rest);
+          });
+        });
+
+        // @ts-ignore
+        restClient._addRequestToRateLimitedQueue = jest
+          .fn()
+          .mockResolvedValue({ data: {}, headers: new Headers(), status: 200 });
+
+        await Promise.all(requestKeys.map(key => restClient.get(`product/${key}`)));
+      });
+
+      afterAll(async () => {
+        await tearDownTest({ fetchMock, restClient });
+      });
+
+      it("SHOULD call fetch one less than the rate limit", () => {
+        expect(fetchMock.calls().length).toBe(49);
+      });
+
+      it("SHOULD add the excess requests to rateLimitedRequestQueue", async () => {
+        // @ts-ignore
+        expect(restClient._addRequestToRateLimitedQueue).toHaveBeenCalledTimes(6);
+      });
+    });
+  });
 });

@@ -12,6 +12,7 @@ import {
   DEFAULT_MAX_REDIRECTS,
   DEFAULT_MAX_RETRIES,
   DEFAULT_PATH_TEMPLATE_REGEX,
+  DEFAULT_RATE_LIMIT,
   DEFAULT_REQUEST_RETRY_WAIT,
   DELETE_METHOD,
   ETAG_HEADER,
@@ -48,6 +49,7 @@ import {
   PendingRequestResolver,
   PendingRequestResolvers,
   RequestOptions,
+  RequestQueue,
   RequestTracker,
   ShortcutProperties,
   Shortcuts,
@@ -67,6 +69,10 @@ export class Getta {
   private _pathTemplateCallback: PathTemplateCallback;
   private _pathTemplateRegExp: RegExp;
   private _queryParams: PlainObject;
+  private _rateLimitCount: number = 0;
+  private _rateLimitedRequestQueue: RequestQueue = [];
+  private _rateLimitPerSecond: number;
+  private _rateLimitTimer: NodeJS.Timer | null = null;
   private _requestRetryWait: number;
   private _requestTracker: RequestTracker = { active: [], pending: new Map() };
   private _streamReader: StreamReader;
@@ -85,6 +91,7 @@ export class Getta {
       pathTemplateCallback = defaultPathTemplateCallback,
       pathTemplateRegExp = DEFAULT_PATH_TEMPLATE_REGEX,
       queryParams = {},
+      rateLimitPerSecond = DEFAULT_RATE_LIMIT,
       requestRetryWait = DEFAULT_REQUEST_RETRY_WAIT,
       streamReader = JSON_FORMAT,
     } = options;
@@ -105,6 +112,7 @@ export class Getta {
     this._pathTemplateCallback = pathTemplateCallback;
     this._pathTemplateRegExp = pathTemplateRegExp;
     this._queryParams = queryParams;
+    this._rateLimitPerSecond = rateLimitPerSecond;
     this._requestRetryWait = requestRetryWait;
     this._streamReader = streamReader;
   }
@@ -138,6 +146,12 @@ export class Getta {
 
   public async put(path: string, options: Omit<Required<RequestOptions, "body">, "methood">) {
     return this._request(path, { ...options, method: PUT_METHOD });
+  }
+
+  private _addRequestToRateLimitedQueue(endpoint: string, options: FetchOptions) {
+    return new Promise((resolve: (value: FetchResponse) => void) => {
+      this._rateLimitedRequestQueue.push([resolve, endpoint, options]);
+    });
   }
 
   private async _cacheEntryDelete(requestHash: string): Promise<boolean> {
@@ -213,6 +227,13 @@ export class Getta {
           reject(new Error(`${FETCH_TIMEOUT_ERROR} ${this._fetchTimeout}ms.`));
         }, this._fetchTimeout);
 
+        this._rateLimit();
+
+        if (!(this._rateLimitCount < this._rateLimitPerSecond)) {
+          resolve(await this._addRequestToRateLimitedQueue(endpoint, { redirects, retries, ...rest }));
+          return;
+        }
+
         const res = await fetch(endpoint, rest);
 
         clearTimeout(fetchTimer);
@@ -228,6 +249,8 @@ export class Getta {
               ...rest,
             }),
           );
+
+          return;
         }
 
         if (responseGroup === SERVER_ERROR_REPSONSE) {
@@ -237,27 +260,17 @@ export class Getta {
               ...rest,
             })) as FetchResponse,
           );
+
+          return;
         }
 
         const fetchRes = res as FetchResponse;
-        const resClone = res.clone();
 
         try {
           fetchRes.data = res.body ? this._bodyParser(await res[this._streamReader]()) : undefined;
           resolve(fetchRes);
         } catch (e) {
-          try {
-            if (this._streamReader === "json" && res.body) {
-              const fetchResClone = resClone as FetchResponse;
-              const text = await resClone.text();
-              fetchResClone.data = JSON.parse(text);
-              resolve(fetchResClone);
-            } else {
-              reject([e, new Error(`Unable to ${rest.method} ${endpoint} due to previous error`)]);
-            }
-          } catch {
-            reject([e, new Error(`Unable to ${rest.method} ${endpoint} due to previous error`)]);
-          }
+          reject([e, new Error(`Unable to ${rest.method} ${endpoint} due to previous error`)]);
         }
       });
     } catch (error) {
@@ -365,6 +378,30 @@ export class Getta {
     this._resolvePendingRequests(requestHash, res);
     this._requestTracker.active = this._requestTracker.active.filter(value => value !== requestHash);
     return res;
+  }
+
+  private _rateLimit() {
+    if (!this._rateLimitTimer) {
+      this._rateLimitTimer = setTimeout(() => {
+        this._rateLimitTimer = null;
+        this._rateLimitCount = 0;
+
+        if (this._rateLimitedRequestQueue.length) {
+          this._releaseRateLimitedRequestQueue();
+        }
+      }, 1000);
+    }
+
+    this._rateLimitCount += 1;
+  }
+
+  private _releaseRateLimitedRequestQueue() {
+    this._rateLimitedRequestQueue.forEach(async ([resolve, endpoint, options]) => {
+      // @ts-ignore
+      resolve(await this._fetch(endpoint, options));
+    });
+
+    this._rateLimitedRequestQueue = [];
   }
 
   private async _request(

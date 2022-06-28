@@ -1,3 +1,9 @@
+### 0.3.0 (2022-06-28)
+
+##### New Features
+
+*  add rate limiting ([f8275dd8](https://github.com/badbatch/getta/commit/f8275dd83608743bb587df9305cc85936678bced))
+
 #### 0.2.3 (2022-06-27)
 
 ##### Refactors

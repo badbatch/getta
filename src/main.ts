@@ -32,7 +32,9 @@ import {
   POST_METHOD,
   PUT_METHOD,
   REDIRECTION_REPSONSE,
+  REQUEST_SENT,
   RESOURCE_NOT_FOUND_ERROR,
+  RESPONSE_RECEIVED,
   SERVER_ERROR_REPSONSE,
 } from "./constants";
 import buildEndpoint from "./helpers/build-endpoint";
@@ -45,9 +47,11 @@ import {
   FetchOptions,
   FetchRedirectHandlerOptions,
   FetchResponse,
+  Log,
   PathTemplateCallback,
   PendingRequestResolver,
   PendingRequestResolvers,
+  Performance,
   RequestOptions,
   RequestQueue,
   RequestTracker,
@@ -63,11 +67,13 @@ export class Getta {
   private _conditionalRequestsEnabled: boolean;
   private _fetchTimeout: number;
   private _headers: StringObject;
+  private _log: Log | undefined;
   private _maxRedirects: number;
   private _maxRetries: number;
   private _optionalPathTemplateRegExp: RegExp;
   private _pathTemplateCallback: PathTemplateCallback;
   private _pathTemplateRegExp: RegExp;
+  private _performance: Performance;
   private _queryParams: PlainObject;
   private _rateLimitCount: number = 0;
   private _rateLimitedRequestQueue: RequestQueue = [];
@@ -85,11 +91,13 @@ export class Getta {
       enableConditionalRequests = true,
       fetchTimeout = DEFAULT_FETCH_TIMEOUT,
       headers,
+      log,
       maxRedirects = DEFAULT_MAX_REDIRECTS,
       maxRetries = DEFAULT_MAX_RETRIES,
       optionalPathTemplateRegExp = OPTIONAL_PATH_TEMPLATE_REGEX,
       pathTemplateCallback = defaultPathTemplateCallback,
       pathTemplateRegExp = DEFAULT_PATH_TEMPLATE_REGEX,
+      performance,
       queryParams = {},
       rateLimitPerSecond = DEFAULT_RATE_LIMIT,
       requestRetryWait = DEFAULT_REQUEST_RETRY_WAIT,
@@ -106,11 +114,13 @@ export class Getta {
     this._conditionalRequestsEnabled = enableConditionalRequests;
     this._fetchTimeout = fetchTimeout;
     this._headers = { ...DEFAULT_HEADERS, ...(headers || {}) };
+    this._log = log;
     this._maxRedirects = maxRedirects;
     this._maxRetries = maxRetries;
     this._optionalPathTemplateRegExp = optionalPathTemplateRegExp;
     this._pathTemplateCallback = pathTemplateCallback;
     this._pathTemplateRegExp = pathTemplateRegExp;
+    this._performance = performance;
     this._queryParams = queryParams;
     this._rateLimitPerSecond = rateLimitPerSecond;
     this._requestRetryWait = requestRetryWait;
@@ -132,20 +142,20 @@ export class Getta {
       this[requestMethod ?? method](path, merge({}, rest, requestRest)) as Promise<FetchResponse<Resource>>;
   }
 
-  public async delete(path: string, options: Omit<RequestOptions, "method"> = {}) {
-    return this._delete(path, options);
+  public async delete(path: string, options: Omit<RequestOptions, "method"> = {}, context?: PlainObject) {
+    return this._delete(path, options, context);
   }
 
-  public async get(path: string, options: Omit<RequestOptions, "method"> = {}) {
-    return this._get(path, options);
+  public async get(path: string, options: Omit<RequestOptions, "method"> = {}, context?: PlainObject) {
+    return this._get(path, options, context);
   }
 
-  public async post(path: string, options: Omit<Required<RequestOptions, "body">, "method">) {
-    return this._request(path, { ...options, method: POST_METHOD });
+  public async post(path: string, options: Omit<Required<RequestOptions, "body">, "method">, context?: PlainObject) {
+    return this._request(path, { ...options, method: POST_METHOD }, context);
   }
 
-  public async put(path: string, options: Omit<Required<RequestOptions, "body">, "methood">) {
-    return this._request(path, { ...options, method: PUT_METHOD });
+  public async put(path: string, options: Omit<Required<RequestOptions, "body">, "methood">, context?: PlainObject) {
+    return this._request(path, { ...options, method: PUT_METHOD }, context);
   }
 
   private _addRequestToRateLimitedQueue(endpoint: string, options: FetchOptions) {
@@ -197,6 +207,7 @@ export class Getta {
   private async _delete(
     path: string,
     { headers = {}, pathTemplateData, queryParams = {}, ...rest }: Omit<RequestOptions, "method">,
+    context?: PlainObject,
   ) {
     const endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
@@ -213,14 +224,22 @@ export class Getta {
       this._cacheEntryDelete(requestHash);
     }
 
-    return this._fetch(endpoint, {
-      headers: { ...this._headers, ...headers },
-      method: DELETE_METHOD,
-      ...rest,
-    });
+    return this._fetch(
+      endpoint,
+      {
+        headers: { ...this._headers, ...headers },
+        method: DELETE_METHOD,
+        ...rest,
+      },
+      context,
+    );
   }
 
-  private async _fetch(endpoint: string, { redirects, retries, ...rest }: FetchOptions): Promise<FetchResponse> {
+  private async _fetch(
+    endpoint: string,
+    { redirects, retries, ...rest }: FetchOptions,
+    context: PlainObject = {},
+  ): Promise<FetchResponse> {
     try {
       return new Promise(async (resolve: (value: FetchResponse) => void, reject) => {
         const fetchTimer = setTimeout(() => {
@@ -234,7 +253,22 @@ export class Getta {
           return;
         }
 
+        const startTime = this._performance.now();
+
+        this._log?.(REQUEST_SENT, {
+          context: { redirects, retries, url: endpoint, ...rest, ...context },
+          stats: { startTime },
+        });
+
         const res = await fetch(endpoint, rest);
+
+        const endTime = this._performance.now();
+        const duration = endTime - startTime;
+
+        this._log?.(RESPONSE_RECEIVED, {
+          context: { redirects, retries, url: endpoint, ...rest, ...context },
+          stats: { duration, endTime, startTime },
+        });
 
         clearTimeout(fetchTimer);
 
@@ -311,6 +345,7 @@ export class Getta {
   private async _get(
     path: string,
     { headers = {}, pathTemplateData, queryParams = {} }: Omit<RequestOptions, "method">,
+    context?: PlainObject,
   ) {
     const endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
@@ -342,7 +377,7 @@ export class Getta {
 
     return this._getResolve(
       requestHash,
-      await this._fetch(endpoint, { headers: { ...this._headers, ...headers }, method: GET_METHOD }),
+      await this._fetch(endpoint, { headers: { ...this._headers, ...headers }, method: GET_METHOD }, context),
     );
   }
 
@@ -407,6 +442,7 @@ export class Getta {
   private async _request(
     path: string,
     { body, headers, method, pathTemplateData, queryParams, ...rest }: Required<RequestOptions, "method">,
+    context?: PlainObject,
   ) {
     const endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
@@ -416,12 +452,16 @@ export class Getta {
       queryParams: { ...this._queryParams, ...queryParams },
     });
 
-    return this._fetch(endpoint, {
-      body,
-      headers: { ...this._headers, ...headers },
-      method,
-      ...rest,
-    });
+    return this._fetch(
+      endpoint,
+      {
+        body,
+        headers: { ...this._headers, ...headers },
+        method,
+        ...rest,
+      },
+      context,
+    );
   }
 
   private _resolvePendingRequests(requestHash: string, responseData: FetchResponse) {

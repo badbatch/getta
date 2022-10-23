@@ -1,6 +1,7 @@
 import { StringObject } from "@repodog/types";
 import fetchMock, { MockRequest } from "fetch-mock";
 import md5 from "md5";
+import { performance } from "perf_hooks";
 import { PRD_136_7317 } from "./__tests__/data";
 import {
   basePath,
@@ -33,7 +34,7 @@ import { ResponseDataWithErrors, ShortcutProperties } from "./types";
 describe("Getta", () => {
   describe("constructor", () => {
     it("SHOULD return an instance of the Getta class", () => {
-      const restClient = createRestClient({ basePath, cache: getCache() });
+      const restClient = createRestClient({ basePath, cache: getCache(), performance });
       expect(restClient).toBeInstanceOf(Getta);
     });
   });
@@ -44,7 +45,7 @@ describe("Getta", () => {
 
     beforeAll(() => {
       restClient = createRestClient<"getProduct">(
-        { basePath, cache: getCache() },
+        { basePath, cache: getCache(), performance },
         {
           getProduct: [
             defaultPath,
@@ -397,7 +398,7 @@ describe("Getta", () => {
 
     beforeAll(() => {
       restClient = createRestClient<"postProduct">(
-        { basePath, cache: getCache() },
+        { basePath, cache: getCache(), performance },
         {
           postProduct: [
             defaultPath,
@@ -483,7 +484,7 @@ describe("Getta", () => {
 
     beforeAll(() => {
       restClient = createRestClient<"deleteProduct">(
-        { basePath, cache: getCache() },
+        { basePath, cache: getCache(), performance },
         {
           deleteProduct: [
             defaultPath,
@@ -589,7 +590,7 @@ describe("Getta", () => {
 
     beforeAll(() => {
       restClient = createRestClient<"putProduct">(
-        { basePath, cache: getCache() },
+        { basePath, cache: getCache(), performance },
         {
           putProduct: [
             defaultPath,
@@ -662,7 +663,7 @@ describe("Getta", () => {
     let restClient: Getta;
 
     beforeAll(() => {
-      restClient = createRestClient({ basePath });
+      restClient = createRestClient({ basePath, performance });
     });
 
     describe("WHEN the number of requests per second exceeds rateLimitPerSecond", () => {

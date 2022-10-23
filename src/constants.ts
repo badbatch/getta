@@ -58,3 +58,6 @@ export const ETAG_HEADER = "ETag" as const;
 export const LOCATION_HEADER = "Location" as const;
 export const IF_NONE_MATCH_HEADER = "If-None-Match" as const;
 export const CACHE_CONTROL_HEADER = "Cache-Control" as const;
+
+export const REQUEST_SENT = "request_sent" as const;
+export const RESPONSE_RECEIVED = "response_received" as const;

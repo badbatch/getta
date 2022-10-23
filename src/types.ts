@@ -17,11 +17,13 @@ export interface ConstructorOptions {
   enableConditionalRequests?: boolean;
   fetchTimeout?: number;
   headers?: StringObject;
+  log?: Log;
   maxRedirects?: number;
   maxRetries?: number;
   optionalPathTemplateRegExp?: RegExp;
   pathTemplateCallback?: PathTemplateCallback;
   pathTemplateRegExp?: RegExp;
+  performance: Performance;
   queryParams?: PlainObject;
   rateLimitPerSecond?: number;
   requestRetryWait?: number;
@@ -40,6 +42,14 @@ export interface FetchResponse<Resource = PlainObject> extends ResponseDataWithE
 
 export interface FetchRedirectHandlerOptions extends FetchOptions {
   status: number;
+}
+
+export type Log = (message: string, data: PlainObject, logLevel?: LogLevel) => void;
+
+export type LogLevel = "error" | "warn" | "info" | "http" | "verbose" | "debug" | "silly";
+
+export interface Performance {
+  now(): number;
 }
 
 export interface RequestOptions {

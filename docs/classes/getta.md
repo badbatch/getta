@@ -30,7 +30,7 @@
 
 \+ **new Getta**(`options`: [ConstructorOptions](../interfaces/constructoroptions.md)): *[Getta](getta.md)*
 
-*Defined in [src/main.ts:78](https://github.com/badbatch/getta/blob/f8275dd/src/main.ts#L78)*
+*Defined in [src/main.ts:84](https://github.com/badbatch/getta/blob/5964b69/src/main.ts#L84)*
 
 **Parameters:**
 
@@ -46,7 +46,7 @@ Name | Type |
 
 • **get cache**(): *Cachemap | undefined*
 
-*Defined in [src/main.ts:120](https://github.com/badbatch/getta/blob/f8275dd/src/main.ts#L120)*
+*Defined in [src/main.ts:130](https://github.com/badbatch/getta/blob/5964b69/src/main.ts#L130)*
 
 **Returns:** *Cachemap | undefined*
 
@@ -56,7 +56,7 @@ Name | Type |
 
 ▸ **createShortcut**(`name`: string, `path`: string, `__namedParameters`: object): *void*
 
-*Defined in [src/main.ts:124](https://github.com/badbatch/getta/blob/f8275dd/src/main.ts#L124)*
+*Defined in [src/main.ts:134](https://github.com/badbatch/getta/blob/5964b69/src/main.ts#L134)*
 
 **Parameters:**
 
@@ -77,9 +77,9 @@ ___
 
 ###  delete
 
-▸ **delete**(`path`: string, `options`: Omit‹[RequestOptions](../interfaces/requestoptions.md), "method"›): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
+▸ **delete**(`path`: string, `options`: Omit‹[RequestOptions](../interfaces/requestoptions.md), "method"›, `context?`: PlainObject): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
-*Defined in [src/main.ts:135](https://github.com/badbatch/getta/blob/f8275dd/src/main.ts#L135)*
+*Defined in [src/main.ts:145](https://github.com/badbatch/getta/blob/5964b69/src/main.ts#L145)*
 
 **Parameters:**
 
@@ -87,6 +87,7 @@ Name | Type | Default |
 ------ | ------ | ------ |
 `path` | string | - |
 `options` | Omit‹[RequestOptions](../interfaces/requestoptions.md), "method"› | {} |
+`context?` | PlainObject | - |
 
 **Returns:** *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
@@ -94,9 +95,9 @@ ___
 
 ###  get
 
-▸ **get**(`path`: string, `options`: Omit‹[RequestOptions](../interfaces/requestoptions.md), "method"›): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject› | object›*
+▸ **get**(`path`: string, `options`: Omit‹[RequestOptions](../interfaces/requestoptions.md), "method"›, `context?`: PlainObject): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject› | object›*
 
-*Defined in [src/main.ts:139](https://github.com/badbatch/getta/blob/f8275dd/src/main.ts#L139)*
+*Defined in [src/main.ts:149](https://github.com/badbatch/getta/blob/5964b69/src/main.ts#L149)*
 
 **Parameters:**
 
@@ -104,6 +105,7 @@ Name | Type | Default |
 ------ | ------ | ------ |
 `path` | string | - |
 `options` | Omit‹[RequestOptions](../interfaces/requestoptions.md), "method"› | {} |
+`context?` | PlainObject | - |
 
 **Returns:** *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject› | object›*
 
@@ -111,9 +113,9 @@ ___
 
 ###  post
 
-▸ **post**(`path`: string, `options`: Omit‹Required‹[RequestOptions](../interfaces/requestoptions.md), "body"›, "method"›): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
+▸ **post**(`path`: string, `options`: Omit‹Required‹[RequestOptions](../interfaces/requestoptions.md), "body"›, "method"›, `context?`: PlainObject): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
-*Defined in [src/main.ts:143](https://github.com/badbatch/getta/blob/f8275dd/src/main.ts#L143)*
+*Defined in [src/main.ts:153](https://github.com/badbatch/getta/blob/5964b69/src/main.ts#L153)*
 
 **Parameters:**
 
@@ -121,6 +123,7 @@ Name | Type |
 ------ | ------ |
 `path` | string |
 `options` | Omit‹Required‹[RequestOptions](../interfaces/requestoptions.md), "body"›, "method"› |
+`context?` | PlainObject |
 
 **Returns:** *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
@@ -128,9 +131,9 @@ ___
 
 ###  put
 
-▸ **put**(`path`: string, `options`: Omit‹Required‹[RequestOptions](../interfaces/requestoptions.md), "body"›, "methood"›): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
+▸ **put**(`path`: string, `options`: Omit‹Required‹[RequestOptions](../interfaces/requestoptions.md), "body"›, "methood"›, `context?`: PlainObject): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
-*Defined in [src/main.ts:147](https://github.com/badbatch/getta/blob/f8275dd/src/main.ts#L147)*
+*Defined in [src/main.ts:157](https://github.com/badbatch/getta/blob/5964b69/src/main.ts#L157)*
 
 **Parameters:**
 
@@ -138,5 +141,6 @@ Name | Type |
 ------ | ------ |
 `path` | string |
 `options` | Omit‹Required‹[RequestOptions](../interfaces/requestoptions.md), "body"›, "methood"› |
+`context?` | PlainObject |
 
 **Returns:** *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*

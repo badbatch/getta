@@ -1,3 +1,9 @@
+### 0.4.0 (2022-10-23)
+
+##### New Features
+
+*  add logging ([2655d942](https://github.com/badbatch/getta/commit/2655d9429ce054e45998a080b3510a92c61240f9))
+
 ### 0.3.0 (2022-06-28)
 
 ##### New Features

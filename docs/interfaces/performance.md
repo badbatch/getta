@@ -18,6 +18,6 @@
 
 ▸ **now**(): *number*
 
-*Defined in [src/types.ts:52](https://github.com/badbatch/getta/blob/5964b69/src/types.ts#L52)*
+*Defined in [src/types.ts:52](https://github.com/badbatch/getta/blob/2655d94/src/types.ts#L52)*
 
 **Returns:** *number*

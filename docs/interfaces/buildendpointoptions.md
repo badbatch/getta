@@ -22,7 +22,7 @@
 
 • **optionalPathTemplateRegExp**: *RegExp*
 
-*Defined in [src/helpers/build-endpoint/types.ts:4](https://github.com/badbatch/getta/blob/607bb92/src/helpers/build-endpoint/types.ts#L4)*
+*Defined in [src/helpers/build-endpoint/types.ts:4](https://github.com/badbatch/getta/blob/addf14c/src/helpers/build-endpoint/types.ts#L4)*
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • **pathTemplateCallback**: *[PathTemplateCallback](../README.md#pathtemplatecallback)*
 
-*Defined in [src/helpers/build-endpoint/types.ts:5](https://github.com/badbatch/getta/blob/607bb92/src/helpers/build-endpoint/types.ts#L5)*
+*Defined in [src/helpers/build-endpoint/types.ts:5](https://github.com/badbatch/getta/blob/addf14c/src/helpers/build-endpoint/types.ts#L5)*
 
 ___
 
@@ -38,4 +38,4 @@ ___
 
 • **pathTemplateRegExp**: *RegExp*
 
-*Defined in [src/helpers/build-endpoint/types.ts:6](https://github.com/badbatch/getta/blob/607bb92/src/helpers/build-endpoint/types.ts#L6)*
+*Defined in [src/helpers/build-endpoint/types.ts:6](https://github.com/badbatch/getta/blob/addf14c/src/helpers/build-endpoint/types.ts#L6)*

@@ -1,3 +1,9 @@
+#### 0.4.1 (2022-10-24)
+
+##### Refactors
+
+*  update logging ([addf14cc](https://github.com/badbatch/getta/commit/addf14cc344ed31aa409ea564cae15bb3f5d2b08))
+
 ### 0.4.0 (2022-10-23)
 
 ##### New Features

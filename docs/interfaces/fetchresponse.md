@@ -93,7 +93,7 @@ ___
 
 *Inherited from [FetchResponse](fetchresponse.md).[data](fetchresponse.md#optional-data)*
 
-*Defined in [src/types.ts:66](https://github.com/badbatch/getta/blob/2655d94/src/types.ts#L66)*
+*Defined in [src/types.ts:66](https://github.com/badbatch/getta/blob/607bb92/src/types.ts#L66)*
 
 ___
 
@@ -103,7 +103,7 @@ ___
 
 *Inherited from [FetchResponse](fetchresponse.md).[errors](fetchresponse.md#optional-errors)*
 
-*Defined in [src/types.ts:67](https://github.com/badbatch/getta/blob/2655d94/src/types.ts#L67)*
+*Defined in [src/types.ts:67](https://github.com/badbatch/getta/blob/607bb92/src/types.ts#L67)*
 
 ___
 

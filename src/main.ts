@@ -158,9 +158,9 @@ export class Getta {
     return this._request(path, { ...options, method: PUT_METHOD }, context);
   }
 
-  private _addRequestToRateLimitedQueue(endpoint: string, options: FetchOptions) {
+  private _addRequestToRateLimitedQueue(endpoint: string, options: FetchOptions, context: PlainObject) {
     return new Promise((resolve: (value: FetchResponse) => void) => {
-      this._rateLimitedRequestQueue.push([resolve, endpoint, options]);
+      this._rateLimitedRequestQueue.push([resolve, endpoint, options, context]);
     });
   }
 
@@ -235,12 +235,11 @@ export class Getta {
     );
   }
 
-  private async _fetch(
-    endpoint: string,
-    { redirects, retries, ...rest }: FetchOptions,
-    context: PlainObject = {},
-  ): Promise<FetchResponse> {
+  private async _fetch(endpoint: string, options: FetchOptions, context: PlainObject = {}): Promise<FetchResponse> {
+    context.startTime = this._performance.now();
+
     try {
+      const { redirects, retries, ...rest } = options;
       return new Promise(async (resolve: (value: FetchResponse) => void, reject) => {
         const fetchTimer = setTimeout(() => {
           reject(new Error(`${FETCH_TIMEOUT_ERROR} ${this._fetchTimeout}ms.`));
@@ -249,26 +248,18 @@ export class Getta {
         this._rateLimit();
 
         if (!(this._rateLimitCount < this._rateLimitPerSecond)) {
-          resolve(await this._addRequestToRateLimitedQueue(endpoint, { redirects, retries, ...rest }));
+          resolve(await this._addRequestToRateLimitedQueue(endpoint, options, context));
           return;
         }
 
-        const startTime = this._performance.now();
-
-        this._log?.(REQUEST_SENT, {
-          context: { redirects, retries, url: endpoint, ...rest, ...context },
-          stats: { startTime },
-        });
+        if (!redirects && !retries) {
+          this._log?.(REQUEST_SENT, {
+            context: { redirects, retries, url: endpoint, ...rest, ...context },
+            stats: { startTime: context.startTime },
+          });
+        }
 
         const res = await fetch(endpoint, rest);
-
-        const endTime = this._performance.now();
-        const duration = endTime - startTime;
-
-        this._log?.(RESPONSE_RECEIVED, {
-          context: { redirects, retries, url: endpoint, ...rest, ...context },
-          stats: { duration, endTime, startTime },
-        });
 
         clearTimeout(fetchTimer);
 
@@ -277,11 +268,16 @@ export class Getta {
 
         if (responseGroup === REDIRECTION_REPSONSE && headers.get(LOCATION_HEADER)) {
           resolve(
-            await this._fetchRedirectHandler(headers.get(LOCATION_HEADER) as string, {
-              redirects,
-              status,
-              ...rest,
-            }),
+            await this._fetchRedirectHandler(
+              res,
+              headers.get(LOCATION_HEADER) as string,
+              {
+                redirects,
+                status,
+                ...rest,
+              },
+              context,
+            ),
           );
 
           return;
@@ -289,10 +285,15 @@ export class Getta {
 
         if (responseGroup === SERVER_ERROR_REPSONSE) {
           resolve(
-            (await this._fetchRetryHandler(endpoint, {
-              retries,
-              ...rest,
-            })) as FetchResponse,
+            (await this._fetchRetryHandler(
+              res,
+              endpoint,
+              {
+                retries,
+                ...rest,
+              },
+              context,
+            )) as FetchResponse,
           );
 
           return;
@@ -302,44 +303,50 @@ export class Getta {
 
         try {
           fetchRes.data = res.body ? this._bodyParser(await res[this._streamReader]()) : undefined;
+          this._logResponse(fetchRes, endpoint, options, context);
           resolve(fetchRes);
         } catch (e) {
           reject([e, new Error(`Unable to ${rest.method} ${endpoint} due to previous error`)]);
         }
       });
     } catch (error) {
-      const errorRes = { errors: castArray(error) };
-      return errorRes as FetchResponse;
+      const fetchRes = { errors: castArray(error) };
+      this._logResponse(fetchRes as FetchResponse, endpoint, options, context);
+      return fetchRes as FetchResponse;
     }
   }
 
   private async _fetchRedirectHandler(
+    res: Response,
     endpoint: string,
-    { method, redirects = 1, status, ...rest }: FetchRedirectHandlerOptions,
+    options: FetchRedirectHandlerOptions,
+    context: PlainObject,
   ): Promise<FetchResponse> {
-    if (redirects === this._maxRedirects) {
-      const errorRes = {
-        errors: [new Error(`${MAX_REDIRECTS_EXCEEDED_ERROR} ${this._maxRedirects}.`)],
-      };
+    const { method, redirects = 1, status, ...rest } = options;
 
-      return errorRes as FetchResponse;
+    if (redirects === this._maxRedirects) {
+      const fetchRes = res as FetchResponse;
+      fetchRes.errors = [new Error(`${MAX_REDIRECTS_EXCEEDED_ERROR} ${this._maxRedirects}.`)];
+      this._logResponse(fetchRes, endpoint, options, context);
+      return fetchRes;
     }
 
-    redirects += 1;
     const redirectMethod = status === 303 ? GET_METHOD : method;
-    return this._fetch(endpoint, { method: redirectMethod, redirects, ...rest });
+    return this._fetch(endpoint, { method: redirectMethod, redirects: redirects + 1, ...rest });
   }
 
-  private async _fetchRetryHandler(endpoint: string, { retries = 1, ...rest }: FetchOptions) {
+  private async _fetchRetryHandler(res: Response, endpoint: string, options: FetchOptions, context: PlainObject) {
+    const { retries = 1, ...rest } = options;
+
     if (retries === this._maxRetries) {
-      return {
-        errors: [new Error(`${MAX_RETRIES_EXCEEDED_ERROR} ${this._maxRetries}.`)],
-      };
+      const fetchRes = res as FetchResponse;
+      fetchRes.errors = [new Error(`${MAX_RETRIES_EXCEEDED_ERROR} ${this._maxRetries}.`)];
+      this._logResponse(fetchRes, endpoint, options, context);
+      return fetchRes;
     }
 
-    retries += 1;
     await delay(this._requestRetryWait);
-    return this._fetch(endpoint, { retries, ...rest });
+    return this._fetch(endpoint, { retries: retries + 1, ...rest });
   }
 
   private async _get(
@@ -415,6 +422,29 @@ export class Getta {
     return res;
   }
 
+  private _logResponse(res: FetchResponse, endpoint: string, options: FetchOptions, context: PlainObject) {
+    const { data, errors, headers, status } = res;
+    const { redirects, retries } = options;
+    const { startTime, ...otherContext } = context;
+
+    const endTime = this._performance.now();
+    const duration = endTime - startTime;
+
+    this._log?.(RESPONSE_RECEIVED, {
+      context: {
+        body: data ? { data } : { errors: errors ?? [] },
+        headers,
+        method: options.method,
+        redirects,
+        retries,
+        status,
+        url: endpoint,
+        ...otherContext,
+      },
+      stats: { duration, endTime, startTime },
+    });
+  }
+
   private _rateLimit() {
     if (!this._rateLimitTimer) {
       this._rateLimitTimer = setTimeout(() => {
@@ -431,9 +461,9 @@ export class Getta {
   }
 
   private _releaseRateLimitedRequestQueue() {
-    this._rateLimitedRequestQueue.forEach(async ([resolve, endpoint, options]) => {
+    this._rateLimitedRequestQueue.forEach(async ([resolve, endpoint, options, context]) => {
       // @ts-ignore
-      resolve(await this._fetch(endpoint, options));
+      resolve(await this._fetch(endpoint, options, context));
     });
 
     this._rateLimitedRequestQueue = [];

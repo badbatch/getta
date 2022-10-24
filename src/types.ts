@@ -60,7 +60,7 @@ export interface RequestOptions {
   queryParams?: PlainObject;
 }
 
-export type RequestQueue = [(value: FetchResponse) => void, string, FetchOptions][];
+export type RequestQueue = [(value: FetchResponse) => void, string, FetchOptions, PlainObject][];
 
 export interface ResponseDataWithErrors<Resource = PlainObject> {
   data?: Resource;

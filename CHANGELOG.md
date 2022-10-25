@@ -1,3 +1,9 @@
+#### 0.4.2 (2022-10-25)
+
+##### Bug Fixes
+
+*  context passing into shorthand methods ([56cb1c3c](https://github.com/badbatch/getta/commit/56cb1c3c01a38f29bb942720ca2d6a053abd25e5))
+
 #### 0.4.1 (2022-10-24)
 
 ##### Refactors

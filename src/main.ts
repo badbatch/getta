@@ -131,15 +131,20 @@ export class Getta {
     return this._cache;
   }
 
-  public createShortcut(name: string, path: string, { method, ...rest }: Required<RequestOptions, "method">) {
+  public createShortcut(name: string, path: string, { method, ...otherOptions }: Required<RequestOptions, "method">) {
     if (!FETCH_METHODS.includes(method)) {
       throw new Error(`${INVALID_FETCH_METHOD_ERROR} ${method}`);
     }
 
     // @ts-ignore
-    this[name] = async <Resource extends PlainObject>({ method: requestMethod, ...requestRest }: RequestOptions = {}) =>
+    this[name] = async <Resource extends PlainObject>(
+      { method: requestMethod, ...otherOptionOverrides }: RequestOptions = {},
+      context?: PlainObject,
+    ) =>
       // @ts-ignore
-      this[requestMethod ?? method](path, merge({}, rest, requestRest)) as Promise<FetchResponse<Resource>>;
+      this[requestMethod ?? method](path, merge({}, otherOptions, otherOptionOverrides), context) as Promise<
+        FetchResponse<Resource>
+      >;
   }
 
   public async delete(path: string, options: Omit<RequestOptions, "method"> = {}, context?: PlainObject) {

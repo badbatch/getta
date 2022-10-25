@@ -25,7 +25,7 @@
 
 • **data**? : *Resource*
 
-*Defined in [src/types.ts:66](https://github.com/badbatch/getta/blob/addf14c/src/types.ts#L66)*
+*Defined in [src/types.ts:66](https://github.com/badbatch/getta/blob/3c4fcfd/src/types.ts#L66)*
 
 ___
 
@@ -33,4 +33,4 @@ ___
 
 • **errors**? : *Error[]*
 
-*Defined in [src/types.ts:67](https://github.com/badbatch/getta/blob/addf14c/src/types.ts#L67)*
+*Defined in [src/types.ts:67](https://github.com/badbatch/getta/blob/3c4fcfd/src/types.ts#L67)*

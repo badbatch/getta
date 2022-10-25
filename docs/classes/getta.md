@@ -30,7 +30,7 @@
 
 \+ **new Getta**(`options`: [ConstructorOptions](../interfaces/constructoroptions.md)): *[Getta](getta.md)*
 
-*Defined in [src/main.ts:84](https://github.com/badbatch/getta/blob/addf14c/src/main.ts#L84)*
+*Defined in [src/main.ts:84](https://github.com/badbatch/getta/blob/3c4fcfd/src/main.ts#L84)*
 
 **Parameters:**
 
@@ -46,7 +46,7 @@ Name | Type |
 
 • **get cache**(): *Cachemap | undefined*
 
-*Defined in [src/main.ts:130](https://github.com/badbatch/getta/blob/addf14c/src/main.ts#L130)*
+*Defined in [src/main.ts:130](https://github.com/badbatch/getta/blob/3c4fcfd/src/main.ts#L130)*
 
 **Returns:** *Cachemap | undefined*
 
@@ -56,7 +56,7 @@ Name | Type |
 
 ▸ **createShortcut**(`name`: string, `path`: string, `__namedParameters`: object): *void*
 
-*Defined in [src/main.ts:134](https://github.com/badbatch/getta/blob/addf14c/src/main.ts#L134)*
+*Defined in [src/main.ts:134](https://github.com/badbatch/getta/blob/3c4fcfd/src/main.ts#L134)*
 
 **Parameters:**
 
@@ -69,7 +69,7 @@ Name | Type |
 Name | Type |
 ------ | ------ |
 `method` | "get" &#124; "post" &#124; "put" &#124; "delete" |
-`rest` | rest |
+`otherOptions` | otherOptions |
 
 **Returns:** *void*
 
@@ -79,7 +79,7 @@ ___
 
 ▸ **delete**(`path`: string, `options`: Omit‹[RequestOptions](../interfaces/requestoptions.md), "method"›, `context?`: PlainObject): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
-*Defined in [src/main.ts:145](https://github.com/badbatch/getta/blob/addf14c/src/main.ts#L145)*
+*Defined in [src/main.ts:150](https://github.com/badbatch/getta/blob/3c4fcfd/src/main.ts#L150)*
 
 **Parameters:**
 
@@ -97,7 +97,7 @@ ___
 
 ▸ **get**(`path`: string, `options`: Omit‹[RequestOptions](../interfaces/requestoptions.md), "method"›, `context?`: PlainObject): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject› | object›*
 
-*Defined in [src/main.ts:149](https://github.com/badbatch/getta/blob/addf14c/src/main.ts#L149)*
+*Defined in [src/main.ts:154](https://github.com/badbatch/getta/blob/3c4fcfd/src/main.ts#L154)*
 
 **Parameters:**
 
@@ -115,7 +115,7 @@ ___
 
 ▸ **post**(`path`: string, `options`: Omit‹Required‹[RequestOptions](../interfaces/requestoptions.md), "body"›, "method"›, `context?`: PlainObject): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
-*Defined in [src/main.ts:153](https://github.com/badbatch/getta/blob/addf14c/src/main.ts#L153)*
+*Defined in [src/main.ts:158](https://github.com/badbatch/getta/blob/3c4fcfd/src/main.ts#L158)*
 
 **Parameters:**
 
@@ -133,7 +133,7 @@ ___
 
 ▸ **put**(`path`: string, `options`: Omit‹Required‹[RequestOptions](../interfaces/requestoptions.md), "body"›, "methood"›, `context?`: PlainObject): *Promise‹[FetchResponse](../interfaces/fetchresponse.md)‹PlainObject››*
 
-*Defined in [src/main.ts:157](https://github.com/badbatch/getta/blob/addf14c/src/main.ts#L157)*
+*Defined in [src/main.ts:162](https://github.com/badbatch/getta/blob/3c4fcfd/src/main.ts#L162)*
 
 **Parameters:**
 

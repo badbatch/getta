@@ -1,3 +1,9 @@
+#### 0.4.3 (2022-11-15)
+
+##### Bug Fixes
+
+*  await promise to catch error ([201e04c7](https://github.com/badbatch/getta/commit/201e04c765cd447efbd8a54cb87f65c019d76bfb))
+
 #### 0.4.2 (2022-10-25)
 
 ##### Bug Fixes

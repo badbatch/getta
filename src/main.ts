@@ -245,7 +245,7 @@ export class Getta {
 
     try {
       const { redirects, retries, ...rest } = options;
-      return new Promise(async (resolve: (value: FetchResponse) => void, reject) => {
+      return await new Promise(async (resolve: (value: FetchResponse) => void, reject) => {
         const fetchTimer = setTimeout(() => {
           reject(new Error(`${FETCH_TIMEOUT_ERROR} ${this._fetchTimeout}ms.`));
         }, this._fetchTimeout);

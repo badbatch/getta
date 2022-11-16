@@ -1,3 +1,9 @@
+#### 0.4.4 (2022-11-16)
+
+##### Bug Fixes
+
+*  clear timeout timer when request added to rate limit queue ([51b6e0af](https://github.com/badbatch/getta/commit/51b6e0aff926a2e62cafc31a0d9f526daf05fff2))
+
 #### 0.4.3 (2022-11-15)
 
 ##### Bug Fixes

@@ -253,6 +253,7 @@ export class Getta {
         this._rateLimit();
 
         if (!(this._rateLimitCount < this._rateLimitPerSecond)) {
+          clearTimeout(fetchTimer);
           resolve(await this._addRequestToRateLimitedQueue(endpoint, options, context));
           return;
         }

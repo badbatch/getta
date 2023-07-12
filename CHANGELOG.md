@@ -1,3 +1,9 @@
+#### 0.4.5 (2023-07-12)
+
+##### Bug Fixes
+
+*  move peers to deps ([317b60c4](https://github.com/badbatch/getta/commit/317b60c46ec2628e04e90c6343372a3a54069c0f))
+
 #### 0.4.4 (2022-11-16)
 
 ##### Bug Fixes

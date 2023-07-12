@@ -53,7 +53,9 @@
     }
   },
   "dependencies": {
-    "@cachemap/core": "4.0.0",
+    "@cachemap/core": "^4.0.1",
+    "@repodog/constants": "^0.3.29",
+    "@repodog/helpers": "^0.3.27",
     "@repodog/types": "^0.3.26",
     "@types/md5": "^2.1.33",
     "cacheability": "^3.0.1",
@@ -62,8 +64,6 @@
   },
   "peerDependencies": {
     "@babel/runtime": "< 8",
-    "@repodog/constants": "< 1",
-    "@repodog/helpers": "< 1",
     "core-js": "< 4",
     "isomorphic-fetch": "< 3",
     "lodash": "< 5"
@@ -100,7 +100,6 @@
     "@repodog/config-helpers": "^0.3.30",
     "@repodog/constants": "^0.3.29",
     "@repodog/eslint-config": "^0.3.26",
-    "@repodog/helpers": "^0.3.27",
     "@repodog/jest-config": "^0.3.31",
     "@repodog/markdownlint-config": "^0.3.24",
     "@repodog/new-repo": "^0.3.38",

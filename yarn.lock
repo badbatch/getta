@@ -1025,10 +1025,10 @@
   dependencies:
     eventemitter3 "4.0.7"
 
-"@cachemap/core@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@cachemap/core/-/core-4.0.0.tgz#8e185c80f6dcb8b60a6f7d5ad04c5c457471925e"
-  integrity sha512-/t6qjJiQ6dHGeam5BFfoMnsHkgp4EOxyKmAniX7wImJYtZwXP6F0xSZ8Aw+GafUsdooLPWu+QxVIXSDdBiRQnQ==
+"@cachemap/core@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@cachemap/core/-/core-4.0.1.tgz#b7ccd6eb214d2badab4ea3930225d706304506b6"
+  integrity sha512-GfflgOpQ6rl9Xtirzd9jjbhRq5ss+qnd05/lWpWAhHC9N9380dKz0xRBBbeykyfO7sYuUZj+zzDw8oKTlCx94A==
   dependencies:
     cacheability "^3.0.1"
     crypto-js "^4.0.0"

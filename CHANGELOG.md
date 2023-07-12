@@ -1,3 +1,9 @@
+#### 0.4.6 (2023-07-12)
+
+##### Refactors
+
+*  change lib default export to nameed ([389830fa](https://github.com/badbatch/getta/commit/389830faab370064f69b80a28b34fd2bcbe8cd52))
+
 #### 0.4.5 (2023-07-12)
 
 ##### Bug Fixes

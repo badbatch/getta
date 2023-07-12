@@ -28,7 +28,7 @@ import {
   RESOURCE_NOT_FOUND_ERROR,
 } from "./constants";
 import delay from "./helpers/delay";
-import createRestClient, { Getta } from "./main";
+import { Getta, createRestClient } from "./main";
 import { ResponseDataWithErrors, ShortcutProperties } from "./types";
 
 describe("Getta", () => {

@@ -529,7 +529,7 @@ export class Getta {
   }
 }
 
-export default function createRestClient<N extends string>(options: ConstructorOptions, shortcuts?: Shortcuts) {
+export const createRestClient = <N extends string>(options: ConstructorOptions, shortcuts?: Shortcuts) => {
   const getta = new Getta(options) as Getta & ShortcutProperties<N>;
   if (!shortcuts) return getta;
 
@@ -538,4 +538,4 @@ export default function createRestClient<N extends string>(options: ConstructorO
   });
 
   return getta;
-}
+};

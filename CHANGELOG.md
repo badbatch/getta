@@ -1,3 +1,9 @@
+#### 0.4.7 (2023-08-13)
+
+##### Bug Fixes
+
+*  output mjs files for module ([de027423](https://github.com/badbatch/getta/commit/de027423088da3a47346ef9c837f96481a04924b))
+
 #### 0.4.6 (2023-07-12)
 
 ##### Refactors

@@ -18,4 +18,4 @@
 
 • **resolve**: *[PendingRequestResolver](../README.md#pendingrequestresolver)*
 
-*Defined in [src/types.ts:75](https://github.com/badbatch/getta/blob/389830f/src/types.ts#L75)*
+*Defined in [src/types.ts:75](https://github.com/badbatch/getta/blob/de02742/src/types.ts#L75)*

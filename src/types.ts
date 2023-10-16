@@ -1,22 +1,28 @@
-import Cachemap from "@cachemap/core";
-import { Func, PlainObject, StringObject } from "@repodog/types";
-import { Required } from "utility-types";
+import { type Core } from '@cachemap/core';
+import type { SetRequired } from 'type-fest';
 
-export type FetchMethod = "get" | "post" | "put" | "delete";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type PlainObject = Record<string, any>;
 
-export type StreamReader = "arrayBuffer" | "blob" | "formData" | "json" | "text";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Func = (...args: any[]) => any;
+
+export type FetchMethod = 'get' | 'post' | 'put' | 'delete';
+
+export type StreamReader = 'arrayBuffer' | 'blob' | 'formData' | 'json' | 'text';
 
 export type ShortcutProperties<T extends string | number> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [K in T]: <Resource = PlainObject>(...args: any[]) => Promise<FetchResponse<Resource>>;
 };
 
 export interface ConstructorOptions {
   basePath: string;
   bodyParser?: Func;
-  cache?: Cachemap;
+  cache?: Core;
   enableConditionalRequests?: boolean;
   fetchTimeout?: number;
-  headers?: StringObject;
+  headers?: Record<string, string>;
   log?: Log;
   maxRedirects?: number;
   maxRetries?: number;
@@ -25,6 +31,7 @@ export interface ConstructorOptions {
   pathTemplateRegExp?: RegExp;
   performance: Performance;
   queryParams?: PlainObject;
+  rateLimit?: boolean;
   rateLimitPerSecond?: number;
   requestRetryWait?: number;
   streamReader?: StreamReader;
@@ -32,7 +39,7 @@ export interface ConstructorOptions {
 
 export interface FetchOptions {
   body?: BodyInit;
-  headers: StringObject;
+  headers: Record<string, string>;
   method: FetchMethod;
   redirects?: number;
   retries?: number;
@@ -46,7 +53,7 @@ export interface FetchRedirectHandlerOptions extends FetchOptions {
 
 export type Log = (message: string, data: PlainObject, logLevel?: LogLevel) => void;
 
-export type LogLevel = "error" | "warn" | "info" | "http" | "verbose" | "debug" | "silly";
+export type LogLevel = 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly';
 
 export interface Performance {
   now(): number;
@@ -54,9 +61,9 @@ export interface Performance {
 
 export interface RequestOptions {
   body?: BodyInit;
-  headers?: StringObject;
+  headers?: Record<string, string>;
   method?: FetchMethod;
-  pathTemplateData?: StringObject;
+  pathTemplateData?: Record<string, string>;
   queryParams?: PlainObject;
 }
 
@@ -67,9 +74,9 @@ export interface ResponseDataWithErrors<Resource = PlainObject> {
   errors?: Error[];
 }
 
-export type PathTemplateCallback = (path: string, data: StringObject, pathTemplateRegExp: RegExp) => string;
+export type PathTemplateCallback = (path: string, data: Record<string, string>, pathTemplateRegExp: RegExp) => string;
 
-export type PendingRequestResolver = (value: FetchResponse<PlainObject>) => void;
+export type PendingRequestResolver = (value: FetchResponse) => void;
 
 export interface PendingRequestResolvers {
   resolve: PendingRequestResolver;
@@ -80,6 +87,8 @@ export interface RequestTracker {
   pending: Map<string, PendingRequestResolvers[]>;
 }
 
-export interface Shortcuts {
-  [key: string]: [string, Required<RequestOptions, "method">];
-}
+export type Shortcuts = Record<string, [string, SetRequired<RequestOptions, 'method'>]>;
+
+export type Context = {
+  startTime?: number;
+};

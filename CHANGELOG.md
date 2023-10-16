@@ -1,3 +1,15 @@
+#### 1.0.0 (2023-10-16)
+
+##### Documentation Changes
+
+*  update readme (e753cd34)
+*  add usage guide (f1e85ec7)
+*  minor readme update (911d95c3)
+
+##### New Features
+
+*  move code and tests to esm (272357a1)
+
 #### 0.4.7 (2023-08-13)
 
 ##### Bug Fixes

@@ -14,7 +14,7 @@ npm add getta
 
 ## Usage
 
-You create an instance of the rest client with the `createRestClient` function. The function takes numerous options, including the base path of the url for all requests, cache for caching responses against the request, and performance module to use for recording request durations. The full list of the options are detailed below.
+You create an instance of the rest client with the `createRestClient` function. The function takes numerous options, including the base path of the url for all requests, a cache for caching responses against the request, and a performance module to use for recording request durations. The full list of the options are detailed below.
 
 ```typescript
 import { Core } from '@cachemap/core';
@@ -45,15 +45,15 @@ An optional callback to pass each response body through after it has been parsed
 
 **cache?: `Core`**
 
-An instance of the @cachemap/core cache for caching responses against the request. Caching is only enabled on GET requests. For more info on @cachemap/core see <https://github.com/badbatch/cachemap>.
+An instance of the @cachemap/core cache for caching responses against requests. Caching is only enabled on `GET` requests. For more info on @cachemap/core see <https://github.com/badbatch/cachemap>.
 
 **enableConditionalRequests?: `boolean`**
 
-Enables conditional requests with If-None-Match header. Default is true.
+Enables conditional requests with If-None-Match header. Default is `true`.
 
 **fetchTimeout?: `number`**
 
-How long to wait for a request to respond before timing out and returning an error. Default is 5000.
+How long to wait for a request to respond before timing out and returning an error. Default is `5000`.
 
 **headers?: `Record<string, string>`**
 
@@ -65,11 +65,11 @@ Log function to pass rest client logs to a logger.
 
 **maxRedirects?: `number`**
 
-The maximum number of times a request can redirect before the rest client returns an error. Default is 5.
+The maximum number of times a request can redirect before the rest client returns an error. Default is `5`.
 
 **maxRetries?: `number`**
 
-The maximum number of times a request can retry before the rest client returns an error. Default is 3.
+The maximum number of times a request can retry before the rest client returns an error. Default is `3`.
 
 **optionalPathTemplateRegExp?: `RegExp`**
 
@@ -97,19 +97,19 @@ Whether to enable the rate limit feature.
 
 **rateLimitPerSecond?: `number`**
 
-How many requests per second to throttle the rest client. Default is 50.
+How many requests per second to throttle the rest client. Default is `50`.
 
 **requestRetryWait?: `number`**
 
-How many milliseconds to wait before retrying a request. Default is 100.
+How many milliseconds to wait before retrying a request. Default is `100`.
 
 **streamReader?: `'arrayBuffer' | 'blob' | 'formData' | 'json' | 'text'`**
 
-The stream reader to use when parsing the response body. Default is 'json'.
+The stream reader to use when parsing the response body. Default is `'json'`.
 
 ### Making reqeusts
 
-The rest client supports GET, POST, PUT and DELETE methods and has methods for each method.
+The rest client supports `GET`, `POST`, `PUT` and `DELETE` methods and has functions for each method.
 
 ```typescript
 const pathTemplate = '/direct/rest/content/catalog/{type}/{id,+}?format={brief|standard}';
@@ -137,7 +137,7 @@ const deleteResponse = await restClient.delete(pathTemplate, { pathTemplateData 
 
 **body?: `ReadableStream | Blob | BufferSource | FormData | URLSearchParams | string`**
 
-For POST and PUT methods, the body to send with the request.
+For `POST` and `PUT` methods, the body to send with the request.
 
 **headers?: `Record<string, string>`**
 

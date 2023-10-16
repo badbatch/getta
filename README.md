@@ -11,15 +11,18 @@ An isomorphic rest client based on the Fetch API.
 You can install Getta with the command below.
 
 ```shell
-yarn add getta
+npm add getta
 ```
 
-The library depends on isomorphic-fetch, so this will also need to be installed in your project,
-along with core-js, @babel/runtime and lodash.
+The library depends on core-js, @babel/runtime and lodash-es.
 
 ```shell
-yarn add isomorphic-fetch core-js @babel/runtime lodash
+npm add core-js @babel/runtime lodash-es
 ```
+
+## Usage
+
+// TODO
 
 ## Changelog
 

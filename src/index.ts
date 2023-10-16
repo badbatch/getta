@@ -1,4 +1,4 @@
-export * from "./constants";
-export { default as defaultPathTemplateCallback } from "./helpers/default-path-template-callback";
-export { Getta, createRestClient } from "./main";
-export * from "./types";
+export * from './constants.ts';
+export { defaultPathTemplateCallback } from './helpers/defaultPathTemplateCallback/index.ts';
+export { Getta, createRestClient } from './main.ts';
+export * from './types.ts';

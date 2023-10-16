@@ -56,7 +56,7 @@
     "defaultSku": {
       "defaultImage": {
         "mediaType": "Large",
-        "src": "https://tesco.scene7.com/is/image/tesco/136-7317_PI_66650MN?$[preset]$",
+        "src": "https://example.scene7.com/is/image/example/136-7317_PI_66650MN?$[preset]$",
         "renderSource": "Scene 7",
         "defaultImage": true
       }

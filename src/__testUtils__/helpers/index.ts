@@ -6,7 +6,7 @@ import { defaultPathTemplateCallback } from '../../helpers/defaultPathTemplateCa
 import { OPTIONAL_PATH_TEMPLATE_REGEX } from '../../index.ts';
 import { type RequestOptions } from '../../types.ts';
 
-export const basePath = 'https://tesco.com';
+export const basePath = 'https://example.com';
 
 export const defaultPath = '/direct/rest/content/catalog/{type}/{id,+}?format={brief|standard}';
 

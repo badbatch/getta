@@ -1,3 +1,9 @@
+#### 1.0.1 (2023-10-17)
+
+##### Documentation Changes
+
+*  minor readme update (054450db)
+
 #### 1.0.0 (2023-10-16)
 
 ##### Documentation Changes

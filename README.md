@@ -109,14 +109,11 @@ The stream reader to use when parsing the response body. Default is `'json'`.
 
 ### Making reqeusts
 
-The rest client supports `GET`, `POST`, `PUT` and `DELETE` methods and has functions for each method.
+The rest client supports `GET`, `POST`, `PUT` and `DELETE` methods and has functions for each method. The first argument is the path to make the request to. This can also be a path template with variable placeholders that will be replaced with data passed in on the `pathTemplateData` request option.
 
 ```typescript
-const pathTemplate = '/direct/rest/content/catalog/{type}/{id,+}?format={brief|standard}';
-const pathTemplateData = { 'brief|standard': 'standard', 'id,+': '136-7317', type: 'product' };
-
 // GET
-const getResponse = await restClient.get(pathTemplate, { pathTemplateData });
+const getResponse = await restClient.get('/path/to/resource');
 
 // POST
 const postResponse = await restClient.post('/graphql/api', {
@@ -124,13 +121,12 @@ const postResponse = await restClient.post('/graphql/api', {
 });
 
 // PUT
-const putResponse = await restClient.put(pathTemplate, {
+const putResponse = await restClient.put('/path/to/resource', {
   body: JSON.stringify({ /* payload */  }),
-  pathTemplateData,
 });
 
 // DELETE
-const deleteResponse = await restClient.delete(pathTemplate, { pathTemplateData });
+const deleteResponse = await restClient.delete('/path/to/resource');
 ```
 
 ### Request options

@@ -57,7 +57,7 @@ specifiers:
   eslint-plugin-sort-keys-fix: ^1.1.2
   eslint-plugin-typescript-sort-keys: ^2.3.0
   eslint-plugin-unicorn: ^46.0.1
-  fetch-mocked: ^0.0.3
+  fetch-mocked: ^0.0.4
   generate-changelog: ^1.8.0
   husky: ^8.0.3
   identity-obj-proxy: ^3.0.0
@@ -143,7 +143,7 @@ devDependencies:
   eslint-plugin-sort-keys-fix: 1.1.2
   eslint-plugin-typescript-sort-keys: 2.3.0_y7fkf225hchdbz2g5gijiclu6y
   eslint-plugin-unicorn: 46.0.1_eslint@8.51.0
-  fetch-mocked: 0.0.3_yw3nxx6wbkfxbcdl5jzmniii54
+  fetch-mocked: 0.0.4_tqnsip54ch3phpg35dtcec6dli
   generate-changelog: 1.8.0
   husky: 8.0.3
   identity-obj-proxy: 3.0.0
@@ -5020,16 +5020,18 @@ packages:
       web-streams-polyfill: 3.2.1
     dev: true
 
-  /fetch-mocked/0.0.3_yw3nxx6wbkfxbcdl5jzmniii54:
-    resolution: {integrity: sha512-RSE180gFkh2I5Jx5t8FvHMAs6bQfn2t+//2X3Dc83nxfZGsoXlgl554eoPeoTzX+Xqf5kQ4Fa0HljtzYtMmX0A==}
+  /fetch-mocked/0.0.4_tqnsip54ch3phpg35dtcec6dli:
+    resolution: {integrity: sha512-Lmaq4hoKvfdTDDSzpvEmpQsCN/T0/aMmxltcH/TCH7hYN/sWy4sqMIfharG39aJVWcWR95GU0QRhApiYrpPPzw==}
     peerDependencies:
       '@babel/runtime': <8
       core-js: <4
       lodash-es: <5
+      node-fetch: <4
     dependencies:
       '@babel/runtime': 7.23.2
       core-js: 3.33.0
       lodash-es: 4.17.21
+      node-fetch: 3.3.2
       zod: 3.22.4
     dev: true
 

@@ -122,7 +122,7 @@ const postResponse = await restClient.post('/graphql/api', {
 
 // PUT
 const putResponse = await restClient.put('/path/to/resource', {
-  body: JSON.stringify({ /* payload */  }),
+  body: JSON.stringify({ /* payload */ }),
 });
 
 // DELETE

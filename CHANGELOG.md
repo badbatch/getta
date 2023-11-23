@@ -1,3 +1,23 @@
+#### 1.0.2 (2023-11-23)
+
+##### Chores
+
+*  upgrade dep (ca9dfece)
+*  bump version of fetch-mocked (ed77ccad)
+* **deps-dev:**  bump crypto-js from 4.1.1 to 4.2.0 (1c9c124e)
+
+##### Documentation Changes
+
+*  whitespace issue (ade8a2c6)
+
+##### New Features
+
+*  move to exports map in package json and upgrade deps (0b779b96)
+
+##### Refactors
+
+*  use node-fetch polyfil from fetch-mocked (f62e959c)
+
 #### 1.0.1 (2023-10-17)
 
 ##### Documentation Changes

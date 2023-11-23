@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { mockFetch } from 'fetch-mocked';
+import { mockFetch, polyfillFetch } from 'fetch-mocked';
 import { performance } from 'node:perf_hooks';
 import { Md5 } from 'ts-md5';
 import { PRD_136_7317 } from './__testUtils__/data/index.ts';
@@ -21,6 +21,7 @@ import { delay } from './helpers/delay/index.ts';
 import { Getta, createRestClient } from './main.ts';
 import { type FetchResponse, type ResponseDataWithErrors, type ShortcutProperties } from './types.ts';
 
+polyfillFetch();
 const mockedFetch = mockFetch(jest.fn);
 
 describe('Getta', () => {

@@ -1,3 +1,9 @@
+#### 1.0.3 (2023-12-17)
+
+##### Refactors
+
+*  improve cjs support (bafe2760)
+
 #### 1.0.2 (2023-11-23)
 
 ##### Chores

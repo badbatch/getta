@@ -107,7 +107,7 @@ How many milliseconds to wait before retrying a request. Default is `100`.
 
 The stream reader to use when parsing the response body. Default is `'json'`.
 
-### Making reqeusts
+### Making requests
 
 The rest client supports `GET`, `POST`, `PUT` and `DELETE` methods and has functions for each method. The first argument is the path to make the request to. This can also be a path template with variable placeholders that will be replaced with data passed in on the `pathTemplateData` request option.
 

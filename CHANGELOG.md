@@ -1,3 +1,10 @@
+#### 1.0.5 (2024-01-12)
+
+##### Chores
+
+*  upgrade deps (5e9e426f)
+* **deps-dev:**  bump follow-redirects from 1.15.3 to 1.15.4 (59e1ee82)
+
 #### 1.0.4 (2023-12-17)
 
 ##### Bug Fixes

@@ -1,3 +1,9 @@
+#### 1.0.6 (2024-07-13)
+
+##### Bug Fixes
+
+*  not handing falsy values in template data (fbb412d0)
+
 #### 1.0.5 (2024-01-12)
 
 ##### Chores

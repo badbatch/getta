@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.7 (2024-11-04)
+
+### Bug Fixes
+
+* security vulnerabilities (293db74b)
+
+### Refactors
+
+* upgrade repodog deps (d3c64200)
+
 ## 1.0.6 (2024-07-13)
 
 ### Bug Fixes

@@ -38,7 +38,7 @@ export const getCache = () => {
 
 export const buildTestEndpoint = (
   path: string,
-  { pathTemplateData = defaultPathTemplateData, queryParams }: RequestOptions = {}
+  { pathTemplateData = defaultPathTemplateData, queryParams }: RequestOptions = {},
 ) =>
   buildEndpoint(basePath, path, {
     optionalPathTemplateRegExp: OPTIONAL_PATH_TEMPLATE_REGEX,

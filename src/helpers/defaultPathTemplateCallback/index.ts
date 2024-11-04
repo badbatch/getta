@@ -1,7 +1,7 @@
 export const defaultPathTemplateCallback = (
   pathTemplate: string,
   data: Record<string, string | number | boolean>,
-  pathTemplateRegExp: RegExp
+  pathTemplateRegExp: RegExp,
 ) => {
   const dataKeys = Object.keys(data);
 

@@ -10,7 +10,7 @@ export const buildEndpoint = (
     pathTemplateData,
     pathTemplateRegExp,
     queryParams,
-  }: BuildEndpointOptions
+  }: BuildEndpointOptions,
 ) => {
   const pathJoiner = basePath.endsWith('/') || path.startsWith('/') ? '' : '/';
   let endpoint = `${basePath}${pathJoiner}${path}`;

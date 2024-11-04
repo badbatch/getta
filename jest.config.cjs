@@ -1,6 +1,7 @@
-const config = require('@repodog/jest-config');
+const jestConfig = require('@repodog/jest-config');
+const swcConfig = require('@repodog/swc-config');
 
 module.exports = {
-  ...config,
+  ...jestConfig({ compilerOptions: swcConfig }),
   setupFilesAfterEnv: ['./node_modules/fetch-mocked/testSetup.mjs'],
 };

@@ -50,7 +50,7 @@ describe('Getta', () => {
               pathTemplateData: pathTemplateDataWithoutID,
             },
           ],
-        }
+        },
       );
     });
 
@@ -76,7 +76,7 @@ describe('Getta', () => {
         expect(response).toEqual(
           expect.objectContaining({
             data: PRD_136_7317.body,
-          })
+          }),
         );
       });
     });
@@ -99,7 +99,7 @@ describe('Getta', () => {
         expect(response).toEqual(
           expect.objectContaining({
             data: PRD_136_7317.body,
-          })
+          }),
         );
       });
     });
@@ -125,7 +125,7 @@ describe('Getta', () => {
           expect(response).toEqual(
             expect.objectContaining({
               data: PRD_136_7317.body,
-            })
+            }),
           );
         });
       });
@@ -146,7 +146,7 @@ describe('Getta', () => {
           beforeEach(async () => {
             mockedFetch.mockGetOnce(
               { headers: { [consts.IF_NONE_MATCH_HEADER]: defaultEtag }, url: buildTestEndpoint(defaultPath) },
-              { headers: defaultHeaders, status: 304 }
+              { headers: defaultHeaders, status: 304 },
             );
 
             response = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
@@ -160,7 +160,7 @@ describe('Getta', () => {
             expect(response).toEqual(
               expect.objectContaining({
                 data: PRD_136_7317.body,
-              })
+              }),
             );
           });
         });
@@ -169,7 +169,7 @@ describe('Getta', () => {
           beforeEach(async () => {
             mockedFetch.mockGetOnce(
               { headers: { [consts.IF_NONE_MATCH_HEADER]: defaultEtag }, url: buildTestEndpoint(defaultPath) },
-              { body: PRD_136_7317.body, headers: defaultHeaders }
+              { body: PRD_136_7317.body, headers: defaultHeaders },
             );
 
             response = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
@@ -183,7 +183,7 @@ describe('Getta', () => {
             expect(response).toEqual(
               expect.objectContaining({
                 data: PRD_136_7317.body,
-              })
+              }),
             );
           });
         });
@@ -192,7 +192,7 @@ describe('Getta', () => {
           beforeEach(async () => {
             mockedFetch.mockGetOnce(
               { headers: { [consts.IF_NONE_MATCH_HEADER]: defaultEtag }, url: buildTestEndpoint(defaultPath) },
-              { status: 404 }
+              { status: 404 },
             );
 
             response = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
@@ -206,7 +206,7 @@ describe('Getta', () => {
             expect(response).toEqual(
               expect.objectContaining({
                 errors: [new Error(consts.RESOURCE_NOT_FOUND_ERROR)],
-              })
+              }),
             );
           });
         });
@@ -219,7 +219,7 @@ describe('Getta', () => {
       beforeEach(async () => {
         mockedFetch.mockGet(
           { headers: { [consts.COOKIE_HEADER]: REDIRECT_COOKIE_FLAG }, url: '*' },
-          { headers: { ...defaultHeaders, [consts.LOCATION_HEADER]: basePath }, status: 301 }
+          { headers: { ...defaultHeaders, [consts.LOCATION_HEADER]: basePath }, status: 301 },
         );
 
         response = await restClient.getProduct({
@@ -236,7 +236,7 @@ describe('Getta', () => {
         expect(response).toEqual(
           expect.objectContaining({
             errors: [new Error(`${consts.MAX_REDIRECTS_EXCEEDED_ERROR} 5.`)],
-          })
+          }),
         );
       });
     });
@@ -247,7 +247,7 @@ describe('Getta', () => {
       beforeEach(async () => {
         mockedFetch.mockGet(
           { headers: { [consts.COOKIE_HEADER]: RETRY_COOKIE_FLAG }, url: buildTestEndpoint(defaultPath) },
-          { body: PRD_136_7317.body, status: 500 }
+          { body: PRD_136_7317.body, status: 500 },
         );
 
         response = await restClient.getProduct({
@@ -264,7 +264,7 @@ describe('Getta', () => {
         expect(response).toEqual(
           expect.objectContaining({
             errors: [new Error(`${consts.MAX_RETRIES_EXCEEDED_ERROR} 3.`)],
-          })
+          }),
         );
       });
     });
@@ -314,7 +314,7 @@ describe('Getta', () => {
         expect(response).toEqual(
           expect.objectContaining({
             errors: [new Error(`${consts.FETCH_TIMEOUT_ERROR} 100ms.`)],
-          })
+          }),
         );
       });
     });
@@ -334,7 +334,7 @@ describe('Getta', () => {
               method: consts.POST_METHOD,
             },
           ],
-        }
+        },
       );
     });
 
@@ -346,7 +346,7 @@ describe('Getta', () => {
       beforeEach(async () => {
         mockedFetch.mockPostOnce(
           { body: { mock: true }, url: buildTestEndpoint(graphqlPath) },
-          { body: PRD_136_7317.body, headers: defaultHeaders }
+          { body: PRD_136_7317.body, headers: defaultHeaders },
         );
 
         response = await restClient.post(graphqlPath, {
@@ -362,7 +362,7 @@ describe('Getta', () => {
         expect(response).toEqual(
           expect.objectContaining({
             data: PRD_136_7317.body,
-          })
+          }),
         );
       });
     });
@@ -371,7 +371,7 @@ describe('Getta', () => {
       beforeEach(async () => {
         mockedFetch.mockPostOnce(
           { body: { mock: true }, url: buildTestEndpoint(graphqlPath) },
-          { body: PRD_136_7317.body, headers: defaultHeaders }
+          { body: PRD_136_7317.body, headers: defaultHeaders },
         );
 
         response = await restClient.postProduct({ body: JSON.stringify({ ...defaultPayload, mock: true }) });
@@ -385,7 +385,7 @@ describe('Getta', () => {
         expect(response).toEqual(
           expect.objectContaining({
             data: PRD_136_7317.body,
-          })
+          }),
         );
       });
     });
@@ -406,7 +406,7 @@ describe('Getta', () => {
               pathTemplateData: pathTemplateDataWithoutID,
             },
           ],
-        }
+        },
       );
     });
 
@@ -486,7 +486,7 @@ describe('Getta', () => {
               pathTemplateData: pathTemplateDataWithoutID,
             },
           ],
-        }
+        },
       );
     });
 
@@ -551,12 +551,15 @@ describe('Getta', () => {
         const requestKeys = [...Array.from({ length: 55 }).keys()];
 
         for (const key of requestKeys) {
-          mockedFetch.mockGetOnce(buildTestEndpoint(`product/${key}`));
+          mockedFetch.mockGetOnce(buildTestEndpoint(`product/${String(key)}`));
         }
 
         // @ts-expect-error property is private
         restClient._addRequestToRateLimitedQueue = jest.fn().mockResolvedValue({ status: 200 });
-        await Promise.all(requestKeys.map(key => restClient.get(`product/${key}`, { headers: defaultHeaders })));
+
+        await Promise.all(
+          requestKeys.map(key => restClient.get(`product/${String(key)}`, { headers: defaultHeaders })),
+        );
       });
 
       it('should call fetch one less than the rate limit', () => {

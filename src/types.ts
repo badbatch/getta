@@ -1,5 +1,5 @@
 import { type Core } from '@cachemap/core';
-import type { SetRequired } from 'type-fest';
+import { type SetRequired } from 'type-fest';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type PlainObject = Record<string, any>;
@@ -11,10 +11,12 @@ export type FetchMethod = 'get' | 'post' | 'put' | 'delete';
 
 export type StreamReader = 'arrayBuffer' | 'blob' | 'formData' | 'json' | 'text';
 
-export type ShortcutProperties<T extends string | number> = {
+export type ShortcutProperties<T extends string | number> = Record<
+  T,
+  // Want to keep this as generic as possible.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [K in T]: <Resource = PlainObject>(...args: any[]) => Promise<FetchResponse<Resource>>;
-};
+  <Resource = PlainObject>(...args: any[]) => Promise<FetchResponse<Resource>>
+>;
 
 export interface ConstructorOptions {
   /**

@@ -2,7 +2,7 @@ import { type CacheHeaders, type Core } from '@cachemap/core';
 import { type Cacheability } from 'cacheability';
 import { castArray, merge } from 'lodash-es';
 import { Md5 } from 'ts-md5';
-import type { SetRequired } from 'type-fest';
+import { type SetRequired } from 'type-fest';
 import * as consts from './constants.ts';
 import { buildEndpoint } from './helpers/buildEndpoint/index.ts';
 import { defaultPathTemplateCallback } from './helpers/defaultPathTemplateCallback/index.ts';
@@ -107,7 +107,7 @@ export class Getta {
   public createShortcut(
     name: string,
     path: string,
-    { method, ...otherOptions }: SetRequired<RequestOptions, 'method'>
+    { method, ...otherOptions }: SetRequired<RequestOptions, 'method'>,
   ) {
     if (!consts.FETCH_METHODS.includes(method)) {
       throw new Error(`${consts.INVALID_FETCH_METHOD_ERROR} ${method}`);
@@ -116,9 +116,11 @@ export class Getta {
     // @ts-expect-error No index signature with a parameter of type 'string'
     this[name] = async <Resource extends PlainObject>(
       { method: requestMethod, ...otherOptionOverrides }: RequestOptions = {},
-      context?: Context
+      context?: Context,
     ) =>
       // @ts-expect-error Type 'undefined' is not assignable to type 'BodyInit'
+      // To generic and complex to type without casting.
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       this[requestMethod ?? method](path, merge({}, otherOptions, otherOptionOverrides), context) as Promise<
         FetchResponse<Resource>
       >;
@@ -185,7 +187,7 @@ export class Getta {
   private async _delete(
     path: string,
     { headers = {}, pathTemplateData, queryParams = {}, ...rest }: Omit<RequestOptions, 'method'>,
-    context?: Context
+    context?: Context,
   ) {
     const endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
@@ -209,7 +211,7 @@ export class Getta {
         method: consts.DELETE_METHOD,
         ...rest,
       },
-      context
+      context,
     );
   }
 
@@ -222,7 +224,7 @@ export class Getta {
       return await new Promise<FetchResponse>((resolve, reject) => {
         void (async () => {
           const fetchTimer = setTimeout(() => {
-            reject(new Error(`${consts.FETCH_TIMEOUT_ERROR} ${this._fetchTimeout}ms.`));
+            reject(new Error(`${consts.FETCH_TIMEOUT_ERROR} ${String(this._fetchTimeout)}ms.`));
           }, this._fetchTimeout);
 
           if (this._rateLimit) {
@@ -242,7 +244,9 @@ export class Getta {
             });
           }
 
-          const res = await fetch(endpoint, rest);
+          // Casting as fetch response does not support generics.
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          const res = (await fetch(endpoint, rest)) as FetchResponse;
 
           clearTimeout(fetchTimer);
 
@@ -253,14 +257,16 @@ export class Getta {
             resolve(
               await this._fetchRedirectHandler(
                 res,
+                // Has check above means this cannot be undefined.
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 headers.get(consts.LOCATION_HEADER)!,
                 {
                   redirects,
                   status,
                   ...rest,
                 },
-                context
-              )
+                context,
+              ),
             );
 
             return;
@@ -275,64 +281,66 @@ export class Getta {
                   retries,
                   ...rest,
                 },
-                context
-              )
+                context,
+              ),
             );
 
             return;
           }
 
-          const fetchRes = res as FetchResponse;
-
           try {
-            Object.defineProperty(fetchRes, 'data', {
+            Object.defineProperty(res, 'data', {
               enumerable: true,
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               value: body ? this._bodyParser(await res[this._streamReader]()) : undefined,
               writable: true,
             });
 
-            this._logResponse(fetchRes, endpoint, options, context);
-            resolve(fetchRes);
+            this._logResponse(res, endpoint, options, context);
+            resolve(res);
           } catch (error) {
-            reject([error, new Error(`Unable to ${rest.method} ${endpoint} due to previous error`)]);
+            if (error instanceof Error) {
+              reject(error);
+            } else {
+              reject(new Error(`Unable to ${rest.method} ${endpoint} due to previous error`));
+            }
           }
         })();
       });
     } catch (error) {
-      const fetchRes = { errors: castArray(error) };
-      this._logResponse(fetchRes as FetchResponse, endpoint, options, context);
-      return fetchRes as FetchResponse;
+      // Based on above code, error is gonna be a type of Error.
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      const res = { errors: castArray(error) } as FetchResponse;
+      this._logResponse(res, endpoint, options, context);
+      return res;
     }
   }
 
   private async _fetchRedirectHandler(
-    res: Response,
+    res: FetchResponse,
     endpoint: string,
     options: FetchRedirectHandlerOptions,
-    context: Context
+    context: Context,
   ): Promise<FetchResponse> {
     const { method, redirects = 1, status, ...rest } = options;
 
     if (redirects === this._maxRedirects) {
-      const fetchRes = res as FetchResponse;
-      fetchRes.errors = [new Error(`${consts.MAX_REDIRECTS_EXCEEDED_ERROR} ${this._maxRedirects}.`)];
-      this._logResponse(fetchRes, endpoint, options, context);
-      return fetchRes;
+      res.errors = [new Error(`${consts.MAX_REDIRECTS_EXCEEDED_ERROR} ${String(this._maxRedirects)}.`)];
+      this._logResponse(res, endpoint, options, context);
+      return res;
     }
 
     const redirectMethod = status === 303 ? consts.GET_METHOD : method;
     return this._fetch(endpoint, { method: redirectMethod, redirects: redirects + 1, ...rest });
   }
 
-  private async _fetchRetryHandler(res: Response, endpoint: string, options: FetchOptions, context: Context) {
+  private async _fetchRetryHandler(res: FetchResponse, endpoint: string, options: FetchOptions, context: Context) {
     const { retries = 1, ...rest } = options;
 
     if (retries === this._maxRetries) {
-      const fetchRes = res as FetchResponse;
-      fetchRes.errors = [new Error(`${consts.MAX_RETRIES_EXCEEDED_ERROR} ${this._maxRetries}.`)];
-      this._logResponse(fetchRes, endpoint, options, context);
-      return fetchRes;
+      res.errors = [new Error(`${consts.MAX_RETRIES_EXCEEDED_ERROR} ${String(this._maxRetries)}.`)];
+      this._logResponse(res, endpoint, options, context);
+      return res;
     }
 
     await delay(this._requestRetryWait);
@@ -342,7 +350,7 @@ export class Getta {
   private async _get(
     path: string,
     { headers = {}, pathTemplateData, queryParams = {} }: Omit<RequestOptions, 'method'>,
-    context?: Context
+    context?: Context,
   ) {
     const endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
@@ -376,7 +384,7 @@ export class Getta {
 
     return this._getResolve(
       requestHash,
-      await this._fetch(endpoint, { headers: { ...this._headers, ...headers }, method: consts.GET_METHOD }, context)
+      await this._fetch(endpoint, { headers: { ...this._headers, ...headers }, method: consts.GET_METHOD }, context),
     );
   }
 
@@ -449,7 +457,7 @@ export class Getta {
   private async _request(
     path: string,
     { body, headers, method, pathTemplateData, queryParams, ...rest }: SetRequired<RequestOptions, 'method'>,
-    context?: Context
+    context?: Context,
   ) {
     const endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
@@ -467,7 +475,7 @@ export class Getta {
         method,
         ...rest,
       },
-      context
+      context,
     );
   }
 
@@ -520,6 +528,8 @@ export class Getta {
 }
 
 export const createRestClient = <N extends string>(options: ConstructorOptions, shortcuts?: Shortcuts) => {
+  // Typing proving too complex without casting.
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const getta = new Getta(options) as Getta & ShortcutProperties<N>;
 
   if (!shortcuts) {

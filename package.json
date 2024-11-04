@@ -96,5 +96,13 @@
     "fetch",
     "isomorphic",
     "rest"
-  ]
+  ],
+  "pnpm": {
+    "overrides": {
+      "braces": ">=3.0.3",
+      "ejs": ">=3.1.10",
+      "micromatch": ">=4.0.8",
+      "ws": ">=8.17.1"
+    }
+  }
 }

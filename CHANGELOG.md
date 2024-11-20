@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.8 (2024-11-20)
+
+### Bug Fixes
+
+* remove postinstall script (f4fcdebb)
+
 ## 1.0.7 (2024-11-04)
 
 ### Bug Fixes

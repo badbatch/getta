@@ -33,10 +33,10 @@
     "compile:esm": "rollup -c ./rollup.config.cjs",
     "compile:types": "tsc --project ./tsconfig.build.json && cts-types build dist/types/esm dist/types/cjs",
     "cut:changelog": "changelog",
+    "installActivateMise": "sh shellScripts/installActivateMise.sh",
     "lint": "pnpm run /^lint:.*/",
     "lint:code": "eslint .",
     "lint:docs": "markdownlint-cli2 --config \".markdownlint.json\" \"**/*.md\" \"!**/node_modules/**\"",
-    "postinstall": "sh shellScripts/installActivateMise.sh",
     "prepare": "husky",
     "repodog": "repodog",
     "syncpack": "syncpack format && syncpack list-mismatches && syncpack lint-semver-ranges",
@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@types/lodash-es": "^4.17.12",
-    "cacheability": "^4.0.26",
+    "cacheability": "^4.0.27",
     "core-js": "^3.39.0",
     "lodash-es": "^4.17.21",
     "query-string": "^9.1.1",
@@ -54,8 +54,8 @@
     "type-fest": "^4.26.1"
   },
   "devDependencies": {
-    "@cachemap/core": "^5.2.0",
-    "@cachemap/map": "^5.0.6",
+    "@cachemap/core": "^5.2.2",
+    "@cachemap/map": "^5.0.8",
     "@commitlint/cli": "^19.5.0",
     "@jest/globals": "^29.7.0",
     "@repodog/cli": "^1.6.36",

@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.9 (2025-04-11)
+
+### Chores
+
+* **deps:**
+  * bump serialize-javascript in the npm_and_yarn group (6940b579)
+  * bump cross-spawn in the npm_and_yarn group (4765be45)
+  * bump @eslint/plugin-kit in the npm_and_yarn group (1d03204c)
+
+### New Features
+
+* improve request logging (e27885e4)
+
 ## 1.0.8 (2024-11-20)
 
 ### Bug Fixes

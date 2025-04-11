@@ -444,7 +444,7 @@ export class Getta {
   }
 
   private _logResponse(res: FetchResponse, endpoint: string, options: FetchOptions, context: Context) {
-    const { data, errors, headers, status } = res;
+    const { headers, status } = res;
     const { method, redirects, retries } = options;
     const { startTime, ...otherContext } = context;
     const endTime = this._performance.now();
@@ -452,7 +452,6 @@ export class Getta {
 
     this._log?.(consts.RESPONSE_RECEIVED, {
       context: {
-        body: data ? { data } : { errors: errors ?? [] },
         headers,
         method,
         redirects,

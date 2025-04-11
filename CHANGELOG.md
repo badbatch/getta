@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.10 (2025-04-11)
+
+### Bug Fixes
+
+* remove body from log (f7586d1b)
+* vulnerability (c178e7bf)
+
 ## 1.0.9 (2025-04-11)
 
 ### Chores

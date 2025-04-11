@@ -61,3 +61,5 @@ export const CACHE_CONTROL_HEADER = 'Cache-Control';
 
 export const REQUEST_SENT = 'request_sent';
 export const RESPONSE_RECEIVED = 'response_received';
+export const RESPONSE_FROM_CACHE = 'response_from_cache';
+export const REQUEST_FAILED = 'request_failed';

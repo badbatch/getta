@@ -308,11 +308,17 @@ export class Getta {
         })();
       });
     } catch (error) {
-      // Based on above code, error is gonna be a type of Error.
+      const { startTime, ...rest } = context;
+      const endTime = this._performance.now();
+
+      this._log?.(consts.REQUEST_FAILED, {
+        context: { error, url: endpoint, ...rest },
+        stats: { duration: startTime ? endTime - startTime : 0, endTime, startTime },
+      });
+
+      // Based on above code, error is going to be a type of Error.
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      const res = { errors: castArray(error) } as FetchResponse;
-      this._logResponse(res, endpoint, options, context);
-      return res;
+      return { errors: castArray(error) } as FetchResponse;
     }
   }
 
@@ -365,9 +371,22 @@ export class Getta {
 
     if (cacheability) {
       if (isCacheabilityValid(cacheability)) {
+        const newHeaders = {
+          ...headers,
+          'cache-control': cacheability.printCacheControl(),
+        };
+
+        this._log?.(consts.RESPONSE_FROM_CACHE, {
+          context: {
+            headers: newHeaders,
+            url: endpoint,
+            ...context,
+          },
+        });
+
         return {
           data: await this._cacheEntryGet(requestHash),
-          headers: new Headers({ 'cache-control': cacheability.printCacheControl() }),
+          headers: new Headers(newHeaders),
         };
       }
 

@@ -219,7 +219,7 @@ export class Getta {
     context.startTime = this._performance.now();
 
     try {
-      const { headers: requestHeaders, redirects, retries, ...rest } = options;
+      const { redirects, retries, ...rest } = options;
 
       return await new Promise<FetchResponse>((resolve, reject) => {
         void (async () => {
@@ -240,11 +240,11 @@ export class Getta {
           if (!redirects && !retries) {
             this._log?.(consts.REQUEST_SENT, {
               context: {
+                fetchMethod: rest.method,
                 fetchRedirets: redirects,
+                fetchRequestHeaders: rest.headers,
                 fetchRetries: retries,
                 fetchUrl: endpoint,
-                requestHeaders,
-                ...rest,
                 ...context,
               },
               stats: { startTime: context.startTime },
@@ -253,7 +253,7 @@ export class Getta {
 
           // Casting as fetch response does not support generics.
           // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          const res = (await fetch(endpoint, { ...rest, headers: requestHeaders })) as FetchResponse;
+          const res = (await fetch(endpoint, rest)) as FetchResponse;
 
           clearTimeout(fetchTimer);
 
@@ -268,7 +268,6 @@ export class Getta {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 headers.get(consts.LOCATION_HEADER)!,
                 {
-                  headers: requestHeaders,
                   redirects,
                   status,
                   ...rest,
@@ -286,7 +285,6 @@ export class Getta {
                 res,
                 endpoint,
                 {
-                  headers: requestHeaders,
                   retries,
                   ...rest,
                 },
@@ -461,12 +459,12 @@ export class Getta {
 
     this._log?.(consts.RESPONSE_RECEIVED, {
       context: {
+        fetchMethod: method,
         fetchRedirects: redirects,
+        fetchResponseHeaders: headers,
+        fetchResponseStatus: status,
         fetchRetries: retries,
         fetchUrl: endpoint,
-        method,
-        responseHeaders: headers,
-        status,
         ...otherContext,
       },
       stats: { duration, endTime, startTime },

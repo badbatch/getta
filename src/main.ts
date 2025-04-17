@@ -219,7 +219,7 @@ export class Getta {
     context.startTime = this._performance.now();
 
     try {
-      const { redirects, retries, ...rest } = options;
+      const { headers: requestHeaders, redirects, retries, ...rest } = options;
 
       return await new Promise<FetchResponse>((resolve, reject) => {
         void (async () => {
@@ -239,14 +239,21 @@ export class Getta {
 
           if (!redirects && !retries) {
             this._log?.(consts.REQUEST_SENT, {
-              context: { redirects, retries, url: endpoint, ...rest, ...context },
+              context: {
+                fetchRedirets: redirects,
+                fetchRetries: retries,
+                fetchUrl: endpoint,
+                requestHeaders,
+                ...rest,
+                ...context,
+              },
               stats: { startTime: context.startTime },
             });
           }
 
           // Casting as fetch response does not support generics.
           // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          const res = (await fetch(endpoint, rest)) as FetchResponse;
+          const res = (await fetch(endpoint, { ...rest, headers: requestHeaders })) as FetchResponse;
 
           clearTimeout(fetchTimer);
 
@@ -261,6 +268,7 @@ export class Getta {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 headers.get(consts.LOCATION_HEADER)!,
                 {
+                  headers: requestHeaders,
                   redirects,
                   status,
                   ...rest,
@@ -278,6 +286,7 @@ export class Getta {
                 res,
                 endpoint,
                 {
+                  headers: requestHeaders,
                   retries,
                   ...rest,
                 },
@@ -312,7 +321,7 @@ export class Getta {
       const endTime = this._performance.now();
 
       this._log?.(consts.REQUEST_FAILED, {
-        context: { error, url: endpoint, ...rest },
+        context: { error, fetchUrl: endpoint, ...rest },
         stats: { duration: startTime ? endTime - startTime : 0, endTime, startTime },
       });
 
@@ -452,12 +461,12 @@ export class Getta {
 
     this._log?.(consts.RESPONSE_RECEIVED, {
       context: {
-        headers,
+        fetchRedirects: redirects,
+        fetchRetries: retries,
+        fetchUrl: endpoint,
         method,
-        redirects,
-        retries,
+        responseHeaders: headers,
         status,
-        url: endpoint,
         ...otherContext,
       },
       stats: { duration, endTime, startTime },

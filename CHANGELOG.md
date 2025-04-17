@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.12 (2025-04-17)
+
+### Refactors
+
+* update logging props (7cd67281)
+
 ## 1.0.11 (2025-04-17)
 
 ### Refactors

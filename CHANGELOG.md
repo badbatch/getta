@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.11 (2025-04-17)
+
+### Refactors
+
+* update context data and logging (5571e0fe)
+
 ## 1.0.10 (2025-04-11)
 
 ### Bug Fixes

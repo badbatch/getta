@@ -245,6 +245,7 @@ export class Getta {
                 fetchRequestHeaders: rest.headers,
                 fetchRetries: retries,
                 fetchUrl: endpoint,
+                logEntryName: 'FETCH_REQUEST_SENT',
                 ...context,
               },
               stats: { startTime: context.startTime },
@@ -319,7 +320,7 @@ export class Getta {
       const endTime = this._performance.now();
 
       this._log?.(consts.REQUEST_FAILED, {
-        context: { error, fetchUrl: endpoint, ...rest },
+        context: { error, fetchUrl: endpoint, logEntryName: 'FETCH_REQUEST_FAILED', ...rest },
         stats: { duration: startTime ? endTime - startTime : 0, endTime, startTime },
       });
 
@@ -461,10 +462,11 @@ export class Getta {
       context: {
         fetchMethod: method,
         fetchRedirects: redirects,
-        fetchResponseHeaders: headers,
+        fetchResponseHeaders: Object.fromEntries(headers.entries()),
         fetchResponseStatus: status,
         fetchRetries: retries,
         fetchUrl: endpoint,
+        logEntryName: 'FETCH_RESPONSE_RECEIVED',
         ...otherContext,
       },
       stats: { duration, endTime, startTime },

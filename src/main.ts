@@ -386,8 +386,10 @@ export class Getta {
 
         this._log?.(consts.RESPONSE_FROM_CACHE, {
           context: {
-            headers: newHeaders,
-            url: endpoint,
+            fetchMethod: consts.GET_METHOD,
+            fetchResponseHeaders: newHeaders,
+            fetchUrl: endpoint,
+            logEntryName: 'FETCH_RESPONSE_FROM_CACHE',
             ...context,
           },
         });

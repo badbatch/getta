@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.14 (2025-04-18)
+
+### Bug Fixes
+
+* enrich response from cache log entry (2af15c24)
+
 ## 1.0.13 (2025-04-18)
 
 ### Bug Fixes

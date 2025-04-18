@@ -1,7 +1,7 @@
 {
   "name": "getta",
   "description": "An isomorphic rest client based on the Fetch API.",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "author": "Dylan Aubrey",
   "license": "MIT",
   "homepage": "https://github.com/badbatch/getta",

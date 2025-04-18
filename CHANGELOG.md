@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.13 (2025-04-18)
+
+### Bug Fixes
+
+* add logEntryName and serialise headers for logs (0057440f)
+
 ## 1.0.12 (2025-04-17)
 
 ### Refactors

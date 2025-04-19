@@ -127,9 +127,7 @@ export interface FetchRedirectHandlerOptions extends FetchOptions {
   status: number;
 }
 
-export type Log = (message: string, data: PlainObject, logLevel?: LogLevel) => void;
-
-export type LogLevel = 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly';
+export type Log = (message: string, data: PlainObject) => void;
 
 export interface Performance {
   now(): number;

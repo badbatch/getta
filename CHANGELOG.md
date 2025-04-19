@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.15 (2025-04-19)
+
+### Bug Fixes
+
+* remove redundant type from log args (bd74f902)
+
 ## 1.0.14 (2025-04-18)
 
 ### Bug Fixes

@@ -362,7 +362,7 @@
 
 ### Other Changes
 
-* dylanaubrey/getta into wip ([e0f5886b](https://github.com/badbatch/getta/commit/e0f5886b70d59d7dae63cedb3146318b9fcd90ff))
+* miami-man/getta into wip ([e0f5886b](https://github.com/badbatch/getta/commit/e0f5886b70d59d7dae63cedb3146318b9fcd90ff))
 
 ### Refactors
 

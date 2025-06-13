@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.16 (2025-06-13)
+
+### Chores
+
+* minor update (6eae6200)
+
 ## 1.0.15 (2025-04-19)
 
 ### Bug Fixes

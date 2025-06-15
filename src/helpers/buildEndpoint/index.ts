@@ -27,7 +27,7 @@ export const buildEndpoint = (
     endpoint = endpoint.slice(0, Math.max(0, endpoint.length - 1));
   }
 
-  const sanitisedSearchParams = omitBy<PlainObject>(queryParams, entry => !entry);
+  const sanitisedSearchParams = omitBy<PlainObject>(queryParams, entry => entry !== undefined);
 
   if (Object.keys(sanitisedSearchParams).length > 0) {
     const queryJoin = queryString.extract(endpoint) ? '&' : '?';

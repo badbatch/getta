@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.17 (2025-06-15)
+
+### Refactors
+
+* upgrade deps, fix linting, fix search params bug (941e9949)
+
 ## 1.0.16 (2025-06-13)
 
 ### Chores

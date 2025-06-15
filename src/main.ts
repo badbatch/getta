@@ -49,7 +49,7 @@ export class Getta {
   private _rateLimitCount = 0;
   private _rateLimitedRequestQueue: RequestQueue = [];
   private _rateLimitPerSecond: number;
-  private _rateLimitTimer: NodeJS.Timer | undefined = undefined;
+  private _rateLimitTimer: NodeJS.Timeout | undefined = undefined;
   private _requestRetryWait: number;
   private _requestTracker: RequestTracker = { active: [], pending: new Map() };
   private _streamReader: StreamReader;
@@ -299,7 +299,7 @@ export class Getta {
           try {
             Object.defineProperty(res, 'data', {
               enumerable: true,
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
               value: body ? this._bodyParser(await res[this._streamReader]()) : undefined,
               writable: true,
             });
@@ -423,11 +423,7 @@ export class Getta {
     if (status === consts.NOT_FOUND_STATUS_CODE) {
       void this._cacheEntryDelete(requestHash);
       let { errors } = res;
-
-      if (!errors) {
-        errors = [];
-      }
-
+      errors ??= [];
       errors.push(new Error(consts.RESOURCE_NOT_FOUND_ERROR));
       res.errors = errors;
     } else if (status === consts.NOT_MODIFIED_STATUS_CODE) {
@@ -524,22 +520,20 @@ export class Getta {
 
   private _setPendingRequest(requestHash: string, resolver: PendingRequestResolvers) {
     let pending = this._requestTracker.pending.get(requestHash);
-    if (!pending) pending = [];
+    pending ??= [];
     pending.push(resolver);
     this._requestTracker.pending.set(requestHash, pending);
   }
 
   private _startRateLimit() {
-    if (!this._rateLimitTimer) {
-      this._rateLimitTimer = setTimeout(() => {
-        this._rateLimitTimer = undefined;
-        this._rateLimitCount = 0;
+    this._rateLimitTimer ??= setTimeout(() => {
+      this._rateLimitTimer = undefined;
+      this._rateLimitCount = 0;
 
-        if (this._rateLimitedRequestQueue.length > 0) {
-          void this._releaseRateLimitedRequestQueue();
-        }
-      }, 1000);
-    }
+      if (this._rateLimitedRequestQueue.length > 0) {
+        void this._releaseRateLimitedRequestQueue();
+      }
+    }, 1000);
 
     this._rateLimitCount += 1;
   }

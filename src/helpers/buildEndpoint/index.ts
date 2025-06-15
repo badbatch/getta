@@ -1,4 +1,6 @@
+import { omitBy } from 'lodash-es';
 import queryString from 'query-string';
+import { type PlainObject } from '#types.ts';
 import { type BuildEndpointOptions } from './types.ts';
 
 export const buildEndpoint = (
@@ -9,7 +11,7 @@ export const buildEndpoint = (
     pathTemplateCallback,
     pathTemplateData,
     pathTemplateRegExp,
-    queryParams,
+    queryParams = {},
   }: BuildEndpointOptions,
 ) => {
   const pathJoiner = basePath.endsWith('/') || path.startsWith('/') ? '' : '/';
@@ -25,9 +27,11 @@ export const buildEndpoint = (
     endpoint = endpoint.slice(0, Math.max(0, endpoint.length - 1));
   }
 
-  if (queryParams && Object.keys(queryParams).length > 0) {
+  const sanitisedSearchParams = omitBy<PlainObject>(queryParams, entry => !entry);
+
+  if (Object.keys(sanitisedSearchParams).length > 0) {
     const queryJoin = queryString.extract(endpoint) ? '&' : '?';
-    endpoint = `${endpoint}${queryJoin}${queryString.stringify(queryParams)}`;
+    endpoint = `${endpoint}${queryJoin}${queryString.stringify(sanitisedSearchParams)}`;
   }
 
   return endpoint;

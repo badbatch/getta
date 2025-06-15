@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.18 (2025-06-15)
+
+### Bug Fixes
+
+* over zelous falsy check (45ef03aa)
+
 ## 1.0.17 (2025-06-15)
 
 ### Refactors

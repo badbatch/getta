@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.19 (2025-06-15)
+
+### Bug Fixes
+
+* filter search params (55e60d97)
+
 ## 1.0.18 (2025-06-15)
 
 ### Bug Fixes

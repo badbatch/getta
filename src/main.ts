@@ -4,7 +4,7 @@ import { castArray, merge } from 'lodash-es';
 import { Md5 } from 'ts-md5';
 import { type SetRequired } from 'type-fest';
 import * as consts from './constants.ts';
-import { buildEndpoint } from './helpers/buildEndpoint/index.ts';
+import { appendSearchParams, buildEndpoint } from './helpers/buildEndpoint/index.ts';
 import { defaultPathTemplateCallback } from './helpers/defaultPathTemplateCallback/index.ts';
 import { delay } from './helpers/delay/index.ts';
 import { getResponseGroup } from './helpers/getResponseGroup/index.ts';
@@ -44,7 +44,7 @@ export class Getta {
   private _pathTemplateCallback: PathTemplateCallback;
   private _pathTemplateRegExp: RegExp;
   private _performance: Performance;
-  private _queryParams: PlainObject;
+  private _queryParams: Record<string, string> | ((endpoint: string) => Record<string, string>);
   private _rateLimit: boolean;
   private _rateLimitCount = 0;
   private _rateLimitedRequestQueue: RequestQueue = [];
@@ -189,14 +189,14 @@ export class Getta {
     { headers = {}, pathTemplateData, queryParams = {}, ...rest }: Omit<RequestOptions, 'method'>,
     context?: Context,
   ) {
-    const endpoint = buildEndpoint(this._basePath, path, {
+    let endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,
       pathTemplateData,
       pathTemplateRegExp: this._pathTemplateRegExp,
-      queryParams: { ...this._queryParams, ...queryParams },
     });
 
+    endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
     const requestHash = Md5.hashStr(endpoint);
     const cacheability = await this._cacheEntryHas(requestHash);
 
@@ -366,13 +366,14 @@ export class Getta {
     { headers = {}, pathTemplateData, queryParams = {} }: Omit<RequestOptions, 'method'>,
     context?: Context,
   ) {
-    const endpoint = buildEndpoint(this._basePath, path, {
+    let endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,
       pathTemplateData,
       pathTemplateRegExp: this._pathTemplateRegExp,
-      queryParams: { ...this._queryParams, ...queryParams },
     });
+
+    endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
 
     const requestHash = Md5.hashStr(endpoint);
     const cacheability = await this._cacheEntryHas(requestHash);
@@ -484,13 +485,14 @@ export class Getta {
     { body, headers, method, pathTemplateData, queryParams, ...rest }: SetRequired<RequestOptions, 'method'>,
     context?: Context,
   ) {
-    const endpoint = buildEndpoint(this._basePath, path, {
+    let endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,
       pathTemplateData,
       pathTemplateRegExp: this._pathTemplateRegExp,
-      queryParams: { ...this._queryParams, ...queryParams },
     });
+
+    endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
 
     return this._fetch(
       endpoint,

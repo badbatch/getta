@@ -1,18 +1,11 @@
-import { omitBy } from 'lodash-es';
+import { isFunction, omitBy } from 'lodash-es';
 import queryString from 'query-string';
-import { type PlainObject } from '#types.ts';
 import { type BuildEndpointOptions } from './types.ts';
 
 export const buildEndpoint = (
   basePath: string,
   path: string,
-  {
-    optionalPathTemplateRegExp,
-    pathTemplateCallback,
-    pathTemplateData,
-    pathTemplateRegExp,
-    queryParams = {},
-  }: BuildEndpointOptions,
+  { optionalPathTemplateRegExp, pathTemplateCallback, pathTemplateData, pathTemplateRegExp }: BuildEndpointOptions,
 ) => {
   const pathJoiner = basePath.endsWith('/') || path.startsWith('/') ? '' : '/';
   let endpoint = `${basePath}${pathJoiner}${path}`;
@@ -27,7 +20,22 @@ export const buildEndpoint = (
     endpoint = endpoint.slice(0, Math.max(0, endpoint.length - 1));
   }
 
-  const sanitisedSearchParams = omitBy<PlainObject>(queryParams, entry => entry === undefined);
+  return endpoint;
+};
+
+export const appendSearchParams = (
+  endpoint: string,
+  searchParams: Record<string, string> | ((endpoint: string) => Record<string, string>),
+  searchParamOverrides: Record<string, string> = {},
+) => {
+  const mergedSearchParams = {
+    ...(isFunction(searchParams) ? searchParams(endpoint) : searchParams),
+    ...searchParamOverrides,
+  };
+
+  // We have seen instances where value can be undefined
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const sanitisedSearchParams = omitBy<Record<string, string>>(mergedSearchParams, entry => entry === undefined);
 
   if (Object.keys(sanitisedSearchParams).length > 0) {
     const queryJoin = queryString.extract(endpoint) ? '&' : '?';

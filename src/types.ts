@@ -91,7 +91,7 @@ export interface ConstructorOptions {
   /**
    * Any query params to attach to every request.
    */
-  queryParams?: PlainObject;
+  queryParams?: Record<string, string> | ((endpoint: string) => Record<string, string>);
   /**
    * Whether to enable the rate limit feature.
    */
@@ -153,7 +153,7 @@ export interface RequestOptions {
   /**
    * Any query params to attach to the request.
    */
-  queryParams?: PlainObject;
+  queryParams?: Record<string, string>;
 }
 
 export type RequestQueue = [(value: FetchResponse) => void, string, FetchOptions, PlainObject][];

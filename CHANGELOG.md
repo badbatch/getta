@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.21 (2025-06-18)
+
+### Refactors
+
+* pass extra search params to search params function (594ba025)
+
 ## 1.0.20 (2025-06-18)
 
 ### New Features

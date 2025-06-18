@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.20 (2025-06-18)
+
+### New Features
+
+* allow function to generate query params (94b3e57b)
+
 ## 1.0.19 (2025-06-15)
 
 ### Bug Fixes

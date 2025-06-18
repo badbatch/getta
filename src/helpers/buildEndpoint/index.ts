@@ -1,5 +1,6 @@
 import { isFunction, omitBy } from 'lodash-es';
 import queryString from 'query-string';
+import { type SearchParams } from '#types.js';
 import { type BuildEndpointOptions } from './types.ts';
 
 export const buildEndpoint = (
@@ -25,12 +26,12 @@ export const buildEndpoint = (
 
 export const appendSearchParams = (
   endpoint: string,
-  searchParams: Record<string, string> | ((endpoint: string) => Record<string, string>),
-  searchParamOverrides: Record<string, string> = {},
+  searchParams: SearchParams,
+  extraSearchParam: Record<string, string> = {},
 ) => {
   const mergedSearchParams = {
-    ...(isFunction(searchParams) ? searchParams(endpoint) : searchParams),
-    ...searchParamOverrides,
+    ...(isFunction(searchParams) ? searchParams(endpoint, extraSearchParam) : searchParams),
+    ...extraSearchParam,
   };
 
   // We have seen instances where value can be undefined

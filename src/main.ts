@@ -25,6 +25,7 @@ import {
   type RequestOptions,
   type RequestQueue,
   type RequestTracker,
+  type SearchParams,
   type ShortcutProperties,
   type Shortcuts,
   type StreamReader,
@@ -44,7 +45,7 @@ export class Getta {
   private _pathTemplateCallback: PathTemplateCallback;
   private _pathTemplateRegExp: RegExp;
   private _performance: Performance;
-  private _queryParams: Record<string, string> | ((endpoint: string) => Record<string, string>);
+  private _queryParams: SearchParams;
   private _rateLimit: boolean;
   private _rateLimitCount = 0;
   private _rateLimitedRequestQueue: RequestQueue = [];

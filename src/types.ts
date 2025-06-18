@@ -18,6 +18,10 @@ export type ShortcutProperties<T extends string | number> = Record<
   <Resource = PlainObject>(...args: any[]) => Promise<FetchResponse<Resource>>
 >;
 
+export type SearchParams =
+  | Record<string, string>
+  | ((endpoint: string, extraSearchParams?: Record<string, string>) => Record<string, string>);
+
 export interface ConstructorOptions {
   /**
    * The base path of the url for all requests made from
@@ -91,7 +95,7 @@ export interface ConstructorOptions {
   /**
    * Any query params to attach to every request.
    */
-  queryParams?: Record<string, string> | ((endpoint: string) => Record<string, string>);
+  queryParams?: SearchParams;
   /**
    * Whether to enable the rate limit feature.
    */

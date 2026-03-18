@@ -19,7 +19,7 @@ import {
 import * as consts from './constants.ts';
 import { delay } from './helpers/delay/index.ts';
 import { Getta, createRestClient } from './main.ts';
-import { type FetchResponse, type ResponseDataWithErrors, type ShortcutProperties } from './types.ts';
+import { type ShortcutProperties } from './types.ts';
 
 const mockedFetch = mockFetch(jest.fn);
 
@@ -37,7 +37,6 @@ describe('Getta', () => {
 
   describe('get method', () => {
     let restClient: Getta & ShortcutProperties<'getProduct'>;
-    let response: ResponseDataWithErrors | ResponseDataWithErrors[];
 
     beforeEach(() => {
       restClient = createRestClient<'getProduct'>(
@@ -54,53 +53,45 @@ describe('Getta', () => {
       );
     });
 
-    afterEach(async () => {
-      await restClient.cache?.clear();
+    afterEach(() => {
+      restClient.cache?.clear();
     });
 
     describe('when a resource is requested', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         mockedFetch.mockGetOnce(buildTestEndpoint(defaultPath), {
           body: PRD_136_7317.body,
           headers: defaultHeaders,
         });
-
-        response = await restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData });
       });
 
-      it('should have made one request', () => {
+      it('should have made one request', async () => {
+        await restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData });
         expect(mockedFetch).toHaveBeenCalledTimes(1);
       });
 
-      it('should return the correct response', () => {
-        expect(response).toEqual(
-          expect.objectContaining({
-            data: PRD_136_7317.body,
-          }),
-        );
+      it('should return the correct response', async () => {
+        const { data } = await restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData });
+        expect(data).toEqual(PRD_136_7317.body);
       });
     });
 
     describe('when a resource is requested with a shortcut', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         mockedFetch.mockGetOnce(buildTestEndpoint(defaultPath), {
           body: PRD_136_7317.body,
           headers: defaultHeaders,
         });
-
-        response = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
       });
 
-      it('should have made one request', () => {
+      it('should have made one request', async () => {
+        await restClient.getProduct({ pathTemplateData: idPathTemplateData });
         expect(mockedFetch).toHaveBeenCalledTimes(1);
       });
 
-      it('should return the correct response', () => {
-        expect(response).toEqual(
-          expect.objectContaining({
-            data: PRD_136_7317.body,
-          }),
-        );
+      it('should return the correct response', async () => {
+        const { data } = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
+        expect(data).toEqual(PRD_136_7317.body);
       });
     });
 
@@ -114,19 +105,16 @@ describe('Getta', () => {
 
           await restClient.getProduct({ pathTemplateData: idPathTemplateData });
           mockedFetch.mockClear();
-          response = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
         });
 
-        it('should not have made a request', () => {
+        it('should not have made a request', async () => {
+          await restClient.getProduct({ pathTemplateData: idPathTemplateData });
           expect(mockedFetch).not.toHaveBeenCalled();
         });
 
-        it('should return the correct response', () => {
-          expect(response).toEqual(
-            expect.objectContaining({
-              data: PRD_136_7317.body,
-            }),
-          );
+        it('should return the correct response', async () => {
+          const { data } = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
+          expect(data).toEqual(PRD_136_7317.body);
         });
       });
 
@@ -143,186 +131,201 @@ describe('Getta', () => {
         });
 
         describe('when the response returns not modified status code', () => {
-          beforeEach(async () => {
+          beforeEach(() => {
+            const url = buildTestEndpoint(defaultPath);
+
             mockedFetch.mockGetOnce(
-              { headers: { [consts.IF_NONE_MATCH_HEADER]: defaultEtag }, url: buildTestEndpoint(defaultPath) },
+              { headers: { [consts.IF_NONE_MATCH_HEADER]: defaultEtag }, url },
               { headers: defaultHeaders, status: 304 },
             );
-
-            response = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
           });
 
-          it('should have made one request', () => {
+          it('should have made one request', async () => {
+            await restClient.getProduct({ pathTemplateData: idPathTemplateData });
             expect(mockedFetch).toHaveBeenCalledTimes(1);
           });
 
-          it('should return the correct response', () => {
-            expect(response).toEqual(
-              expect.objectContaining({
-                data: PRD_136_7317.body,
-              }),
-            );
+          it('should return the correct response', async () => {
+            const { data } = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
+            expect(data).toEqual(PRD_136_7317.body);
           });
         });
 
         describe('when the response returns the resource', () => {
-          beforeEach(async () => {
-            mockedFetch.mockGetOnce(
-              { headers: { [consts.IF_NONE_MATCH_HEADER]: defaultEtag }, url: buildTestEndpoint(defaultPath) },
-              { body: PRD_136_7317.body, headers: defaultHeaders },
-            );
-
-            response = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
+          beforeEach(() => {
+            const url = buildTestEndpoint(defaultPath);
+            mockedFetch.mockGetOnce({ url }, { body: PRD_136_7317.body, headers: defaultHeaders });
           });
 
-          it('should have made one request', () => {
+          it('should have made one request', async () => {
+            await restClient.getProduct({ pathTemplateData: idPathTemplateData });
             expect(mockedFetch).toHaveBeenCalledTimes(1);
           });
 
-          it('should return the correct response', () => {
-            expect(response).toEqual(
-              expect.objectContaining({
-                data: PRD_136_7317.body,
-              }),
-            );
+          it('should return the correct response', async () => {
+            const { data } = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
+            expect(data).toEqual(PRD_136_7317.body);
           });
         });
 
         describe('when the response returns a 404', () => {
-          beforeEach(async () => {
-            mockedFetch.mockGetOnce(
-              { headers: { [consts.IF_NONE_MATCH_HEADER]: defaultEtag }, url: buildTestEndpoint(defaultPath) },
-              { status: 404 },
-            );
-
-            response = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
+          beforeEach(() => {
+            mockedFetch.mockGetOnce({ url: buildTestEndpoint(defaultPath) }, { status: 404 });
           });
 
-          it('should have made one request', () => {
+          it('should have made one request', async () => {
+            try {
+              await restClient.getProduct({ pathTemplateData: idPathTemplateData });
+            } catch {
+              // no catch
+            }
+
             expect(mockedFetch).toHaveBeenCalledTimes(1);
           });
 
-          it('should return the correct response', () => {
-            expect(response).toEqual(
-              expect.objectContaining({
-                errors: [new Error(consts.RESOURCE_NOT_FOUND_ERROR)],
-              }),
+          it('should throw the expected error', async () => {
+            await expect(restClient.getProduct({ pathTemplateData: idPathTemplateData })).rejects.toThrow(
+              'The requested resource could not been found.',
             );
+          });
+
+          it('should delete the existing resource', async () => {
+            try {
+              await restClient.getProduct({ pathTemplateData: idPathTemplateData });
+            } catch {
+              // no catch
+            }
+
+            expect(restClient.cache?.metadata).toHaveLength(0);
           });
         });
       });
-    });
 
-    describe('when a request is redirected more than five times', () => {
-      const REDIRECT_COOKIE_FLAG = 'status=redirect';
+      describe('when a request is redirected more than five times', () => {
+        const REDIRECT_COOKIE_FLAG = 'status=redirect';
 
-      beforeEach(async () => {
-        mockedFetch.mockGet(
-          { headers: { [consts.COOKIE_HEADER]: REDIRECT_COOKIE_FLAG }, url: '*' },
-          { headers: { ...defaultHeaders, [consts.LOCATION_HEADER]: basePath }, status: 301 },
-        );
+        beforeEach(() => {
+          mockedFetch.mockGet(
+            { headers: { [consts.COOKIE_HEADER]: REDIRECT_COOKIE_FLAG }, url: '*' },
+            { headers: { ...defaultHeaders, [consts.LOCATION_HEADER]: basePath }, status: 301 },
+          );
+        });
 
-        response = await restClient.getProduct({
-          headers: { [consts.COOKIE_HEADER]: REDIRECT_COOKIE_FLAG },
-          pathTemplateData: idPathTemplateData,
+        it('should have made five requests', async () => {
+          try {
+            await restClient.getProduct({
+              headers: { [consts.COOKIE_HEADER]: REDIRECT_COOKIE_FLAG },
+              pathTemplateData: idPathTemplateData,
+            });
+          } catch {
+            // no catch
+          }
+
+          expect(mockedFetch).toHaveBeenCalledTimes(5);
+        });
+
+        it('should throw the expected error', async () => {
+          await expect(
+            restClient.getProduct({
+              headers: { [consts.COOKIE_HEADER]: REDIRECT_COOKIE_FLAG },
+              pathTemplateData: idPathTemplateData,
+            }),
+          ).rejects.toThrow('The request exceeded the maximum number of redirects, which is 5');
         });
       });
 
-      it('should have made five requests', () => {
-        expect(mockedFetch).toHaveBeenCalledTimes(5);
-      });
+      describe('when a request is retried more than three times', () => {
+        const RETRY_COOKIE_FLAG = 'status=retry';
 
-      it('should return the correct response', () => {
-        expect(response).toEqual(
-          expect.objectContaining({
-            errors: [new Error(`${consts.MAX_REDIRECTS_EXCEEDED_ERROR} 5.`)],
-          }),
-        );
-      });
-    });
+        beforeEach(() => {
+          mockedFetch.mockGet(
+            { headers: { [consts.COOKIE_HEADER]: RETRY_COOKIE_FLAG }, url: buildTestEndpoint(defaultPath) },
+            { body: PRD_136_7317.body, status: 500 },
+          );
+        });
 
-    describe('when a request is retried more than three times', () => {
-      const RETRY_COOKIE_FLAG = 'status=retry';
+        it('should have made three requests', async () => {
+          try {
+            await restClient.getProduct({
+              headers: { [consts.COOKIE_HEADER]: RETRY_COOKIE_FLAG },
+              pathTemplateData: idPathTemplateData,
+            });
+          } catch {
+            // no catch
+          }
 
-      beforeEach(async () => {
-        mockedFetch.mockGet(
-          { headers: { [consts.COOKIE_HEADER]: RETRY_COOKIE_FLAG }, url: buildTestEndpoint(defaultPath) },
-          { body: PRD_136_7317.body, status: 500 },
-        );
+          expect(mockedFetch).toHaveBeenCalledTimes(3);
+        });
 
-        response = await restClient.getProduct({
-          headers: { [consts.COOKIE_HEADER]: RETRY_COOKIE_FLAG },
-          pathTemplateData: idPathTemplateData,
+        it('should return the correct response', async () => {
+          await expect(
+            restClient.getProduct({
+              headers: { [consts.COOKIE_HEADER]: RETRY_COOKIE_FLAG },
+              pathTemplateData: idPathTemplateData,
+            }),
+          ).rejects.toThrow('The request exceeded the maximum number of retries, which is 3.');
         });
       });
 
-      it('should have made three requests', () => {
-        expect(mockedFetch).toHaveBeenCalledTimes(3);
-      });
+      describe('when the same resource is requested in quick succession', () => {
+        beforeEach(() => {
+          mockedFetch.mockGet(buildTestEndpoint(defaultPath), { body: PRD_136_7317.body, headers: defaultHeaders });
+        });
 
-      it('should return the correct response', () => {
-        expect(response).toEqual(
-          expect.objectContaining({
-            errors: [new Error(`${consts.MAX_RETRIES_EXCEEDED_ERROR} 3.`)],
-          }),
-        );
-      });
-    });
+        it('should have made one request', async () => {
+          await Promise.all([
+            restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData }),
+            restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData }),
+          ]);
 
-    describe('when the same resource is requested in quick succession', () => {
-      beforeEach(async () => {
-        mockedFetch.mockGet(buildTestEndpoint(defaultPath), { body: PRD_136_7317.body, headers: defaultHeaders });
+          expect(mockedFetch).toHaveBeenCalledTimes(1);
+        });
 
-        response = await Promise.all([
-          restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData }),
-          restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData }),
-        ]);
-      });
+        it('should return the correct response', async () => {
+          const [{ data: dataA }, { data: dataB }] = await Promise.all([
+            restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData }),
+            restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData }),
+          ]);
 
-      it('should have made one request', () => {
-        expect(mockedFetch).toHaveBeenCalledTimes(1);
-      });
-
-      it('should return the correct response', () => {
-        expect(response as ResponseDataWithErrors[]).toEqual([
-          expect.objectContaining({
-            data: PRD_136_7317.body,
-          }),
-          expect.objectContaining({
-            data: PRD_136_7317.body,
-          }),
-        ]);
-      });
-    });
-
-    describe('when a request times out', () => {
-      beforeEach(async () => {
-        mockedFetch.mockGet(buildTestEndpoint(defaultPath), { body: PRD_136_7317.body }, { delay: 200 });
-        // @ts-expect-error property is private
-        restClient._fetchTimeout = 100;
-
-        response = await restClient.getProduct({
-          pathTemplateData: idPathTemplateData,
+          expect(dataA).toEqual(PRD_136_7317.body);
+          // Assertions are so closely related, this is okay.
+          // eslint-disable-next-line jest/max-expects
+          expect(dataB).toEqual(PRD_136_7317.body);
         });
       });
 
-      it('should have made one request', () => {
-        expect(mockedFetch).toHaveBeenCalledTimes(1);
-      });
+      describe('when a request times out', () => {
+        beforeEach(() => {
+          mockedFetch.mockGet(buildTestEndpoint(defaultPath), { body: PRD_136_7317.body }, { delay: 200 });
+          // @ts-expect-error property is private
+          restClient._fetchTimeout = 100;
+        });
 
-      it('should return the correct response', () => {
-        expect(response).toEqual(
-          expect.objectContaining({
-            errors: [new Error(`${consts.FETCH_TIMEOUT_ERROR} 100ms.`)],
-          }),
-        );
+        it('should have made one request', async () => {
+          try {
+            await restClient.getProduct({
+              pathTemplateData: idPathTemplateData,
+            });
+          } catch {
+            // no catch
+          }
+
+          expect(mockedFetch).toHaveBeenCalledTimes(1);
+        });
+
+        it('should return the correct response', async () => {
+          await expect(
+            restClient.getProduct({
+              pathTemplateData: idPathTemplateData,
+            }),
+          ).rejects.toThrow('The request timed out. Getta did not get a response within 100ms.');
+        });
       });
     });
   });
 
   describe('post method', () => {
     let restClient: Getta & ShortcutProperties<'postProduct'>;
-    let response: FetchResponse;
 
     beforeEach(() => {
       restClient = createRestClient<'postProduct'>(
@@ -338,62 +341,57 @@ describe('Getta', () => {
       );
     });
 
-    afterEach(async () => {
-      await restClient.cache?.clear();
+    afterEach(() => {
+      restClient.cache?.clear();
     });
 
-    describe('when a resource is requested', () => {
-      beforeEach(async () => {
+    describe('when a post is made', () => {
+      beforeEach(() => {
         mockedFetch.mockPostOnce(
           { body: { mock: true }, url: buildTestEndpoint(graphqlPath) },
           { body: PRD_136_7317.body, headers: defaultHeaders },
         );
+      });
 
-        response = await restClient.post(graphqlPath, {
+      it('should have made one request', async () => {
+        await restClient.post(graphqlPath, {
           body: JSON.stringify({ ...defaultPayload, mock: true }),
         });
-      });
 
-      it('should have made one request', () => {
         expect(mockedFetch).toHaveBeenCalledTimes(1);
       });
 
-      it('should return the correct response', () => {
-        expect(response).toEqual(
-          expect.objectContaining({
-            data: PRD_136_7317.body,
-          }),
-        );
+      it('should return the correct response', async () => {
+        const { data } = await restClient.post(graphqlPath, {
+          body: JSON.stringify({ ...defaultPayload, mock: true }),
+        });
+
+        expect(data).toEqual(PRD_136_7317.body);
       });
     });
 
-    describe('when a resource is requested with a shortcut', () => {
-      beforeEach(async () => {
+    describe('when a post is made with a shortcut', () => {
+      beforeEach(() => {
         mockedFetch.mockPostOnce(
           { body: { mock: true }, url: buildTestEndpoint(graphqlPath) },
           { body: PRD_136_7317.body, headers: defaultHeaders },
         );
-
-        response = await restClient.postProduct({ body: JSON.stringify({ ...defaultPayload, mock: true }) });
       });
 
-      it('should have made one request', () => {
+      it('should have made one request', async () => {
+        await restClient.postProduct({ body: JSON.stringify({ ...defaultPayload, mock: true }) });
         expect(mockedFetch).toHaveBeenCalledTimes(1);
       });
 
-      it('should return the correct response', () => {
-        expect(response).toEqual(
-          expect.objectContaining({
-            data: PRD_136_7317.body,
-          }),
-        );
+      it('should return the correct response', async () => {
+        const { data } = await restClient.postProduct({ body: JSON.stringify({ ...defaultPayload, mock: true }) });
+        expect(data).toEqual(PRD_136_7317.body);
       });
     });
   });
 
   describe('delete method', () => {
     let restClient: Getta & ShortcutProperties<'deleteProduct'>;
-    let response: FetchResponse;
 
     beforeEach(() => {
       restClient = createRestClient<'deleteProduct'>(
@@ -410,8 +408,8 @@ describe('Getta', () => {
       );
     });
 
-    afterEach(async () => {
-      await restClient.cache?.clear();
+    afterEach(() => {
+      restClient.cache?.clear();
     });
 
     describe('when a resource is requested to be deleted', () => {
@@ -426,19 +424,21 @@ describe('Getta', () => {
         mockedFetch.mockDeleteOnce(url);
         await restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData });
         mockedFetch.mockClear();
-        response = await restClient.delete(defaultPath, { pathTemplateData: defaultPathTemplateData });
       });
 
-      it('should have made one request', () => {
+      it('should have made one request', async () => {
+        await restClient.delete(defaultPath, { pathTemplateData: defaultPathTemplateData });
         expect(mockedFetch).toHaveBeenCalledTimes(1);
       });
 
-      it('should return the correct response', () => {
-        expect(response.status).toBe(200);
+      it('should return the correct response', async () => {
+        const { status } = await restClient.delete(defaultPath, { pathTemplateData: defaultPathTemplateData });
+        expect(status).toBe(200);
       });
 
       it('should delete any matching cache entry', async () => {
-        await expect(restClient.cache?.has(Md5.hashStr(buildTestEndpoint(defaultPath)))).resolves.toBe(false);
+        await restClient.delete(defaultPath, { pathTemplateData: defaultPathTemplateData });
+        expect(restClient.cache?.has(Md5.hashStr(buildTestEndpoint(defaultPath)))).toBe(false);
       });
     });
 
@@ -454,26 +454,27 @@ describe('Getta', () => {
         mockedFetch.mockDeleteOnce(url);
         await restClient.get(defaultPath, { pathTemplateData: defaultPathTemplateData });
         mockedFetch.mockClear();
-        response = await restClient.deleteProduct({ pathTemplateData: idPathTemplateData });
       });
 
-      it('should have made one request', () => {
+      it('should have made one request', async () => {
+        await restClient.deleteProduct({ pathTemplateData: idPathTemplateData });
         expect(mockedFetch).toHaveBeenCalledTimes(1);
       });
 
-      it('should return the correct response', () => {
-        expect(response.status).toBe(200);
+      it('should return the correct response', async () => {
+        const { status } = await restClient.deleteProduct({ pathTemplateData: idPathTemplateData });
+        expect(status).toBe(200);
       });
 
       it('should delete any matching cache entry', async () => {
-        await expect(restClient.cache?.has(Md5.hashStr(buildTestEndpoint(defaultPath)))).resolves.toBe(false);
+        await restClient.deleteProduct({ pathTemplateData: idPathTemplateData });
+        expect(restClient.cache?.has(Md5.hashStr(buildTestEndpoint(defaultPath)))).toBe(false);
       });
     });
   });
 
   describe('put method', () => {
     let restClient: Getta & ShortcutProperties<'putProduct'>;
-    let response: FetchResponse;
 
     beforeEach(() => {
       restClient = createRestClient<'putProduct'>(
@@ -490,45 +491,55 @@ describe('Getta', () => {
       );
     });
 
-    afterEach(async () => {
-      await restClient.cache?.clear();
+    afterEach(() => {
+      restClient.cache?.clear();
     });
 
     describe('when a resource is send', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         mockedFetch.mockPutOnce({ body: { mock: true }, url: buildTestEndpoint(defaultPath) }, { status: 201 });
+      });
 
-        response = await restClient.put(defaultPath, {
+      it('should have made one request', async () => {
+        await restClient.put(defaultPath, {
           body: JSON.stringify({ ...defaultPayload, mock: true }),
           pathTemplateData: defaultPathTemplateData,
         });
-      });
 
-      it('should have made one request', () => {
         expect(mockedFetch).toHaveBeenCalledTimes(1);
       });
 
-      it('should return the correct response', () => {
-        expect(response.status).toBe(201);
+      it('should return the correct response', async () => {
+        const { status } = await restClient.put(defaultPath, {
+          body: JSON.stringify({ ...defaultPayload, mock: true }),
+          pathTemplateData: defaultPathTemplateData,
+        });
+
+        expect(status).toBe(201);
       });
     });
 
     describe('when a resource is sent with a shortcut', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         mockedFetch.mockPutOnce({ body: { mock: true }, url: buildTestEndpoint(defaultPath) }, { status: 201 });
+      });
 
-        response = await restClient.putProduct({
+      it('should have made one request', async () => {
+        await restClient.putProduct({
           body: JSON.stringify({ ...defaultPayload, mock: true }),
           pathTemplateData: idPathTemplateData,
         });
-      });
 
-      it('should have made one request', () => {
         expect(mockedFetch).toHaveBeenCalledTimes(1);
       });
 
-      it('should return the correct response', () => {
-        expect(response.status).toBe(201);
+      it('should return the correct response', async () => {
+        const { status } = await restClient.putProduct({
+          body: JSON.stringify({ ...defaultPayload, mock: true }),
+          pathTemplateData: idPathTemplateData,
+        });
+
+        expect(status).toBe(201);
       });
     });
   });
@@ -540,33 +551,37 @@ describe('Getta', () => {
       restClient = createRestClient({ basePath, performance, rateLimit: true });
     });
 
-    afterEach(async () => {
-      await restClient.cache?.clear();
+    afterEach(() => {
+      restClient.cache?.clear();
       // @ts-expect-error property is private
       clearTimeout(restClient._rateLimitTimer);
     });
 
     describe('when the number of requests per second exceeds rateLimitPerSecond', () => {
-      beforeEach(async () => {
-        const requestKeys = [...Array.from({ length: 55 }).keys()];
+      const requestKeys = [...Array.from({ length: 55 }).keys()];
 
+      beforeEach(() => {
         for (const key of requestKeys) {
           mockedFetch.mockGetOnce(buildTestEndpoint(`product/${String(key)}`));
         }
 
         // @ts-expect-error property is private
         restClient._addRequestToRateLimitedQueue = jest.fn().mockResolvedValue({ status: 200 });
+      });
 
+      it('should call fetch one less than the rate limit', async () => {
         await Promise.all(
           requestKeys.map(key => restClient.get(`product/${String(key)}`, { headers: defaultHeaders })),
         );
-      });
 
-      it('should call fetch one less than the rate limit', () => {
         expect(mockedFetch).toHaveBeenCalledTimes(49);
       });
 
-      it('should add the excess requests to rateLimitedRequestQueue', () => {
+      it('should add the excess requests to rateLimitedRequestQueue', async () => {
+        await Promise.all(
+          requestKeys.map(key => restClient.get(`product/${String(key)}`, { headers: defaultHeaders })),
+        );
+
         // @ts-expect-error property is private
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(restClient._addRequestToRateLimitedQueue).toHaveBeenCalledTimes(6);

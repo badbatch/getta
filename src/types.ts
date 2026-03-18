@@ -1,27 +1,6 @@
 import { type Core } from '@cachemap/core';
 import { type SetRequired } from 'type-fest';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type PlainObject = Record<string, any>;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Func = (...args: any[]) => any;
-
-export type FetchMethod = 'get' | 'post' | 'put' | 'delete';
-
-export type StreamReader = 'arrayBuffer' | 'blob' | 'formData' | 'json' | 'text';
-
-export type ShortcutProperties<T extends string | number> = Record<
-  T,
-  // Want to keep this as generic as possible.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  <Resource = PlainObject>(...args: any[]) => Promise<FetchResponse<Resource>>
->;
-
-export type SearchParams =
-  | Record<string, string>
-  | ((endpoint: string, extraSearchParams?: Record<string, string>) => Record<string, string>);
-
 export interface ConstructorOptions {
   /**
    * The base path of the url for all requests made from
@@ -117,6 +96,12 @@ export interface ConstructorOptions {
   streamReader?: StreamReader;
 }
 
+export interface Context {
+  startTime?: number;
+}
+
+export type FetchMethod = 'get' | 'post' | 'put' | 'delete';
+
 export interface FetchOptions {
   body?: BodyInit;
   headers: Record<string, string>;
@@ -125,17 +110,33 @@ export interface FetchOptions {
   retries?: number;
 }
 
-export interface FetchResponse<Resource = PlainObject> extends ResponseDataWithErrors<Resource>, Response {}
+export interface FetchResponse<Resource = unknown> extends ResponseDataWithErrors<Resource>, Response {}
 
 export interface FetchRedirectHandlerOptions extends FetchOptions {
   status: number;
 }
 
+export type Func = (...args: unknown[]) => unknown;
+
 export type Log = (message: string, data: PlainObject) => void;
+
+export type MetadataExtensions = {
+  etag?: string;
+};
+
+export type PathTemplateCallback = (path: string, data: Record<string, string>, pathTemplateRegExp: RegExp) => string;
+
+export type PendingRequestResolver = (value: FetchResponse) => void;
+
+export interface PendingRequestResolvers {
+  resolve: PendingRequestResolver;
+}
 
 export interface Performance {
   now(): number;
 }
+
+export type PlainObject = Record<string, unknown>;
 
 export interface RequestOptions {
   /**
@@ -162,17 +163,9 @@ export interface RequestOptions {
 
 export type RequestQueue = [(value: FetchResponse) => void, string, FetchOptions, PlainObject][];
 
-export interface ResponseDataWithErrors<Resource = PlainObject> {
+export interface ResponseDataWithErrors<Resource = unknown> {
   data?: Resource;
   errors?: Error[];
-}
-
-export type PathTemplateCallback = (path: string, data: Record<string, string>, pathTemplateRegExp: RegExp) => string;
-
-export type PendingRequestResolver = (value: FetchResponse) => void;
-
-export interface PendingRequestResolvers {
-  resolve: PendingRequestResolver;
 }
 
 export interface RequestTracker {
@@ -180,8 +173,17 @@ export interface RequestTracker {
   pending: Map<string, PendingRequestResolvers[]>;
 }
 
+export type SearchParams =
+  | Record<string, string>
+  | ((endpoint: string, extraSearchParams?: Record<string, string>) => Record<string, string>);
+
+export type ShortcutProperties<T extends string | number> = Record<
+  T,
+  // Want to keep this as generic as possible.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  <Resource = PlainObject>(...args: any[]) => Promise<FetchResponse<Resource>>
+>;
+
 export type Shortcuts = Record<string, [string, SetRequired<RequestOptions, 'method'>]>;
 
-export type Context = {
-  startTime?: number;
-};
+export type StreamReader = 'arrayBuffer' | 'blob' | 'formData' | 'json' | 'text';

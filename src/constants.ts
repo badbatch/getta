@@ -1,5 +1,3 @@
-import { type PlainObject } from './types.ts';
-
 export const ARRAY_BUFFER_FORMAT = 'arrayBuffer';
 export const BLOB_FORMAT = 'blob';
 export const FORM_DATA_FORMAT = 'formData';
@@ -14,7 +12,7 @@ export const STREAM_READERS = {
   TEXT_FORMAT,
 };
 
-export const DEFAULT_BODY_PARSER = (body: PlainObject) => body;
+export const DEFAULT_BODY_PARSER = (body: unknown) => body;
 export const DEFAULT_FETCH_TIMEOUT = 5000;
 export const DEFAULT_HEADERS = { 'content-type': 'application/json' };
 export const DEFAULT_MAX_REDIRECTS = 5;

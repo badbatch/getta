@@ -1,5 +1,4 @@
 import { Core } from '@cachemap/core';
-import { init as map } from '@cachemap/map';
 import { DEFAULT_PATH_TEMPLATE_REGEX } from '../../constants.ts';
 import { buildEndpoint } from '../../helpers/buildEndpoint/index.ts';
 import { defaultPathTemplateCallback } from '../../helpers/defaultPathTemplateCallback/index.ts';
@@ -31,7 +30,6 @@ export const defaultHeaders = {
 export const getCache = () => {
   return new Core({
     name: 'cachemap',
-    store: map(),
     type: 'test',
   });
 };

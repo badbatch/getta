@@ -1,6 +1,5 @@
-import { type CacheHeaders, type Core } from '@cachemap/core';
-import { type Cacheability } from 'cacheability';
-import { castArray, merge } from 'lodash-es';
+import { type Core, type GetOptions, type SetOptions } from '@cachemap/core';
+import { merge } from 'lodash-es';
 import { Md5 } from 'ts-md5';
 import { type SetRequired } from 'type-fest';
 import * as consts from './constants.ts';
@@ -8,7 +7,6 @@ import { appendSearchParams, buildEndpoint } from './helpers/buildEndpoint/index
 import { defaultPathTemplateCallback } from './helpers/defaultPathTemplateCallback/index.ts';
 import { delay } from './helpers/delay/index.ts';
 import { getResponseGroup } from './helpers/getResponseGroup/index.ts';
-import { isCacheabilityValid } from './helpers/isCacheabilityValid/index.ts';
 import {
   type ConstructorOptions,
   type Context,
@@ -17,6 +15,7 @@ import {
   type FetchResponse,
   type Func,
   type Log,
+  type MetadataExtensions,
   type PathTemplateCallback,
   type PendingRequestResolver,
   type PendingRequestResolvers,
@@ -131,8 +130,15 @@ export class Getta {
     return this._delete(path, options, context);
   }
 
-  public async get(path: string, options: Omit<RequestOptions, 'method'> = {}, context?: Context) {
-    return this._get(path, options, context);
+  public async get<T>(
+    path: string,
+    options: Omit<RequestOptions, 'method'> = {},
+    context?: Context,
+  ): Promise<FetchResponse<T>> {
+    // For ease of use for consumer, casting to passed in type as any
+    // errors will be thrown.
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    return this._get<T>(path, options, context) as Promise<FetchResponse<T>>;
   }
 
   public async post(path: string, options: Omit<SetRequired<RequestOptions, 'body'>, 'method'>, context?: Context) {
@@ -143,13 +149,14 @@ export class Getta {
     return this._request(path, { ...options, method: consts.PUT_METHOD }, context);
   }
 
-  private _addRequestToRateLimitedQueue(endpoint: string, options: FetchOptions, context: Context) {
-    return new Promise((resolve: (value: FetchResponse) => void) => {
+  private _addRequestToRateLimitedQueue<T>(endpoint: string, options: FetchOptions, context: Context) {
+    return new Promise((resolve: (value: FetchResponse<T>) => void) => {
+      // @ts-expect-error Struggling to line up types in this situation
       this._rateLimitedRequestQueue.push([resolve, endpoint, options, context]);
     });
   }
 
-  private async _cacheEntryDelete(requestHash: string): Promise<boolean> {
+  private _cacheEntryDelete(requestHash: string): boolean {
     if (!this._cache) {
       return false;
     }
@@ -157,32 +164,28 @@ export class Getta {
     return this._cache.delete(requestHash);
   }
 
-  private async _cacheEntryGet(requestHash: string): Promise<PlainObject | undefined> {
+  private _cacheEntryGet<T = unknown>(requestHash: string, options: GetOptions = {}): T | undefined {
     if (!this._cache) {
       return undefined;
     }
 
-    return this._cache.get(requestHash);
+    return this._cache.get<T>(requestHash, options);
   }
 
-  private async _cacheEntryHas(requestHash: string): Promise<Cacheability | false> {
+  private _cacheEntryHas(requestHash: string): boolean {
     if (!this._cache) {
       return false;
     }
 
-    try {
-      return await this._cache.has(requestHash);
-    } catch {
-      return false;
-    }
+    return this._cache.has(requestHash);
   }
 
-  private async _cacheEntrySet(requestHash: string, data: PlainObject, cacheHeaders: CacheHeaders): Promise<void> {
+  private _cacheEntrySet(requestHash: string, data: unknown, setOptions: SetOptions): void {
     if (!this._cache) {
-      return undefined;
+      return;
     }
 
-    return this._cache.set(requestHash, data, { cacheHeaders });
+    this._cache.set(requestHash, data, setOptions);
   }
 
   private async _delete(
@@ -199,10 +202,10 @@ export class Getta {
 
     endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
     const requestHash = Md5.hashStr(endpoint);
-    const cacheability = await this._cacheEntryHas(requestHash);
+    const hasEntry = this._cacheEntryHas(requestHash);
 
-    if (cacheability) {
-      void this._cacheEntryDelete(requestHash);
+    if (hasEntry) {
+      this._cacheEntryDelete(requestHash);
     }
 
     return this._fetch(
@@ -216,13 +219,13 @@ export class Getta {
     );
   }
 
-  private async _fetch(endpoint: string, options: FetchOptions, context: Context = {}): Promise<FetchResponse> {
+  private async _fetch<T>(endpoint: string, options: FetchOptions, context: Context = {}): Promise<FetchResponse<T>> {
     context.startTime = this._performance.now();
 
     try {
       const { redirects, retries, ...rest } = options;
 
-      return await new Promise<FetchResponse>((resolve, reject) => {
+      return await new Promise<FetchResponse<T>>((resolve, reject) => {
         void (async () => {
           const fetchTimer = setTimeout(() => {
             reject(new Error(`${consts.FETCH_TIMEOUT_ERROR} ${String(this._fetchTimeout)}ms.`));
@@ -233,7 +236,7 @@ export class Getta {
 
             if (!(this._rateLimitCount < this._rateLimitPerSecond)) {
               clearTimeout(fetchTimer);
-              resolve(await this._addRequestToRateLimitedQueue(endpoint, options, context));
+              resolve(await this._addRequestToRateLimitedQueue<T>(endpoint, options, context));
               return;
             }
           }
@@ -255,7 +258,7 @@ export class Getta {
 
           // Casting as fetch response does not support generics.
           // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          const res = (await fetch(endpoint, rest)) as FetchResponse;
+          const res = (await fetch(endpoint, rest)) as FetchResponse<T>;
 
           clearTimeout(fetchTimer);
 
@@ -263,8 +266,8 @@ export class Getta {
           const responseGroup = getResponseGroup(status);
 
           if (responseGroup === consts.REDIRECTION_REPSONSE && headers.has(consts.LOCATION_HEADER)) {
-            resolve(
-              await this._fetchRedirectHandler(
+            try {
+              const result = await this._fetchRedirectHandler<T>(
                 res,
                 // Has check above means this cannot be undefined.
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -275,15 +278,23 @@ export class Getta {
                   ...rest,
                 },
                 context,
-              ),
-            );
+              );
+
+              resolve(result);
+            } catch (error: unknown) {
+              reject(
+                error instanceof Error
+                  ? error
+                  : new Error(`Unable to ${rest.method} ${endpoint} due to upstream error`),
+              );
+            }
 
             return;
           }
 
           if (responseGroup === consts.SERVER_ERROR_REPSONSE) {
-            resolve(
-              await this._fetchRetryHandler(
+            try {
+              const result = await this._fetchRetryHandler<T>(
                 res,
                 endpoint,
                 {
@@ -291,8 +302,16 @@ export class Getta {
                   ...rest,
                 },
                 context,
-              ),
-            );
+              );
+
+              resolve(result);
+            } catch (error: unknown) {
+              reject(
+                error instanceof Error
+                  ? error
+                  : new Error(`Unable to ${rest.method} ${endpoint} due to upstream error`),
+              );
+            }
 
             return;
           }
@@ -300,7 +319,6 @@ export class Getta {
           try {
             Object.defineProperty(res, 'data', {
               enumerable: true,
-
               value: body ? this._bodyParser(await res[this._streamReader]()) : undefined,
               writable: true,
             });
@@ -308,11 +326,9 @@ export class Getta {
             this._logResponse(res, endpoint, options, context);
             resolve(res);
           } catch (error) {
-            if (error instanceof Error) {
-              reject(error);
-            } else {
-              reject(new Error(`Unable to ${rest.method} ${endpoint} due to previous error`));
-            }
+            reject(
+              error instanceof Error ? error : new Error(`Unable to ${rest.method} ${endpoint} due to upstream error`),
+            );
           }
         })();
       });
@@ -325,44 +341,45 @@ export class Getta {
         stats: { duration: startTime ? endTime - startTime : 0, endTime, startTime },
       });
 
-      // Based on above code, error is going to be a type of Error.
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      return { errors: castArray(error) } as FetchResponse;
+      throw error;
     }
   }
 
-  private async _fetchRedirectHandler(
-    res: FetchResponse,
+  private async _fetchRedirectHandler<T>(
+    res: FetchResponse<T>,
     endpoint: string,
     options: FetchRedirectHandlerOptions,
     context: Context,
-  ): Promise<FetchResponse> {
+  ): Promise<FetchResponse<T>> {
     const { method, redirects = 1, status, ...rest } = options;
 
     if (redirects === this._maxRedirects) {
-      res.errors = [new Error(`${consts.MAX_REDIRECTS_EXCEEDED_ERROR} ${String(this._maxRedirects)}.`)];
       this._logResponse(res, endpoint, options, context);
-      return res;
+      throw new Error(`${consts.MAX_REDIRECTS_EXCEEDED_ERROR} ${String(this._maxRedirects)}.`);
     }
 
     const redirectMethod = status === 303 ? consts.GET_METHOD : method;
-    return this._fetch(endpoint, { method: redirectMethod, redirects: redirects + 1, ...rest });
+    return this._fetch<T>(endpoint, { method: redirectMethod, redirects: redirects + 1, ...rest });
   }
 
-  private async _fetchRetryHandler(res: FetchResponse, endpoint: string, options: FetchOptions, context: Context) {
+  private async _fetchRetryHandler<T>(
+    res: FetchResponse<T>,
+    endpoint: string,
+    options: FetchOptions,
+    context: Context,
+  ) {
     const { retries = 1, ...rest } = options;
 
     if (retries === this._maxRetries) {
-      res.errors = [new Error(`${consts.MAX_RETRIES_EXCEEDED_ERROR} ${String(this._maxRetries)}.`)];
       this._logResponse(res, endpoint, options, context);
-      return res;
+      throw new Error(`${consts.MAX_RETRIES_EXCEEDED_ERROR} ${String(this._maxRetries)}.`);
     }
 
     await delay(this._requestRetryWait);
-    return this._fetch(endpoint, { retries: retries + 1, ...rest });
+    return this._fetch<T>(endpoint, { retries: retries + 1, ...rest });
   }
 
-  private async _get(
+  private async _get<T>(
     path: string,
     { headers = {}, pathTemplateData, queryParams = {} }: Omit<RequestOptions, 'method'>,
     context?: Context,
@@ -377,34 +394,32 @@ export class Getta {
     endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
 
     const requestHash = Md5.hashStr(endpoint);
-    const cacheability = await this._cacheEntryHas(requestHash);
+    const entry = this._cache?.getMetadataEntry<MetadataExtensions>(requestHash);
 
-    if (cacheability) {
-      if (isCacheabilityValid(cacheability)) {
-        const newHeaders = {
-          ...headers,
-          'cache-control': cacheability.printCacheControl(),
-        };
+    if (entry?.cacheability.checkTTL()) {
+      const newHeaders = {
+        ...headers,
+        'cache-control': entry.cacheability.printCacheControl(),
+      };
 
-        this._log?.(consts.RESPONSE_FROM_CACHE, {
-          context: {
-            fetchMethod: consts.GET_METHOD,
-            fetchResponseHeaders: newHeaders,
-            fetchUrl: endpoint,
-            logEntryName: 'FETCH_RESPONSE_FROM_CACHE',
-            ...context,
-          },
-        });
+      this._log?.(consts.RESPONSE_FROM_CACHE, {
+        context: {
+          fetchMethod: consts.GET_METHOD,
+          fetchResponseHeaders: newHeaders,
+          fetchUrl: endpoint,
+          logEntryName: 'FETCH_RESPONSE_FROM_CACHE',
+          ...context,
+        },
+      });
 
-        return {
-          data: await this._cacheEntryGet(requestHash),
-          headers: new Headers(newHeaders),
-        };
-      }
+      return {
+        data: this._cacheEntryGet<T>(requestHash),
+        headers: new Headers(newHeaders),
+      };
+    }
 
-      if (this._conditionalRequestsEnabled && cacheability.metadata.etag) {
-        headers[consts.IF_NONE_MATCH_HEADER] = cacheability.metadata.etag;
-      }
+    if (this._conditionalRequestsEnabled && entry?.extensions?.etag) {
+      headers[consts.IF_NONE_MATCH_HEADER] = entry.extensions.etag;
     }
 
     const pendingRequest = this._trackRequest(requestHash);
@@ -413,36 +428,41 @@ export class Getta {
       return pendingRequest;
     }
 
-    return this._getResolve(
+    return this._getResolve<T>(
       requestHash,
-      await this._fetch(endpoint, { headers: { ...this._headers, ...headers }, method: consts.GET_METHOD }, context),
+      await this._fetch<T>(endpoint, { headers: { ...this._headers, ...headers }, method: consts.GET_METHOD }, context),
     );
   }
 
-  private async _getResolve(requestHash: string, res: FetchResponse) {
+  private _getResolve<T>(requestHash: string, res: FetchResponse<T>) {
     const { data, headers, status } = res;
 
     if (status === consts.NOT_FOUND_STATUS_CODE) {
-      void this._cacheEntryDelete(requestHash);
-      let { errors } = res;
-      errors ??= [];
-      errors.push(new Error(consts.RESOURCE_NOT_FOUND_ERROR));
-      res.errors = errors;
+      this._cacheEntryDelete(requestHash);
+      throw new Error(consts.RESOURCE_NOT_FOUND_ERROR);
     } else if (status === consts.NOT_MODIFIED_STATUS_CODE) {
-      const cachedData = await this._cacheEntryGet(requestHash);
+      const cachedData = this._cacheEntryGet<T>(requestHash, { ignoreCacheExpiry: true });
 
       if (cachedData) {
-        void this._cacheEntrySet(requestHash, cachedData, {
-          cacheControl: headers.get(consts.CACHE_CONTROL_HEADER) ?? undefined,
-          etag: headers.get(consts.ETAG_HEADER) ?? undefined,
+        this._cacheEntrySet(requestHash, cachedData, {
+          cacheOptions: {
+            headers,
+          },
+          extensions: {
+            etag: headers.get(consts.ETAG_HEADER) ?? undefined,
+          },
         });
 
         res.data = cachedData;
       }
     } else if (data) {
-      void this._cacheEntrySet(requestHash, data, {
-        cacheControl: headers.get(consts.CACHE_CONTROL_HEADER) ?? undefined,
-        etag: headers.get(consts.ETAG_HEADER) ?? undefined,
+      this._cacheEntrySet(requestHash, data, {
+        cacheOptions: {
+          headers,
+        },
+        extensions: {
+          etag: headers.get(consts.ETAG_HEADER) ?? undefined,
+        },
       });
     }
 

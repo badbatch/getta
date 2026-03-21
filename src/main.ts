@@ -119,7 +119,7 @@ export class Getta {
 
     // Struggle to type this well
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    (this as unknown as Record<string, unknown>)[name] = async <Resource extends PlainObject>(
+    (this as unknown as PlainObject)[name] = async <Resource extends PlainObject>(
       { method: requestMethod, ...otherOptionOverrides }: RequestOptions = {},
       context?: Context,
     ) =>
@@ -589,6 +589,10 @@ export class Getta {
   }
 
   private _startRateLimit() {
+    if (!this._rateLimit) {
+      return;
+    }
+
     this._rateLimitTimer ??= setTimeout(() => {
       this._rateLimitTimer = undefined;
       this._rateLimitCount = 0;
@@ -613,8 +617,11 @@ export class Getta {
   }
 }
 
-export const createRestClient = <N extends string>(options: ConstructorOptions, shortcuts?: Shortcuts) => {
-  // Typing proving too complex without casting.
+export const createRestClient = <N extends string, LogData extends PlainObject = PlainObject>(
+  options: ConstructorOptions<LogData>,
+  shortcuts?: Shortcuts,
+) => {
+  // @ts-expect-error Typing proving too complex without casting.
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const getta = new Getta(options) as Getta & ShortcutProperties<N>;
 

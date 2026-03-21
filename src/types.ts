@@ -1,7 +1,7 @@
 import { type Core } from '@cachemap/core';
 import { type SetRequired } from 'type-fest';
 
-export interface ConstructorOptions {
+export interface ConstructorOptions<LogData extends PlainObject = PlainObject> {
   /**
    * The base path of the url for all requests made from
    * an instance of the rest client, i.e. https://www.example.com/api.
@@ -36,7 +36,7 @@ export interface ConstructorOptions {
   /**
    * Log function to pass rest client logs to a logger.
    */
-  log?: Log;
+  log?: Log<LogData>;
   /**
    * The maximum number of times a request can redirect before
    * the rest client returns an error.
@@ -118,7 +118,7 @@ export interface FetchRedirectHandlerOptions extends FetchOptions {
 
 export type Func = (...args: unknown[]) => unknown;
 
-export type Log = (message: string, data: PlainObject) => void;
+export type Log<T extends PlainObject = PlainObject> = (message: string, data: T) => void;
 
 export type MetadataExtensions = {
   etag?: string;

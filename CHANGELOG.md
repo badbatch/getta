@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.22-unstable-12345.2 (2026-03-21)
+
+### Bug Fixes
+
+* firm up log data types (1d251d57)
+
 ## 1.0.22-unstable-12345.1 (2026-03-21)
 
 ### Bug Fixes

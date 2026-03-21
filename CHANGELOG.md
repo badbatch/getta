@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.22-unstable-12345.1 (2026-03-21)
+
+### Bug Fixes
+
+* add log data generic and fix test memory leak (78dd8e21)
+
 ## 1.0.22-unstable-12345.0 (2026-03-21)
 
 ### Refactors

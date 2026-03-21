@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.22-unstable-12345.0 (2026-03-21)
+
+### Refactors
+
+* last of changes (23cabe9b)
+* finish updating tests and other minor optimisations (87670e0c)
+* integrate new cachemap and minor optimisations (a060a3bc)
+
 ## 1.0.21 (2025-06-18)
 
 ### Refactors

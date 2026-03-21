@@ -47,7 +47,7 @@ export class Getta {
   private _queryParams: SearchParams;
   private _rateLimit: boolean;
   private _rateLimitCount = 0;
-  private _rateLimitedRequestQueue: RequestQueue = [];
+  private _rateLimitedRequestQueue: RequestQueue<unknown> = [];
   private _rateLimitPerSecond: number;
   private _rateLimitTimer?: ReturnType<typeof setTimeout>;
   private _requestRetryWait: number;
@@ -213,14 +213,16 @@ export class Getta {
       this._cacheEntryDelete(cacheKey);
     }
 
-    return this._fetch(
-      endpoint,
-      {
-        headers: { ...this._headers, ...headers },
-        method: consts.DELETE_METHOD,
-        ...rest,
-      },
-      context,
+    return this._schedule(() =>
+      this._fetch(
+        endpoint,
+        {
+          headers: { ...this._headers, ...headers },
+          method: consts.DELETE_METHOD,
+          ...rest,
+        },
+        context,
+      ),
     );
   }
 
@@ -330,7 +332,10 @@ export class Getta {
     }
 
     const redirectMethod = status === 303 ? consts.GET_METHOD : method;
-    return this._fetch<T>(endpoint, { method: redirectMethod, redirects: redirects + 1, ...rest });
+
+    return this._schedule(() =>
+      this._fetch<T>(endpoint, { method: redirectMethod, redirects: redirects + 1, ...rest }),
+    );
   }
 
   private async _fetchRetryHandler<T>(
@@ -347,7 +352,7 @@ export class Getta {
     }
 
     await delay(this._requestRetryWait);
-    return this._fetch<T>(endpoint, { retries: retries + 1, ...rest });
+    return this._schedule(() => this._fetch<T>(endpoint, { retries: retries + 1, ...rest }));
   }
 
   private async _get<T>(
@@ -420,12 +425,7 @@ export class Getta {
       }
     };
 
-    if (this._rateLimit && this._rateLimitCount >= this._rateLimitPerSecond) {
-      return await this._addRequestToRateLimitedQueue<T>(getResolve);
-    }
-
-    this._startRateLimit();
-    return await getResolve();
+    return this._schedule(getResolve);
   }
 
   private _getResolve<T>(cacheKey: string, res: FetchResponse<T>) {
@@ -501,30 +501,32 @@ export class Getta {
   }
 
   private _releaseRateLimitedRequestQueue() {
-    const available = this._rateLimitPerSecond - this._rateLimitCount;
+    while (this._rateLimitedRequestQueue.length > 0 && this._rateLimitCount < this._rateLimitPerSecond) {
+      const available = this._rateLimitPerSecond - this._rateLimitCount;
 
-    if (available <= 0) {
-      return;
-    }
-
-    const queue = [...this._rateLimitedRequestQueue];
-    this._rateLimitedRequestQueue = [];
-    const toProcess = queue.slice(0, available);
-    const remaining = queue.slice(available);
-
-    for (const [resolve, reject, callback] of toProcess) {
-      this._startRateLimit();
-
-      try {
-        const result = callback();
-        result.then(resolve, reject);
-      } catch (error) {
-        reject(error);
+      if (available <= 0) {
+        return;
       }
-    }
 
-    if (remaining.length > 0) {
-      this._rateLimitedRequestQueue.push(...remaining);
+      const queue = [...this._rateLimitedRequestQueue];
+      this._rateLimitedRequestQueue = [];
+      const toProcess = queue.slice(0, available);
+      const remaining = queue.slice(available);
+
+      for (const [resolve, reject, callback] of toProcess) {
+        this._startRateLimit();
+
+        try {
+          const result = callback();
+          result.then(resolve, reject);
+        } catch (error) {
+          reject(error);
+        }
+      }
+
+      if (remaining.length > 0) {
+        this._rateLimitedRequestQueue.push(...remaining);
+      }
     }
   }
 
@@ -542,15 +544,17 @@ export class Getta {
 
     endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
 
-    return this._fetch(
-      endpoint,
-      {
-        body,
-        headers: { ...this._headers, ...headers },
-        method,
-        ...rest,
-      },
-      context,
+    return this._schedule(() =>
+      this._fetch(
+        endpoint,
+        {
+          body,
+          headers: { ...this._headers, ...headers },
+          method,
+          ...rest,
+        },
+        context,
+      ),
     );
   }
 
@@ -568,6 +572,15 @@ export class Getta {
     this._requestTracker.pending.delete(cacheKey);
   }
 
+  private async _schedule<T>(callback: () => Promise<FetchResponse<T>>) {
+    if (this._rateLimit && this._rateLimitCount >= this._rateLimitPerSecond) {
+      return this._addRequestToRateLimitedQueue(callback);
+    }
+
+    this._startRateLimit();
+    return await callback();
+  }
+
   private _setPendingRequest(cacheKey: string, resolver: PendingRequestResolvers) {
     let pending = this._requestTracker.pending.get(cacheKey);
     pending ??= [];
@@ -580,7 +593,7 @@ export class Getta {
       this._rateLimitTimer = undefined;
       this._rateLimitCount = 0;
 
-      if (this._rateLimitedRequestQueue.length > 0 && this._rateLimitCount < this._rateLimitPerSecond) {
+      if (this._rateLimitedRequestQueue.length > 0) {
         this._releaseRateLimitedRequestQueue();
       }
     }, 1000);

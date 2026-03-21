@@ -18,7 +18,6 @@ You create an instance of the rest client with the `createRestClient` function. 
 
 ```typescript
 import { Core } from '@cachemap/core';
-import { init as map } from '@cachemap/map';
 import { createRestClient } from 'getta';
 import { performance } from 'node:perf_hooks';
 
@@ -26,7 +25,6 @@ const restClient = createRestClient({
   basePath: 'https://www.example.com',
   cache: new Core({
     name: 'restClient',
-    store: map(),
     type: 'example',
   }),
   performance

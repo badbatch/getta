@@ -139,6 +139,12 @@ export interface Performance {
 
 export type PlainObject = Record<string, unknown>;
 
+export type QueuedRequest<T> = [
+  (value: FetchResponse<T>) => void,
+  (value: unknown) => void,
+  () => Promise<FetchResponse<T>>,
+];
+
 export interface RequestOptions {
   /**
    * For POST and PUT methods, the body to send with the request.
@@ -162,7 +168,7 @@ export interface RequestOptions {
   queryParams?: Record<string, string>;
 }
 
-export type RequestQueue = [(value: FetchResponse) => void, (value: unknown) => void, () => Promise<FetchResponse>][];
+export type RequestQueue<T> = QueuedRequest<T>[];
 
 export interface ResponseDataWithErrors<Resource = unknown> {
   data?: Resource;

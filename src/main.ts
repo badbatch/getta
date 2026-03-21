@@ -1,7 +1,7 @@
 import { type Core, type GetOptions, type SetOptions } from '@cachemap/core';
 import { merge } from 'lodash-es';
-import { Md5 } from 'ts-md5';
 import { type SetRequired } from 'type-fest';
+import { generateCacheKey } from '#helpers/generateCacheKey.ts';
 import * as consts from './constants.ts';
 import { appendSearchParams, buildEndpoint } from './helpers/buildEndpoint/index.ts';
 import { defaultPathTemplateCallback } from './helpers/defaultPathTemplateCallback/index.ts';
@@ -49,9 +49,9 @@ export class Getta {
   private _rateLimitCount = 0;
   private _rateLimitedRequestQueue: RequestQueue = [];
   private _rateLimitPerSecond: number;
-  private _rateLimitTimer: NodeJS.Timeout | undefined = undefined;
+  private _rateLimitTimer?: ReturnType<typeof setTimeout>;
   private _requestRetryWait: number;
-  private _requestTracker: RequestTracker = { active: [], pending: new Map() };
+  private _requestTracker: RequestTracker = { active: new Set(), pending: new Map() };
   private _streamReader: StreamReader;
 
   constructor(options: ConstructorOptions) {
@@ -109,12 +109,17 @@ export class Getta {
     path: string,
     { method, ...otherOptions }: SetRequired<RequestOptions, 'method'>,
   ) {
+    if (name in this) {
+      throw new Error(`Shortcut "${name}" already exists`);
+    }
+
     if (!consts.FETCH_METHODS.includes(method)) {
       throw new Error(`${consts.INVALID_FETCH_METHOD_ERROR} ${method}`);
     }
 
-    // @ts-expect-error No index signature with a parameter of type 'string'
-    this[name] = async <Resource extends PlainObject>(
+    // Struggle to type this well
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    (this as unknown as Record<string, unknown>)[name] = async <Resource extends PlainObject>(
       { method: requestMethod, ...otherOptionOverrides }: RequestOptions = {},
       context?: Context,
     ) =>
@@ -145,47 +150,47 @@ export class Getta {
     return this._request(path, { ...options, method: consts.POST_METHOD }, context);
   }
 
-  public async put(path: string, options: Omit<SetRequired<RequestOptions, 'body'>, 'methood'>, context?: Context) {
+  public async put(path: string, options: Omit<SetRequired<RequestOptions, 'body'>, 'method'>, context?: Context) {
     return this._request(path, { ...options, method: consts.PUT_METHOD }, context);
   }
 
-  private _addRequestToRateLimitedQueue<T>(endpoint: string, options: FetchOptions, context: Context) {
-    return new Promise((resolve: (value: FetchResponse<T>) => void) => {
+  private _addRequestToRateLimitedQueue<T>(callback: () => Promise<FetchResponse<T>>) {
+    return new Promise((resolve: (value: FetchResponse<T>) => void, reject: (error: unknown) => void) => {
       // @ts-expect-error Struggling to line up types in this situation
-      this._rateLimitedRequestQueue.push([resolve, endpoint, options, context]);
+      this._rateLimitedRequestQueue.push([resolve, reject, callback]);
     });
   }
 
-  private _cacheEntryDelete(requestHash: string): boolean {
+  private _cacheEntryDelete(cacheKey: string): boolean {
     if (!this._cache) {
       return false;
     }
 
-    return this._cache.delete(requestHash);
+    return this._cache.delete(cacheKey);
   }
 
-  private _cacheEntryGet<T = unknown>(requestHash: string, options: GetOptions = {}): T | undefined {
+  private _cacheEntryGet<T = unknown>(cacheKey: string, options: GetOptions = {}): T | undefined {
     if (!this._cache) {
       return undefined;
     }
 
-    return this._cache.get<T>(requestHash, options);
+    return this._cache.get<T>(cacheKey, options);
   }
 
-  private _cacheEntryHas(requestHash: string): boolean {
+  private _cacheEntryHas(cacheKey: string): boolean {
     if (!this._cache) {
       return false;
     }
 
-    return this._cache.has(requestHash);
+    return this._cache.has(cacheKey);
   }
 
-  private _cacheEntrySet(requestHash: string, data: unknown, setOptions: SetOptions): void {
+  private _cacheEntrySet(cacheKey: string, data: unknown, setOptions: SetOptions): void {
     if (!this._cache) {
       return;
     }
 
-    this._cache.set(requestHash, data, setOptions);
+    this._cache.set(cacheKey, data, setOptions);
   }
 
   private async _delete(
@@ -201,11 +206,11 @@ export class Getta {
     });
 
     endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
-    const requestHash = Md5.hashStr(endpoint);
-    const hasEntry = this._cacheEntryHas(requestHash);
+    const cacheKey = generateCacheKey(endpoint, headers);
+    const hasEntry = this._cacheEntryHas(cacheKey);
 
     if (hasEntry) {
-      this._cacheEntryDelete(requestHash);
+      this._cacheEntryDelete(cacheKey);
     }
 
     return this._fetch(
@@ -219,119 +224,85 @@ export class Getta {
     );
   }
 
-  private async _fetch<T>(endpoint: string, options: FetchOptions, context: Context = {}): Promise<FetchResponse<T>> {
+  private async _executeFetch(endpoint: string, options: FetchOptions, context: Context = {}): Promise<Response> {
+    const { redirects, retries, ...rest } = options;
     context.startTime = this._performance.now();
+    const controller = new AbortController();
+
+    const fetchTimer = setTimeout(() => {
+      controller.abort();
+    }, this._fetchTimeout);
+
+    if (!redirects && !retries) {
+      this._log?.(consts.REQUEST_SENT, {
+        context: {
+          fetchMethod: rest.method,
+          fetchRedirects: redirects,
+          fetchRequestHeaders: rest.headers,
+          fetchRetries: retries,
+          fetchUrl: endpoint,
+          logEntryName: 'FETCH_REQUEST_SENT',
+          ...context,
+        },
+        stats: { startTime: context.startTime },
+      });
+    }
 
     try {
+      return await fetch(endpoint, { ...rest, signal: controller.signal });
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error(`${consts.FETCH_TIMEOUT_ERROR} ${String(this._fetchTimeout)}ms.`);
+      }
+
+      throw error;
+    } finally {
+      clearTimeout(fetchTimer);
+    }
+  }
+
+  private async _fetch<T>(endpoint: string, options: FetchOptions, context: Context = {}): Promise<FetchResponse<T>> {
+    try {
       const { redirects, retries, ...rest } = options;
+      const res = await this._executeFetch(endpoint, options, context);
+      const { body, headers, status } = res;
+      const responseGroup = getResponseGroup(status);
 
-      return await new Promise<FetchResponse<T>>((resolve, reject) => {
-        void (async () => {
-          const fetchTimer = setTimeout(() => {
-            reject(new Error(`${consts.FETCH_TIMEOUT_ERROR} ${String(this._fetchTimeout)}ms.`));
-          }, this._fetchTimeout);
+      if (responseGroup === consts.REDIRECTION_REPSONSE && headers.has(consts.LOCATION_HEADER)) {
+        return await this._fetchRedirectHandler<T>(
+          res,
+          // Has check above means this cannot be undefined.
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          headers.get(consts.LOCATION_HEADER)!,
+          {
+            redirects,
+            status,
+            ...rest,
+          },
+          context,
+        );
+      }
 
-          if (this._rateLimit) {
-            this._startRateLimit();
+      if (responseGroup === consts.SERVER_ERROR_REPSONSE) {
+        return await this._fetchRetryHandler<T>(
+          res,
+          endpoint,
+          {
+            retries,
+            ...rest,
+          },
+          context,
+        );
+      }
 
-            if (!(this._rateLimitCount < this._rateLimitPerSecond)) {
-              clearTimeout(fetchTimer);
-              resolve(await this._addRequestToRateLimitedQueue<T>(endpoint, options, context));
-              return;
-            }
-          }
-
-          if (!redirects && !retries) {
-            this._log?.(consts.REQUEST_SENT, {
-              context: {
-                fetchMethod: rest.method,
-                fetchRedirets: redirects,
-                fetchRequestHeaders: rest.headers,
-                fetchRetries: retries,
-                fetchUrl: endpoint,
-                logEntryName: 'FETCH_REQUEST_SENT',
-                ...context,
-              },
-              stats: { startTime: context.startTime },
-            });
-          }
-
-          // Casting as fetch response does not support generics.
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          const res = (await fetch(endpoint, rest)) as FetchResponse<T>;
-
-          clearTimeout(fetchTimer);
-
-          const { body, headers, status } = res;
-          const responseGroup = getResponseGroup(status);
-
-          if (responseGroup === consts.REDIRECTION_REPSONSE && headers.has(consts.LOCATION_HEADER)) {
-            try {
-              const result = await this._fetchRedirectHandler<T>(
-                res,
-                // Has check above means this cannot be undefined.
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                headers.get(consts.LOCATION_HEADER)!,
-                {
-                  redirects,
-                  status,
-                  ...rest,
-                },
-                context,
-              );
-
-              resolve(result);
-            } catch (error: unknown) {
-              reject(
-                error instanceof Error
-                  ? error
-                  : new Error(`Unable to ${rest.method} ${endpoint} due to upstream error`),
-              );
-            }
-
-            return;
-          }
-
-          if (responseGroup === consts.SERVER_ERROR_REPSONSE) {
-            try {
-              const result = await this._fetchRetryHandler<T>(
-                res,
-                endpoint,
-                {
-                  retries,
-                  ...rest,
-                },
-                context,
-              );
-
-              resolve(result);
-            } catch (error: unknown) {
-              reject(
-                error instanceof Error
-                  ? error
-                  : new Error(`Unable to ${rest.method} ${endpoint} due to upstream error`),
-              );
-            }
-
-            return;
-          }
-
-          try {
-            Object.defineProperty(res, 'data', {
-              enumerable: true,
-              value: body ? this._bodyParser(await res[this._streamReader]()) : undefined,
-              writable: true,
-            });
-
-            this._logResponse(res, endpoint, options, context);
-            resolve(res);
-          } catch (error) {
-            reject(
-              error instanceof Error ? error : new Error(`Unable to ${rest.method} ${endpoint} due to upstream error`),
-            );
-          }
-        })();
+      Object.defineProperty(res, 'data', {
+        enumerable: true,
+        value: body ? this._bodyParser(await res[this._streamReader]()) : undefined,
+        writable: true,
       });
+
+      this._logResponse(res, endpoint, options, context);
+      return res;
     } catch (error) {
       const { startTime, ...rest } = context;
       const endTime = this._performance.now();
@@ -392,9 +363,8 @@ export class Getta {
     });
 
     endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
-
-    const requestHash = Md5.hashStr(endpoint);
-    const entry = this._cache?.getMetadataEntry<MetadataExtensions>(requestHash);
+    const cacheKey = generateCacheKey(endpoint, headers);
+    const entry = this._cache?.getMetadataEntry<MetadataExtensions>(cacheKey);
 
     if (entry?.cacheability.checkTTL()) {
       const newHeaders = {
@@ -413,7 +383,7 @@ export class Getta {
       });
 
       return {
-        data: this._cacheEntryGet<T>(requestHash),
+        data: this._cacheEntryGet<T>(cacheKey),
         headers: new Headers(newHeaders),
       };
     }
@@ -422,29 +392,53 @@ export class Getta {
       headers[consts.IF_NONE_MATCH_HEADER] = entry.extensions.etag;
     }
 
-    const pendingRequest = this._trackRequest(requestHash);
+    const pendingRequest = this._trackRequest(cacheKey);
 
     if (pendingRequest) {
       return pendingRequest;
     }
 
-    return this._getResolve<T>(
-      requestHash,
-      await this._fetch<T>(endpoint, { headers: { ...this._headers, ...headers }, method: consts.GET_METHOD }, context),
-    );
+    const getResolve = async () => {
+      try {
+        return this._getResolve<T>(
+          cacheKey,
+          await this._fetch<T>(
+            endpoint,
+            { headers: { ...this._headers, ...headers }, method: consts.GET_METHOD },
+            context,
+          ),
+        );
+      } catch (error) {
+        this._rejectPendingRequests(
+          cacheKey,
+          error instanceof Error ? error : new Error('Oops, something went wrong!'),
+        );
+
+        throw error;
+      } finally {
+        this._requestTracker.active.delete(cacheKey);
+      }
+    };
+
+    if (this._rateLimit && this._rateLimitCount >= this._rateLimitPerSecond) {
+      return await this._addRequestToRateLimitedQueue<T>(getResolve);
+    }
+
+    this._startRateLimit();
+    return await getResolve();
   }
 
-  private _getResolve<T>(requestHash: string, res: FetchResponse<T>) {
+  private _getResolve<T>(cacheKey: string, res: FetchResponse<T>) {
     const { data, headers, status } = res;
 
     if (status === consts.NOT_FOUND_STATUS_CODE) {
-      this._cacheEntryDelete(requestHash);
+      this._cacheEntryDelete(cacheKey);
       throw new Error(consts.RESOURCE_NOT_FOUND_ERROR);
     } else if (status === consts.NOT_MODIFIED_STATUS_CODE) {
-      const cachedData = this._cacheEntryGet<T>(requestHash, { ignoreCacheExpiry: true });
+      const cachedData = this._cacheEntryGet<T>(cacheKey, { ignoreCacheExpiry: true });
 
       if (cachedData) {
-        this._cacheEntrySet(requestHash, cachedData, {
+        this._cacheEntrySet(cacheKey, cachedData, {
           cacheOptions: {
             headers,
           },
@@ -456,7 +450,7 @@ export class Getta {
         res.data = cachedData;
       }
     } else if (data) {
-      this._cacheEntrySet(requestHash, data, {
+      this._cacheEntrySet(cacheKey, data, {
         cacheOptions: {
           headers,
         },
@@ -466,8 +460,7 @@ export class Getta {
       });
     }
 
-    this._resolvePendingRequests(requestHash, res);
-    this._requestTracker.active = this._requestTracker.active.filter(value => value !== requestHash);
+    this._resolvePendingRequests(cacheKey, res);
     return res;
   }
 
@@ -493,12 +486,46 @@ export class Getta {
     });
   }
 
-  private async _releaseRateLimitedRequestQueue() {
-    for (const [resolve, endpoint, options, context] of this._rateLimitedRequestQueue) {
-      resolve(await this._fetch(endpoint, options, context));
+  private _rejectPendingRequests(cacheKey: string, error: Error) {
+    const pendingRequests = this._requestTracker.pending.get(cacheKey);
+
+    if (!pendingRequests) {
+      return;
     }
 
+    for (const { reject } of pendingRequests) {
+      reject(error);
+    }
+
+    this._requestTracker.pending.delete(cacheKey);
+  }
+
+  private _releaseRateLimitedRequestQueue() {
+    const available = this._rateLimitPerSecond - this._rateLimitCount;
+
+    if (available <= 0) {
+      return;
+    }
+
+    const queue = [...this._rateLimitedRequestQueue];
     this._rateLimitedRequestQueue = [];
+    const toProcess = queue.slice(0, available);
+    const remaining = queue.slice(available);
+
+    for (const [resolve, reject, callback] of toProcess) {
+      this._startRateLimit();
+
+      try {
+        const result = callback();
+        result.then(resolve, reject);
+      } catch (error) {
+        reject(error);
+      }
+    }
+
+    if (remaining.length > 0) {
+      this._rateLimitedRequestQueue.push(...remaining);
+    }
   }
 
   private async _request(
@@ -527,8 +554,8 @@ export class Getta {
     );
   }
 
-  private _resolvePendingRequests(requestHash: string, responseData: FetchResponse) {
-    const pendingRequests = this._requestTracker.pending.get(requestHash);
+  private _resolvePendingRequests(cacheKey: string, responseData: FetchResponse) {
+    const pendingRequests = this._requestTracker.pending.get(cacheKey);
 
     if (!pendingRequests) {
       return;
@@ -538,14 +565,14 @@ export class Getta {
       resolve(responseData);
     }
 
-    this._requestTracker.pending.delete(requestHash);
+    this._requestTracker.pending.delete(cacheKey);
   }
 
-  private _setPendingRequest(requestHash: string, resolver: PendingRequestResolvers) {
-    let pending = this._requestTracker.pending.get(requestHash);
+  private _setPendingRequest(cacheKey: string, resolver: PendingRequestResolvers) {
+    let pending = this._requestTracker.pending.get(cacheKey);
     pending ??= [];
     pending.push(resolver);
-    this._requestTracker.pending.set(requestHash, pending);
+    this._requestTracker.pending.set(cacheKey, pending);
   }
 
   private _startRateLimit() {
@@ -553,22 +580,22 @@ export class Getta {
       this._rateLimitTimer = undefined;
       this._rateLimitCount = 0;
 
-      if (this._rateLimitedRequestQueue.length > 0) {
-        void this._releaseRateLimitedRequestQueue();
+      if (this._rateLimitedRequestQueue.length > 0 && this._rateLimitCount < this._rateLimitPerSecond) {
+        this._releaseRateLimitedRequestQueue();
       }
     }, 1000);
 
     this._rateLimitCount += 1;
   }
 
-  private _trackRequest(requestHash: string): Promise<FetchResponse> | undefined {
-    if (this._requestTracker.active.includes(requestHash)) {
-      return new Promise((resolve: PendingRequestResolver) => {
-        this._setPendingRequest(requestHash, { resolve });
+  private _trackRequest(cacheKey: string): Promise<FetchResponse> | undefined {
+    if (this._requestTracker.active.has(cacheKey)) {
+      return new Promise((resolve: PendingRequestResolver, reject) => {
+        this._setPendingRequest(cacheKey, { reject, resolve });
       });
     }
 
-    this._requestTracker.active.push(requestHash);
+    this._requestTracker.active.add(cacheKey);
     return;
   }
 }

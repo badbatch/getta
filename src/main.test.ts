@@ -1,7 +1,6 @@
 import { jest } from '@jest/globals';
 import { mockFetch } from 'fetch-mocked';
 import { performance } from 'node:perf_hooks';
-import { Md5 } from 'ts-md5';
 import { PRD_136_7317 } from './__testUtils__/data/index.ts';
 import {
   basePath,
@@ -313,7 +312,7 @@ describe('Getta', () => {
           expect(mockedFetch).toHaveBeenCalledTimes(1);
         });
 
-        it('should return the correct response', async () => {
+        it('should throw the expected error', async () => {
           await expect(
             restClient.getProduct({
               pathTemplateData: idPathTemplateData,
@@ -438,7 +437,7 @@ describe('Getta', () => {
 
       it('should delete any matching cache entry', async () => {
         await restClient.delete(defaultPath, { pathTemplateData: defaultPathTemplateData });
-        expect(restClient.cache?.has(Md5.hashStr(buildTestEndpoint(defaultPath)))).toBe(false);
+        expect(restClient.cache?.has(buildTestEndpoint(defaultPath))).toBe(false);
       });
     });
 
@@ -468,7 +467,7 @@ describe('Getta', () => {
 
       it('should delete any matching cache entry', async () => {
         await restClient.deleteProduct({ pathTemplateData: idPathTemplateData });
-        expect(restClient.cache?.has(Md5.hashStr(buildTestEndpoint(defaultPath)))).toBe(false);
+        expect(restClient.cache?.has(buildTestEndpoint(defaultPath))).toBe(false);
       });
     });
   });
@@ -569,12 +568,12 @@ describe('Getta', () => {
         restClient._addRequestToRateLimitedQueue = jest.fn().mockResolvedValue({ status: 200 });
       });
 
-      it('should call fetch one less than the rate limit', async () => {
+      it('should call fetch up to the rate limit', async () => {
         await Promise.all(
           requestKeys.map(key => restClient.get(`product/${String(key)}`, { headers: defaultHeaders })),
         );
 
-        expect(mockedFetch).toHaveBeenCalledTimes(49);
+        expect(mockedFetch).toHaveBeenCalledTimes(50);
       });
 
       it('should add the excess requests to rateLimitedRequestQueue', async () => {
@@ -584,7 +583,7 @@ describe('Getta', () => {
 
         // @ts-expect-error property is private
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        expect(restClient._addRequestToRateLimitedQueue).toHaveBeenCalledTimes(6);
+        expect(restClient._addRequestToRateLimitedQueue).toHaveBeenCalledTimes(5);
       });
     });
   });

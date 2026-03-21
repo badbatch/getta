@@ -129,6 +129,7 @@ export type PathTemplateCallback = (path: string, data: Record<string, string>, 
 export type PendingRequestResolver = (value: FetchResponse) => void;
 
 export interface PendingRequestResolvers {
+  reject: (error: Error) => void;
   resolve: PendingRequestResolver;
 }
 
@@ -161,7 +162,7 @@ export interface RequestOptions {
   queryParams?: Record<string, string>;
 }
 
-export type RequestQueue = [(value: FetchResponse) => void, string, FetchOptions, PlainObject][];
+export type RequestQueue = [(value: FetchResponse) => void, (value: unknown) => void, () => Promise<FetchResponse>][];
 
 export interface ResponseDataWithErrors<Resource = unknown> {
   data?: Resource;
@@ -169,7 +170,7 @@ export interface ResponseDataWithErrors<Resource = unknown> {
 }
 
 export interface RequestTracker {
-  active: string[];
+  active: Set<string>;
   pending: Map<string, PendingRequestResolvers[]>;
 }
 

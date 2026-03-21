@@ -1,7 +1,7 @@
 import { type Core } from '@cachemap/core';
 import { type SetRequired } from 'type-fest';
 
-export interface ConstructorOptions<LogData extends PlainObject = PlainObject> {
+export interface ConstructorOptions<D extends PlainObject = PlainObject> {
   /**
    * The base path of the url for all requests made from
    * an instance of the rest client, i.e. https://www.example.com/api.
@@ -36,7 +36,7 @@ export interface ConstructorOptions<LogData extends PlainObject = PlainObject> {
   /**
    * Log function to pass rest client logs to a logger.
    */
-  log?: Log<LogData>;
+  log?: Log<D>;
   /**
    * The maximum number of times a request can redirect before
    * the rest client returns an error.
@@ -96,9 +96,9 @@ export interface ConstructorOptions<LogData extends PlainObject = PlainObject> {
   streamReader?: StreamReader;
 }
 
-export interface Context {
-  startTime?: number;
-}
+export type Context<T extends PlainObject = PlainObject> = {
+  __startTime?: number;
+} & T;
 
 export type FetchMethod = 'get' | 'post' | 'put' | 'delete';
 
@@ -118,7 +118,28 @@ export interface FetchRedirectHandlerOptions extends FetchOptions {
 
 export type Func = (...args: unknown[]) => unknown;
 
-export type Log<T extends PlainObject = PlainObject> = (message: string, data: T) => void;
+export interface LogDataContext {
+  fetchMethod?: FetchMethod;
+  fetchRedirects?: number;
+  fetchResponseHeaders?: Record<string, string>;
+  fetchResponseStatus?: number;
+  fetchRetries?: number;
+  fetchUrl: string;
+  logEntryName: string;
+}
+
+export type LogDataStats = {
+  duration?: number;
+  endTime?: number;
+  startTime?: number;
+};
+
+export interface LogData<Cxt extends PlainObject = PlainObject> {
+  context: LogDataContext & Cxt;
+  stats?: LogDataStats;
+}
+
+export type Log<T extends PlainObject = PlainObject> = (message: string, data: LogData<T>) => void;
 
 export type MetadataExtensions = {
   etag?: string;

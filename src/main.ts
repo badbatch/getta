@@ -228,7 +228,7 @@ export class Getta {
 
   private async _executeFetch(endpoint: string, options: FetchOptions, context: Context = {}): Promise<Response> {
     const { redirects, retries, ...rest } = options;
-    context.startTime = this._performance.now();
+    context.__startTime = this._performance.now();
     const controller = new AbortController();
 
     const fetchTimer = setTimeout(() => {
@@ -246,7 +246,7 @@ export class Getta {
           logEntryName: 'FETCH_REQUEST_SENT',
           ...context,
         },
-        stats: { startTime: context.startTime },
+        stats: { startTime: context.__startTime },
       });
     }
 
@@ -306,12 +306,14 @@ export class Getta {
       this._logResponse(res, endpoint, options, context);
       return res;
     } catch (error) {
-      const { startTime, ...rest } = context;
+      // Internal context property
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const { __startTime, ...rest } = context;
       const endTime = this._performance.now();
 
       this._log?.(consts.REQUEST_FAILED, {
         context: { error, fetchUrl: endpoint, logEntryName: 'FETCH_REQUEST_FAILED', ...rest },
-        stats: { duration: startTime ? endTime - startTime : 0, endTime, startTime },
+        stats: { duration: __startTime ? endTime - __startTime : 0, endTime, startTime: __startTime },
       });
 
       throw error;
@@ -467,9 +469,11 @@ export class Getta {
   private _logResponse(res: FetchResponse, endpoint: string, options: FetchOptions, context: Context) {
     const { headers, status } = res;
     const { method, redirects, retries } = options;
-    const { startTime, ...otherContext } = context;
+    // Internal context property
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { __startTime, ...otherContext } = context;
     const endTime = this._performance.now();
-    const duration = startTime ? endTime - startTime : 0;
+    const duration = __startTime ? endTime - __startTime : 0;
 
     this._log?.(consts.RESPONSE_RECEIVED, {
       context: {
@@ -482,7 +486,7 @@ export class Getta {
         logEntryName: 'FETCH_RESPONSE_RECEIVED',
         ...otherContext,
       },
-      stats: { duration, endTime, startTime },
+      stats: { duration, endTime, startTime: __startTime },
     });
   }
 

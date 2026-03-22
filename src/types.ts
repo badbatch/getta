@@ -110,7 +110,7 @@ export interface FetchOptions {
   retries?: number;
 }
 
-export interface FetchResponse<Resource = unknown> extends ResponseDataWithErrors<Resource>, Response {}
+export interface FetchResponse<Resource = unknown> extends ResponseData<Resource>, Response {}
 
 export interface FetchRedirectHandlerOptions extends FetchOptions {
   status: number;
@@ -191,9 +191,8 @@ export interface RequestOptions {
 
 export type RequestQueue<T> = QueuedRequest<T>[];
 
-export interface ResponseDataWithErrors<Resource = unknown> {
-  data?: Resource;
-  errors?: Error[];
+export interface ResponseData<Resource = unknown> {
+  data: Resource;
 }
 
 export interface RequestTracker {

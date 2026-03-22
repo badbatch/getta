@@ -193,6 +193,18 @@ export class Getta {
     this._cache.set(cacheKey, data, setOptions);
   }
 
+  private async _createFetchResponse<T>(res: Response): Promise<FetchResponse<T>> {
+    Object.defineProperty(res, 'data', {
+      enumerable: true,
+      value: res.body ? this._bodyParser(await res[this._streamReader]()) : undefined,
+      writable: true,
+    });
+
+    // FetchResponse adds the data property above
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    return res as FetchResponse<T>;
+  }
+
   private async _delete(
     path: string,
     { headers = {}, pathTemplateData, queryParams = {}, ...rest }: Omit<RequestOptions, 'method'>,
@@ -267,7 +279,7 @@ export class Getta {
     try {
       const { redirects, retries, ...rest } = options;
       const res = await this._executeFetch(endpoint, options, context);
-      const { body, headers, status } = res;
+      const { headers, status } = res;
       const responseGroup = getResponseGroup(status);
 
       if (responseGroup === consts.REDIRECTION_REPSONSE && headers.has(consts.LOCATION_HEADER)) {
@@ -297,14 +309,8 @@ export class Getta {
         );
       }
 
-      Object.defineProperty(res, 'data', {
-        enumerable: true,
-        value: body ? this._bodyParser(await res[this._streamReader]()) : undefined,
-        writable: true,
-      });
-
       this._logResponse(res, endpoint, options, context);
-      return res;
+      return await this._createFetchResponse<T>(res);
     } catch (error) {
       // Internal context property
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -321,7 +327,7 @@ export class Getta {
   }
 
   private async _fetchRedirectHandler<T>(
-    res: FetchResponse<T>,
+    res: Response,
     endpoint: string,
     options: FetchRedirectHandlerOptions,
     context: Context,
@@ -340,12 +346,7 @@ export class Getta {
     );
   }
 
-  private async _fetchRetryHandler<T>(
-    res: FetchResponse<T>,
-    endpoint: string,
-    options: FetchOptions,
-    context: Context,
-  ) {
+  private async _fetchRetryHandler<T>(res: Response, endpoint: string, options: FetchOptions, context: Context) {
     const { retries = 1, ...rest } = options;
 
     if (retries === this._maxRetries) {
@@ -466,7 +467,7 @@ export class Getta {
     return res;
   }
 
-  private _logResponse(res: FetchResponse, endpoint: string, options: FetchOptions, context: Context) {
+  private _logResponse(res: Response, endpoint: string, options: FetchOptions, context: Context) {
     const { headers, status } = res;
     const { method, redirects, retries } = options;
     // Internal context property

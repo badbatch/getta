@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.22-unstable-12345.3 (2026-03-22)
+
+### Bug Fixes
+
+* remove error from return type (89b3b4a5)
+
 ## 1.0.22-unstable-12345.2 (2026-03-21)
 
 ### Bug Fixes

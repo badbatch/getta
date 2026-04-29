@@ -35,8 +35,8 @@ importers:
         version: 4.41.0
     devDependencies:
       '@cachemap/core':
-        specifier: ^5.3.3-unstable-12345.3
-        version: 5.3.3-unstable-12345.3
+        specifier: ^5.3.3-unstable-12345.4
+        version: 5.3.3-unstable-12345.4
       '@commitlint/cli':
         specifier: ^19.8.1
         version: 19.8.1(@types/node@24.0.1)(typescript@5.8.3)
@@ -358,8 +358,8 @@ packages:
   '@cachemap/controller@5.3.1-unstable-12345.2':
     resolution: {integrity: sha512-ikrJIzASg1Ju4FKXUOfzm1jboC0/O8Gy1t/dTY9XH32Ece/k+MU5rnXaalFJSioptFeuSYn8qwWTxnD8oZXW9g==}
 
-  '@cachemap/core@5.3.3-unstable-12345.3':
-    resolution: {integrity: sha512-/n1OpVnnDYykUNM9gixcZfOOKq8GAjaWDPlLGX24XXEW+qMKYRW2h/+SZI5STZVa9d9wJhUJAsMbdbf5wudOqQ==}
+  '@cachemap/core@5.3.3-unstable-12345.4':
+    resolution: {integrity: sha512-HqbdN4JLl5ew01QXAuwsO+v4IXGWIdy7NPVypFKP82SyU1ZXVQxAULdBk1SfkiKthCVEl5XDK/K1XfK3jm2sMQ==}
 
   '@cachemap/map@5.1.1-unstable-12345.2':
     resolution: {integrity: sha512-orUlHXnGj4k4My7qAD3nWvAQj3LZLeBC/yukIdJZoivUFkbCrjmMEJO5MGgBSBmHk1Tsn53qxE5wqTdBBMPcUw==}
@@ -4633,7 +4633,7 @@ snapshots:
       core-js: 3.48.0
       eventemitter3: 5.0.4
 
-  '@cachemap/core@5.3.3-unstable-12345.3':
+  '@cachemap/core@5.3.3-unstable-12345.4':
     dependencies:
       '@cachemap/controller': 5.3.1-unstable-12345.2
       '@cachemap/map': 5.1.1-unstable-12345.2

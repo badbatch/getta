@@ -56,7 +56,7 @@
     "type-fest": "^4.41.0"
   },
   "devDependencies": {
-    "@cachemap/core": "^5.3.3-unstable-12345.3",
+    "@cachemap/core": "^5.3.3-unstable-12345.4",
     "@commitlint/cli": "^19.8.1",
     "@jest/globals": "^29.7.0",
     "@repodog/cli": "^1.6.44",

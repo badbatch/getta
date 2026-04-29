@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.22-unstable-12345.4 (2026-04-29)
+
+### Bug Fixes
+
+* bump cachemap version (5a9a4934)
+
 ## 1.0.22-unstable-12345.3 (2026-03-22)
 
 ### Bug Fixes

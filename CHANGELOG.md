@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.22-unstable-12345.5 (2026-06-06)
+
+### New Features
+
+* add response data into log output (e1a10579)
+
 ## 1.0.22-unstable-12345.4 (2026-04-29)
 
 ### Bug Fixes

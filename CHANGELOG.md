@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.22-unstable-12345.6 (2026-06-06)
+
+### Refactors
+
+* rename log steps (e8245b68)
+
 ## 1.0.22-unstable-12345.5 (2026-06-06)
 
 ### New Features

@@ -2,6 +2,7 @@ import { type Core, type GetOptions, type SetOptions } from '@cachemap/core';
 import { merge } from 'lodash-es';
 import { type SetRequired } from 'type-fest';
 import { generateCacheKey } from '#helpers/generateCacheKey.ts';
+import { isFetchResponse } from '#helpers/isFetchResponse.ts';
 import * as consts from './constants.ts';
 import { appendSearchParams, buildEndpoint } from './helpers/buildEndpoint/index.ts';
 import { defaultPathTemplateCallback } from './helpers/defaultPathTemplateCallback/index.ts';
@@ -309,8 +310,9 @@ export class Getta {
         );
       }
 
-      this._logResponse(res, endpoint, options, context);
-      return await this._createFetchResponse<T>(res);
+      const fetchResponse = await this._createFetchResponse<T>(res);
+      this._logResponse(fetchResponse, endpoint, options, context);
+      return fetchResponse;
     } catch (error) {
       // Internal context property
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -467,7 +469,7 @@ export class Getta {
     return res;
   }
 
-  private _logResponse(res: Response, endpoint: string, options: FetchOptions, context: Context) {
+  private _logResponse(res: Response | FetchResponse, endpoint: string, options: FetchOptions, context: Context) {
     const { headers, status } = res;
     const { method, redirects, retries } = options;
     // Internal context property
@@ -488,6 +490,7 @@ export class Getta {
         ...otherContext,
       },
       stats: { duration, endTime, startTime: __startTime },
+      ...(isFetchResponse(res) ? { data: res.data } : {}),
     });
   }
 

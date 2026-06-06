@@ -249,14 +249,14 @@ export class Getta {
     }, this._fetchTimeout);
 
     if (!redirects && !retries) {
-      this._log?.(consts.REQUEST_SENT, {
+      this._log?.(consts.FETCH_REQUEST_SENT, {
         context: {
           fetchMethod: rest.method,
           fetchRedirects: redirects,
           fetchRequestHeaders: rest.headers,
           fetchRetries: retries,
           fetchUrl: endpoint,
-          logEntryName: 'FETCH_REQUEST_SENT',
+          logEntryName: consts.FETCH_REQUEST_SENT,
           ...context,
         },
         stats: { startTime: context.__startTime },
@@ -319,8 +319,8 @@ export class Getta {
       const { __startTime, ...rest } = context;
       const endTime = this._performance.now();
 
-      this._log?.(consts.REQUEST_FAILED, {
-        context: { error, fetchUrl: endpoint, logEntryName: 'FETCH_REQUEST_FAILED', ...rest },
+      this._log?.(consts.FETCH_REQUEST_FAILED, {
+        context: { error, fetchUrl: endpoint, logEntryName: consts.FETCH_REQUEST_FAILED, ...rest },
         stats: { duration: __startTime ? endTime - __startTime : 0, endTime, startTime: __startTime },
       });
 
@@ -382,12 +382,12 @@ export class Getta {
         'cache-control': entry.cacheability.printCacheControl(),
       };
 
-      this._log?.(consts.RESPONSE_FROM_CACHE, {
+      this._log?.(consts.FETCH_RESPONSE_FROM_CACHE, {
         context: {
           fetchMethod: consts.GET_METHOD,
           fetchResponseHeaders: newHeaders,
           fetchUrl: endpoint,
-          logEntryName: 'FETCH_RESPONSE_FROM_CACHE',
+          logEntryName: consts.FETCH_RESPONSE_FROM_CACHE,
           ...context,
         },
       });
@@ -478,7 +478,7 @@ export class Getta {
     const endTime = this._performance.now();
     const duration = __startTime ? endTime - __startTime : 0;
 
-    this._log?.(consts.RESPONSE_RECEIVED, {
+    this._log?.(consts.FETCH_RESPONSE_RECEIVED, {
       context: {
         fetchMethod: method,
         fetchRedirects: redirects,
@@ -486,7 +486,7 @@ export class Getta {
         fetchResponseStatus: status,
         fetchRetries: retries,
         fetchUrl: endpoint,
-        logEntryName: 'FETCH_RESPONSE_RECEIVED',
+        logEntryName: consts.FETCH_RESPONSE_RECEIVED,
         ...otherContext,
       },
       stats: { duration, endTime, startTime: __startTime },

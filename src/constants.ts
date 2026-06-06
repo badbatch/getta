@@ -57,7 +57,7 @@ export const LOCATION_HEADER = 'Location';
 export const IF_NONE_MATCH_HEADER = 'If-None-Match';
 export const CACHE_CONTROL_HEADER = 'Cache-Control';
 
-export const REQUEST_SENT = 'request_sent';
-export const RESPONSE_RECEIVED = 'response_received';
-export const RESPONSE_FROM_CACHE = 'response_from_cache';
-export const REQUEST_FAILED = 'request_failed';
+export const FETCH_REQUEST_SENT = 'FETCH_REQUEST_SENT';
+export const FETCH_RESPONSE_RECEIVED = 'FETCH_RESPONSE_RECEIVED';
+export const FETCH_RESPONSE_FROM_CACHE = 'FETCH_RESPONSE_FROM_CACHE';
+export const FETCH_REQUEST_FAILED = 'FETCH_REQUEST_FAILED';

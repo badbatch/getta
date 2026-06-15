@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.22-unstable-12345.8 (2026-06-15)
+
+### Bug Fixes
+
+* return error in log data (32ddeb07)
+
 ## 1.0.22-unstable-12345.7 (2026-06-15)
 
 ### Bug Fixes

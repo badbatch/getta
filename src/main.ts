@@ -320,7 +320,8 @@ export class Getta {
       const endTime = this._performance.now();
 
       this._log?.(consts.FETCH_REQUEST_FAILED, {
-        context: { error, fetchUrl: endpoint, logEntryName: consts.FETCH_REQUEST_FAILED, ...rest },
+        context: { fetchUrl: endpoint, logEntryName: consts.FETCH_REQUEST_FAILED, ...rest },
+        error: error instanceof Error ? error : new Error('There was a problem with the request', { cause: error }),
         stats: { duration: __startTime ? endTime - __startTime : 0, endTime, startTime: __startTime },
       });
 

@@ -137,6 +137,7 @@ export type LogDataStats = {
 export interface LogData<Cxt extends PlainObject = PlainObject> {
   context: LogDataContext & Cxt;
   data?: unknown;
+  error?: Error;
   stats?: LogDataStats;
 }
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.22-unstable-12345.7 (2026-06-15)
+
+### Bug Fixes
+
+* return data in log output (100bf7be)
+
 ## 1.0.22-unstable-12345.6 (2026-06-06)
 
 ### Refactors

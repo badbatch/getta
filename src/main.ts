@@ -382,6 +382,8 @@ export class Getta {
         'cache-control': entry.cacheability.printCacheControl(),
       };
 
+      const data = this._cacheEntryGet<T>(cacheKey);
+
       this._log?.(consts.FETCH_RESPONSE_FROM_CACHE, {
         context: {
           fetchMethod: consts.GET_METHOD,
@@ -390,10 +392,11 @@ export class Getta {
           logEntryName: consts.FETCH_RESPONSE_FROM_CACHE,
           ...context,
         },
+        data,
       });
 
       return {
-        data: this._cacheEntryGet<T>(cacheKey),
+        data,
         headers: new Headers(newHeaders),
       };
     }

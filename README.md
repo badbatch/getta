@@ -9,8 +9,10 @@ An isomorphic rest client based on the Fetch API.
 ## Installation
 
 ```bash
-npm add getta
+npm add getta @cachemap/core
 ```
+
+`@cachemap/core` must be installed separately to use the cache option shown in the example; `getta` does not install it as a runtime dependency.
 
 ## Usage
 
@@ -37,13 +39,13 @@ const restClient = createRestClient({
 
 The base path of the url for all requests made from an instance of the rest client, i.e. `'https://www.example.com/api'`.
 
-**bodyParser?: `(...args: any[]) => any`**
+**bodyParser?: `(...args: unknown[]) => unknown`**
 
-An optional callback to pass each response body through after it has been parsed by the stream reader.
+An optional callback that receives each response body after it has been parsed by the stream reader, and returns the value exposed as `data`.
 
 **cache?: `Core`**
 
-An instance of the @cachemap/core cache for caching responses against requests. Caching is only enabled on `GET` requests. For more info on @cachemap/core see <https://github.com/badbatch/cachemap>.
+An instance of the @cachemap/core cache for caching responses against requests. Caching is only enabled on `GET` requests and uses response cache headers and ETags when available. For more info on @cachemap/core see <https://github.com/badbatch/cachemap>.
 
 **enableConditionalRequests?: `boolean`**
 
@@ -57,9 +59,9 @@ How long to wait for a request to respond before timing out and returning an err
 
 Any headers to attach to every request.
 
-**log?: `(message: string, data: PlainObject, logLevel?: LogLevel) => void`**
+**log?: `(message: string, data: LogData) => void`**
 
-Log function to pass rest client logs to a logger.
+Log function to pass rest client logs to a logger. `data` includes request context and may include response data, an error, or timing stats. `LogData` is exported from `getta`.
 
 **maxRedirects?: `number`**
 
@@ -85,9 +87,9 @@ A regex to tell the rest client where to inject data into the template. There is
 
 The performance module to use for recording request durations.
 
-**queryParams?: `PlainObject`**
+**queryParams?: `Record<string, string> | ((endpoint: string, extraSearchParams?: Record<string, string>) => Record<string, string>)`**
 
-Any query params to attach to every request.
+Query params to attach to every request. You can also provide a function to generate them from the endpoint and request-level query params.
 
 **rateLimit?: `boolean`**
 
@@ -145,7 +147,7 @@ The fetch method.
 
 Data to be injected into the path template.
 
-**queryParams?: `PlainObject`**
+**queryParams?: `Record<string, string>`**
 
 Any query params to attach to the request.
 
@@ -161,9 +163,9 @@ const restClient = createRestClient<'getProduct'>(
   { basePath: 'https://www.example.com', performance },
   {
     getProduct: [
-      '/direct/rest/content/catalog/{type}/{id,+}?format={brief|standard}'
+      '/direct/rest/content/catalog/{type}/{id,+}?format={brief|standard}',
       {
-        method: consts.GET_METHOD,
+        method: 'get',
         pathTemplateData: { 'brief|standard': 'standard', type: 'product' },
       },
     ],
@@ -172,6 +174,10 @@ const restClient = createRestClient<'getProduct'>(
 
 const getResponse = await restClient.getProduct({ pathTemplateData: { 'id,+': '136-7317' } });
 ```
+
+### Responses and errors
+
+Each request resolves to the Fetch API `Response` with a parsed `data` property added. The body parser receives the value produced by the configured stream reader. Requests reject with an error on network failures, timeouts, GET 404 responses, or when the redirect or retry limit is reached. Other HTTP status codes, including non-404 client errors, are returned in the response. Server errors are retried and reject when the retry limit is reached.
 
 ## Changelog
 

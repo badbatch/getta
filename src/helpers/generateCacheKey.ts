@@ -1,2 +1,4 @@
-export const generateCacheKey = (endpoint: string, headers: Record<string, string>) =>
-  JSON.stringify({ auth: headers.authorization, endpoint });
+export const generateCacheKey = (endpoint: string, headers: Record<string, string>) => {
+  const authorization = Object.entries(headers).find(([name]) => name.toLowerCase() === 'authorization')?.[1];
+  return JSON.stringify({ auth: authorization, endpoint });
+};

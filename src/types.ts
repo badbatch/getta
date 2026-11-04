@@ -96,9 +96,7 @@ export interface ConstructorOptions<D extends PlainObject = PlainObject> {
   streamReader?: StreamReader;
 }
 
-export type Context<T extends PlainObject = PlainObject> = {
-  __startTime?: number;
-} & T;
+export type Context<T extends PlainObject = PlainObject> = T;
 
 export type FetchMethod = 'get' | 'post' | 'put' | 'delete';
 
@@ -145,6 +143,9 @@ export type Log<T extends PlainObject = PlainObject> = (message: string, data: L
 
 export type MetadataExtensions = {
   etag?: string;
+  responseHeaders?: Record<string, string>;
+  status?: number;
+  statusText?: string;
 };
 
 export type PathTemplateCallback = (path: string, data: Record<string, string>, pathTemplateRegExp: RegExp) => string;

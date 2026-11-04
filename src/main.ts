@@ -219,7 +219,12 @@ export class Getta {
     });
 
     endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
-    const cacheKey = generateCacheKey(endpoint, headers);
+
+    const cacheHeaders = Object.fromEntries(
+      Object.entries({ ...this._headers, ...headers }).map(([name, value]) => [name.toLowerCase(), value]),
+    );
+
+    const cacheKey = generateCacheKey(endpoint, cacheHeaders);
     const hasEntry = this._cacheEntryHas(cacheKey);
 
     if (hasEntry) {
@@ -239,9 +244,13 @@ export class Getta {
     );
   }
 
-  private async _executeFetch(endpoint: string, options: FetchOptions, context: Context = {}): Promise<Response> {
+  private async _executeFetch(
+    endpoint: string,
+    options: FetchOptions,
+    context: Context = {},
+    startTime = this._performance.now(),
+  ): Promise<Response> {
     const { redirects, retries, ...rest } = options;
-    context.__startTime = this._performance.now();
     const controller = new AbortController();
 
     const fetchTimer = setTimeout(() => {
@@ -259,7 +268,7 @@ export class Getta {
           logEntryName: consts.FETCH_REQUEST_SENT,
           ...context,
         },
-        stats: { startTime: context.__startTime },
+        stats: { startTime },
       });
     }
 
@@ -276,10 +285,15 @@ export class Getta {
     }
   }
 
-  private async _fetch<T>(endpoint: string, options: FetchOptions, context: Context = {}): Promise<FetchResponse<T>> {
+  private async _fetch<T>(
+    endpoint: string,
+    options: FetchOptions,
+    context: Context = {},
+    startTime = this._performance.now(),
+  ): Promise<FetchResponse<T>> {
     try {
       const { redirects, retries, ...rest } = options;
-      const res = await this._executeFetch(endpoint, options, context);
+      const res = await this._executeFetch(endpoint, options, context, startTime);
       const { headers, status } = res;
       const responseGroup = getResponseGroup(status);
 
@@ -295,6 +309,7 @@ export class Getta {
             ...rest,
           },
           context,
+          startTime,
         );
       }
 
@@ -307,22 +322,20 @@ export class Getta {
             ...rest,
           },
           context,
+          startTime,
         );
       }
 
       const fetchResponse = await this._createFetchResponse<T>(res);
-      this._logResponse(fetchResponse, endpoint, options, context);
+      this._logResponse(fetchResponse, endpoint, options, context, startTime);
       return fetchResponse;
     } catch (error) {
-      // Internal context property
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const { __startTime, ...rest } = context;
       const endTime = this._performance.now();
 
       this._log?.(consts.FETCH_REQUEST_FAILED, {
-        context: { fetchUrl: endpoint, logEntryName: consts.FETCH_REQUEST_FAILED, ...rest },
+        context: { fetchUrl: endpoint, logEntryName: consts.FETCH_REQUEST_FAILED, ...context },
         error: error instanceof Error ? error : new Error('There was a problem with the request', { cause: error }),
-        stats: { duration: __startTime ? endTime - __startTime : 0, endTime, startTime: __startTime },
+        stats: { duration: endTime - startTime, endTime, startTime },
       });
 
       throw error;
@@ -334,31 +347,38 @@ export class Getta {
     endpoint: string,
     options: FetchRedirectHandlerOptions,
     context: Context,
+    startTime: number,
   ): Promise<FetchResponse<T>> {
     const { method, redirects = 1, status, ...rest } = options;
 
     if (redirects === this._maxRedirects) {
-      this._logResponse(res, endpoint, options, context);
+      this._logResponse(res, endpoint, options, context, startTime);
       throw new Error(`${consts.MAX_REDIRECTS_EXCEEDED_ERROR} ${String(this._maxRedirects)}.`);
     }
 
     const redirectMethod = status === 303 ? consts.GET_METHOD : method;
 
     return this._schedule(() =>
-      this._fetch<T>(endpoint, { method: redirectMethod, redirects: redirects + 1, ...rest }),
+      this._fetch<T>(endpoint, { method: redirectMethod, redirects: redirects + 1, ...rest }, context, startTime),
     );
   }
 
-  private async _fetchRetryHandler<T>(res: Response, endpoint: string, options: FetchOptions, context: Context) {
+  private async _fetchRetryHandler<T>(
+    res: Response,
+    endpoint: string,
+    options: FetchOptions,
+    context: Context,
+    startTime: number,
+  ) {
     const { retries = 1, ...rest } = options;
 
     if (retries === this._maxRetries) {
-      this._logResponse(res, endpoint, options, context);
+      this._logResponse(res, endpoint, options, context, startTime);
       throw new Error(`${consts.MAX_RETRIES_EXCEEDED_ERROR} ${String(this._maxRetries)}.`);
     }
 
     await delay(this._requestRetryWait);
-    return this._schedule(() => this._fetch<T>(endpoint, { retries: retries + 1, ...rest }));
+    return this._schedule(() => this._fetch<T>(endpoint, { retries: retries + 1, ...rest }, context, startTime));
   }
 
   private async _get<T>(
@@ -374,12 +394,17 @@ export class Getta {
     });
 
     endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
-    const cacheKey = generateCacheKey(endpoint, headers);
+
+    const cacheHeaders = Object.fromEntries(
+      Object.entries({ ...this._headers, ...headers }).map(([name, value]) => [name.toLowerCase(), value]),
+    );
+
+    const cacheKey = generateCacheKey(endpoint, cacheHeaders);
     const entry = this._cache?.getMetadataEntry<MetadataExtensions>(cacheKey);
 
     if (entry?.cacheability.checkTTL()) {
-      const newHeaders = {
-        ...headers,
+      const cachedHeaders = {
+        ...entry.extensions?.responseHeaders,
         'cache-control': entry.cacheability.printCacheControl(),
       };
 
@@ -388,7 +413,7 @@ export class Getta {
       this._log?.(consts.FETCH_RESPONSE_FROM_CACHE, {
         context: {
           fetchMethod: consts.GET_METHOD,
-          fetchResponseHeaders: newHeaders,
+          fetchResponseHeaders: cachedHeaders,
           fetchUrl: endpoint,
           logEntryName: consts.FETCH_RESPONSE_FROM_CACHE,
           ...context,
@@ -396,10 +421,19 @@ export class Getta {
         data,
       });
 
-      return {
-        data,
-        headers: new Headers(newHeaders),
-      };
+      const responseHeaders = new Headers(cachedHeaders);
+
+      const response = new Response(undefined, {
+        headers: responseHeaders,
+        status: entry.extensions?.status ?? 200,
+        statusText: entry.extensions?.statusText,
+      });
+
+      Object.defineProperty(response, 'data', { enumerable: true, value: data, writable: true });
+
+      // Cache hits use a synthetic Response with the metadata preserved at cache time.
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      return response as FetchResponse<T>;
     }
 
     if (this._conditionalRequestsEnabled && entry?.extensions?.etag) {
@@ -445,26 +479,33 @@ export class Getta {
       throw new Error(consts.RESOURCE_NOT_FOUND_ERROR);
     } else if (status === consts.NOT_MODIFIED_STATUS_CODE) {
       const cachedData = this._cacheEntryGet<T>(cacheKey, { ignoreCacheExpiry: true });
+      const cachedMetadata = this._cache?.getMetadataEntry<MetadataExtensions>(cacheKey)?.extensions;
 
-      if (cachedData) {
+      if (cachedData !== undefined) {
         this._cacheEntrySet(cacheKey, cachedData, {
           cacheOptions: {
             headers,
           },
           extensions: {
             etag: headers.get(consts.ETAG_HEADER) ?? undefined,
+            responseHeaders: { ...cachedMetadata?.responseHeaders, ...Object.fromEntries(headers.entries()) },
+            status: cachedMetadata?.status ?? 200,
+            statusText: cachedMetadata?.statusText ?? 'OK',
           },
         });
 
         res.data = cachedData;
       }
-    } else if (data) {
+    } else if (data !== undefined) {
       this._cacheEntrySet(cacheKey, data, {
         cacheOptions: {
           headers,
         },
         extensions: {
           etag: headers.get(consts.ETAG_HEADER) ?? undefined,
+          responseHeaders: Object.fromEntries(headers.entries()),
+          status,
+          statusText: res.statusText,
         },
       });
     }
@@ -473,14 +514,17 @@ export class Getta {
     return res;
   }
 
-  private _logResponse(res: Response | FetchResponse, endpoint: string, options: FetchOptions, context: Context) {
+  private _logResponse(
+    res: Response | FetchResponse,
+    endpoint: string,
+    options: FetchOptions,
+    context: Context,
+    startTime: number,
+  ) {
     const { headers, status } = res;
     const { method, redirects, retries } = options;
-    // Internal context property
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const { __startTime, ...otherContext } = context;
     const endTime = this._performance.now();
-    const duration = __startTime ? endTime - __startTime : 0;
+    const duration = endTime - startTime;
 
     this._log?.(consts.FETCH_RESPONSE_RECEIVED, {
       context: {
@@ -491,9 +535,9 @@ export class Getta {
         fetchRetries: retries,
         fetchUrl: endpoint,
         logEntryName: consts.FETCH_RESPONSE_RECEIVED,
-        ...otherContext,
+        ...context,
       },
-      stats: { duration, endTime, startTime: __startTime },
+      stats: { duration, endTime, startTime },
       ...(isFetchResponse(res) ? { data: res.data } : {}),
     });
   }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.24 (2026-11-05)
+
+### Bug Fixes
+
+* misconfigured exports in packge.json] (2391adcf)
+
 ## 1.0.23 (2026-11-05)
 
 ### Bug Fixes

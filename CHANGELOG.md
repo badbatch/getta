@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.22 (2026-11-05)
+
+### Bug Fixes
+
+* remove redundant type (868bfcfb)
+* minor updates (af1e6a95)
+
+### Refactors
+
+* update deps and subsequent code changes (0aaab90b)
+* update test structure (314ef9f0)
+
 ## 1.0.22-unstable-12345.8 (2026-06-15)
 
 ### Bug Fixes

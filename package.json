@@ -18,7 +18,7 @@
     "#*": "./src/*"
   },
   "exports": {
-    "source": "./src/index.ts",
+    "./source": "./src/index.ts",
     ".": {
       "types": {
         "import": "./dist/types/esm/index.d.ts",

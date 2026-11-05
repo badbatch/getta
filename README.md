@@ -2,7 +2,7 @@
 
 An isomorphic rest client based on the Fetch API.
 
-[![build-and-deploy](https://github.com/badbatch/getta/actions/workflows/build-and-deploy.yml/badge.svg)](https://github.com/badbatch/getta/actions/workflows/build-and-deploy.yml)
+[![build-and-publish](https://github.com/badbatch/getta/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/badbatch/getta/actions/workflows/build-and-publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![npm version](https://badge.fury.io/js/getta.svg)](https://badge.fury.io/js/getta)
 

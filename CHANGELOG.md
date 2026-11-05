@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.23 (2026-11-05)
+
+### Bug Fixes
+
+* update name of pipeline config (7d56a59d)
+
 ## 1.0.22 (2026-11-05)
 
 ### Bug Fixes

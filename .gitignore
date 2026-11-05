@@ -3,6 +3,7 @@
 .env
 .eslintcache
 .idea/
+.pnpm-store/
 .vscode/settings.json
 coverage/
 dist/

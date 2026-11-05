@@ -2,7 +2,7 @@ export const defaultPathTemplateCallback = (
   pathTemplate: string,
   data: Record<string, string | number | boolean>,
   pathTemplateRegExp: RegExp,
-) => {
+): string => {
   const dataKeys = Object.keys(data);
 
   return pathTemplate.replace(pathTemplateRegExp, match => {

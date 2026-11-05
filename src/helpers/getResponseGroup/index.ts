@@ -1,6 +1,6 @@
 import * as consts from '../../constants.ts';
 
-export const getResponseGroup = (status: number) => {
+export const getResponseGroup = (status: number): string => {
   switch (true) {
     case status < 200: {
       return consts.INFORMATION_REPSONSE;

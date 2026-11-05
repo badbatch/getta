@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { mockFetch } from 'fetch-mocked';
 import { performance } from 'node:perf_hooks';
 import { PRD_136_7317 } from './__testUtils__/data/index.ts';
@@ -23,11 +23,14 @@ import { type LogData, type ShortcutProperties } from './types.ts';
 
 const mockedFetch = mockFetch(jest.fn);
 
-const getRejectedMessage = async (promise: Promise<unknown>) =>
-  promise.then(
-    () => '',
-    (error: unknown) => (error instanceof Error ? error.message : String(error)),
-  );
+const getRejectedMessage = async (promise: Promise<unknown>): Promise<string> => {
+  try {
+    await promise;
+    return '';
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+};
 
 const hasInternalStartTime = (context: object | undefined) => (context ? Object.hasOwn(context, '__startTime') : false);
 
@@ -38,13 +41,29 @@ describe('Getta', () => {
 
   describe('Given valid constructor options', () => {
     it('When createRestClient receives valid options, then it returns a Getta instance', () => {
-      // Arrange
-      const restClient = createRestClient({ basePath, cache: getCache(), performance });
       // Act
-      const result = restClient;
+      const restClient = createRestClient({ basePath, cache: getCache(), performance });
 
       // Assert
-      expect(result).toBeInstanceOf(Getta);
+      expect(restClient).toBeInstanceOf(Getta);
+    });
+  });
+
+  describe('Given a client making an HTTP method request', () => {
+    it('When request is called with PATCH, then it sends a PATCH request', async () => {
+      // Arrange
+      mockedFetch.mockRequestOnce(buildTestEndpoint('/patch'), {
+        body: PRD_136_7317.body,
+        headers: defaultHeaders,
+      });
+
+      const restClient = createRestClient({ basePath, performance });
+
+      // Act
+      await restClient.request('/patch', { body: JSON.stringify(defaultPayload), method: 'patch' });
+
+      // Assert
+      expect(mockedFetch.mock.calls[0]?.[1]).toMatchObject({ method: 'patch' });
     });
   });
 
@@ -145,21 +164,12 @@ describe('Getta', () => {
           const response = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
 
           // Assert
-          expect({
-            cacheControlIncludesMaxAge: response.headers.get('cache-control')?.includes('max-age=6000'),
-            contentType: response.headers.get('content-type'),
-            data: response.data,
-            ok: response.ok,
-            status: response.status,
-            statusText: response.statusText,
-          }).toEqual({
-            cacheControlIncludesMaxAge: true,
-            contentType: 'application/json',
-            data: PRD_136_7317.body,
-            ok: true,
-            status: 200,
-            statusText: 'OK',
-          });
+          expect(response.headers.get('cache-control')?.includes('max-age=6000')).toBe(true);
+          expect(response.headers.get('content-type')).toBe('application/json');
+          expect(response.data).toEqual(PRD_136_7317.body);
+          expect(response.ok).toBe(true);
+          expect(response.status).toBe(200);
+          expect(response.statusText).toBe('OK');
         });
       });
 
@@ -206,12 +216,10 @@ describe('Getta', () => {
         const cachedResponseA = await clientAWithDifferentHeaderCase.get<{ owner: string }>('/private');
 
         // Assert
-        expect([
-          responseA.data.owner,
-          responseB.data.owner,
-          cachedResponseA.data.owner,
-          mockedFetch.mock.calls.length,
-        ]).toEqual(['A', 'B', 'A', 2]);
+        expect(responseA.data.owner).toBe('A');
+        expect(responseB.data.owner).toBe('B');
+        expect(cachedResponseA.data.owner).toBe('A');
+        expect(mockedFetch).toHaveBeenCalledTimes(2);
       });
 
       it('When concurrent GETs use different authorization headers, then they do not share a request', async () => {
@@ -228,7 +236,9 @@ describe('Getta', () => {
         ]);
 
         // Assert
-        expect([responseA.data.owner, responseB.data.owner, mockedFetch.mock.calls.length]).toEqual(['A', 'B', 2]);
+        expect(responseA.data.owner).toBe('A');
+        expect(responseB.data.owner).toBe('B');
+        expect(mockedFetch).toHaveBeenCalledTimes(2);
       });
 
       it('When GET returns cached data, then the cache-hit log includes it', async () => {
@@ -239,7 +249,9 @@ describe('Getta', () => {
         const loggedClient = createRestClient({
           basePath,
           cache,
-          log: (message, data) => logs.push({ data, message }),
+          log: (message, data) => {
+            logs.push({ data, message });
+          },
           performance,
         });
 
@@ -259,17 +271,10 @@ describe('Getta', () => {
         const cacheLog = logs.find(entry => entry.message === consts.FETCH_RESPONSE_FROM_CACHE);
 
         // Assert
-        expect({
-          cacheLogData: cacheLog?.data.data,
-          cacheLogName: cacheLog?.data.context.logEntryName,
-          fetchCount: mockedFetch.mock.calls.length,
-          responseData: response.data,
-        }).toEqual({
-          cacheLogData: expectedData,
-          cacheLogName: consts.FETCH_RESPONSE_FROM_CACHE,
-          fetchCount: 0,
-          responseData: expectedData,
-        });
+        expect(cacheLog?.data.data).toEqual(expectedData);
+        expect(cacheLog?.data.context.logEntryName).toBe(consts.FETCH_RESPONSE_FROM_CACHE);
+        expect(mockedFetch).not.toHaveBeenCalled();
+        expect(response.data).toEqual(expectedData);
       });
 
       describe('Given the cache entry has expired', () => {
@@ -308,21 +313,12 @@ describe('Getta', () => {
             const cachedResponse = await restClient.getProduct({ pathTemplateData: idPathTemplateData });
 
             // Assert
-            expect({
-              cachedContentType: cachedResponse.headers.get('content-type'),
-              cachedOk: cachedResponse.ok,
-              cachedStatus: cachedResponse.status,
-              fetchCount: mockedFetch.mock.calls.length,
-              revalidatedData: revalidatedResponse.data,
-              revalidatedStatus: revalidatedResponse.status,
-            }).toEqual({
-              cachedContentType: 'application/json',
-              cachedOk: true,
-              cachedStatus: 200,
-              fetchCount: 1,
-              revalidatedData: PRD_136_7317.body,
-              revalidatedStatus: 304,
-            });
+            expect(cachedResponse.headers.get('content-type')).toBe('application/json');
+            expect(cachedResponse.ok).toBe(true);
+            expect(cachedResponse.status).toBe(200);
+            expect(mockedFetch).toHaveBeenCalledTimes(1);
+            expect(revalidatedResponse.data).toEqual(PRD_136_7317.body);
+            expect(revalidatedResponse.status).toBe(304);
           });
         });
 
@@ -366,17 +362,18 @@ describe('Getta', () => {
             const cacheKey = generateCacheKey(buildTestEndpoint(defaultPath), { 'content-type': 'application/json' });
 
             // Act
-            const wasRejected = await restClient.getProduct({ pathTemplateData: idPathTemplateData }).then(
-              () => false,
-              () => true,
-            );
+            let wasRejected = false;
+
+            try {
+              await restClient.getProduct({ pathTemplateData: idPathTemplateData });
+            } catch {
+              wasRejected = true;
+            }
 
             // Assert
-            expect({
-              cacheEntryPresent: restClient.cache?.has(cacheKey),
-              fetchCount: mockedFetch.mock.calls.length,
-              wasRejected,
-            }).toEqual({ cacheEntryPresent: false, fetchCount: 1, wasRejected: true });
+            expect(restClient.cache?.has(cacheKey)).toBe(false);
+            expect(mockedFetch).toHaveBeenCalledTimes(1);
+            expect(wasRejected).toBe(true);
           });
         });
       });
@@ -401,13 +398,8 @@ describe('Getta', () => {
           // Assert
           const errorMessage = await getRejectedMessage(result);
 
-          expect({
-            fetchCount: mockedFetch.mock.calls.length,
-            message: errorMessage,
-          }).toEqual({
-            fetchCount: 5,
-            message: 'The request exceeded the maximum number of redirects, which is 5.',
-          });
+          expect(mockedFetch).toHaveBeenCalledTimes(5);
+          expect(errorMessage).toBe('The request exceeded the maximum number of redirects, which is 5.');
         });
 
         it('When GET exceeds the redirect limit, then it rejects with the limit error', async () => {
@@ -441,13 +433,8 @@ describe('Getta', () => {
           // Assert
           const errorMessage = await getRejectedMessage(result);
 
-          expect({
-            fetchCount: mockedFetch.mock.calls.length,
-            message: errorMessage,
-          }).toEqual({
-            fetchCount: 3,
-            message: 'The request exceeded the maximum number of retries, which is 3.',
-          });
+          expect(mockedFetch).toHaveBeenCalledTimes(3);
+          expect(errorMessage).toBe('The request exceeded the maximum number of retries, which is 3.');
         });
 
         it('When GET exceeds the retry limit, then it rejects with the limit error', async () => {
@@ -485,7 +472,8 @@ describe('Getta', () => {
           ]);
 
           // Assert
-          expect([dataA, dataB]).toEqual([PRD_136_7317.body, PRD_136_7317.body]);
+          expect(dataA).toEqual(PRD_136_7317.body);
+          expect(dataB).toEqual(PRD_136_7317.body);
         });
       });
 
@@ -508,10 +496,10 @@ describe('Getta', () => {
           ]);
 
           // Assert
-          expect({
-            fetchCount: mockedFetch.mock.calls.length,
-            results: results.map(result => result.status),
-          }).toEqual({ fetchCount: 1, results: ['rejected', 'rejected'] });
+          expect(mockedFetch).toHaveBeenCalledTimes(1);
+          expect(results).toHaveLength(2);
+          expect(results[0].status).toBe('rejected');
+          expect(results[1].status).toBe('rejected');
         });
       });
 
@@ -527,7 +515,9 @@ describe('Getta', () => {
 
           const loggedClient = createRestClient({
             basePath,
-            log: (message, data) => logs.push({ data, message }),
+            log: (message, data) => {
+              logs.push({ data, message });
+            },
             maxRetries: 2,
             performance: testPerformance,
             requestRetryWait: 0,
@@ -543,27 +533,15 @@ describe('Getta', () => {
           const responseLog = logs.find(entry => entry.message === consts.FETCH_RESPONSE_RECEIVED);
 
           // Assert
-          expect({
-            callerContext: context,
-            callerContextHasInternalTime: Object.hasOwn(context, '__startTime'),
-            data: response.data,
-            requestContextHasInternalTime: hasInternalStartTime(requestLog?.data.context),
-            requestContextId: requestLog?.data.context.correlationId,
-            responseContextId: responseLog?.data.context.correlationId,
-            responseData: responseLog?.data.data,
-            responseDuration: responseLog?.data.stats?.duration,
-            responseStartTime: responseLog?.data.stats?.startTime,
-          }).toEqual({
-            callerContext: { correlationId: 'request-123' },
-            callerContextHasInternalTime: false,
-            data: PRD_136_7317.body,
-            requestContextHasInternalTime: false,
-            requestContextId: 'request-123',
-            responseContextId: 'request-123',
-            responseData: PRD_136_7317.body,
-            responseDuration: 12,
-            responseStartTime: 0,
-          });
+          expect(context).toEqual({ correlationId: 'request-123' });
+          expect(Object.hasOwn(context, '__startTime')).toBe(false);
+          expect(response.data).toEqual(PRD_136_7317.body);
+          expect(hasInternalStartTime(requestLog?.data.context)).toBe(false);
+          expect(requestLog?.data.context.correlationId).toBe('request-123');
+          expect(responseLog?.data.context.correlationId).toBe('request-123');
+          expect(responseLog?.data.data).toEqual(PRD_136_7317.body);
+          expect(responseLog?.data.stats?.duration).toBe(12);
+          expect(responseLog?.data.stats?.startTime).toBe(0);
         });
       });
 
@@ -578,7 +556,9 @@ describe('Getta', () => {
             bodyParser: () => {
               throw new Error('Unable to parse response');
             },
-            log: (message, data) => logs.push({ data, message }),
+            log: (message, data) => {
+              logs.push({ data, message });
+            },
             performance,
           });
 
@@ -589,19 +569,11 @@ describe('Getta', () => {
           const failureLog = logs.find(entry => entry.message === consts.FETCH_REQUEST_FAILED);
 
           // Assert
-          expect({
-            callerContext: context,
-            errorMessage,
-            failureLogError: failureLog?.data.error?.message,
-            failureLogName: failureLog?.data.context.logEntryName,
-            loggedContextId: failureLog?.data.context.correlationId,
-          }).toEqual({
-            callerContext: { correlationId: 'missing-789' },
-            errorMessage: 'Unable to parse response',
-            failureLogError: 'Unable to parse response',
-            failureLogName: consts.FETCH_REQUEST_FAILED,
-            loggedContextId: 'missing-789',
-          });
+          expect(context).toEqual({ correlationId: 'missing-789' });
+          expect(errorMessage).toBe('Unable to parse response');
+          expect(failureLog?.data.error?.message).toBe('Unable to parse response');
+          expect(failureLog?.data.context.logEntryName).toBe(consts.FETCH_REQUEST_FAILED);
+          expect(failureLog?.data.context.correlationId).toBe('missing-789');
         });
       });
 
@@ -613,7 +585,9 @@ describe('Getta', () => {
 
           const loggedClient = createRestClient({
             basePath,
-            log: (message, data) => logs.push({ data, message }),
+            log: (message, data) => {
+              logs.push({ data, message });
+            },
             performance,
           });
 
@@ -632,15 +606,9 @@ describe('Getta', () => {
           const responseLog = logs.find(entry => entry.message === consts.FETCH_RESPONSE_RECEIVED);
 
           // Assert
-          expect({
-            callerContext: context,
-            data: response.data,
-            responseContextId: responseLog?.data.context.correlationId,
-          }).toEqual({
-            callerContext: { correlationId: 'redirect-456' },
-            data: { redirected: true },
-            responseContextId: 'redirect-456',
-          });
+          expect(context).toEqual({ correlationId: 'redirect-456' });
+          expect(response.data).toEqual({ redirected: true });
+          expect(responseLog?.data.context.correlationId).toBe('redirect-456');
         });
       });
 
@@ -658,13 +626,8 @@ describe('Getta', () => {
           );
 
           // Assert
-          expect({
-            fetchCount: mockedFetch.mock.calls.length,
-            message: errorMessage,
-          }).toEqual({
-            fetchCount: 1,
-            message: 'The request timed out. Getta did not get a response within 100ms.',
-          });
+          expect(mockedFetch).toHaveBeenCalledTimes(1);
+          expect(errorMessage).toBe('The request timed out. Getta did not get a response within 100ms.');
         });
       });
     });
@@ -807,7 +770,8 @@ describe('Getta', () => {
         await restClient.delete(defaultPath, { pathTemplateData: defaultPathTemplateData });
 
         // Assert
-        expect([wasCachedBeforeDelete, restClient.cache?.has(cacheKey)]).toEqual([true, false]);
+        expect(wasCachedBeforeDelete).toBe(true);
+        expect(restClient.cache?.has(cacheKey)).toBe(false);
       });
     });
 
@@ -850,7 +814,8 @@ describe('Getta', () => {
         await restClient.deleteProduct({ pathTemplateData: idPathTemplateData });
 
         // Assert
-        expect([wasCachedBeforeDelete, restClient.cache?.has(cacheKey)]).toEqual([true, false]);
+        expect(wasCachedBeforeDelete).toBe(true);
+        expect(restClient.cache?.has(cacheKey)).toBe(false);
       });
     });
   });
@@ -965,7 +930,8 @@ describe('Getta', () => {
         await queuedRequest;
 
         // Assert
-        expect([initialFetchCount, mockedFetch.mock.calls.length]).toEqual([1, 2]);
+        expect(initialFetchCount).toBe(1);
+        expect(mockedFetch).toHaveBeenCalledTimes(2);
       });
     });
   });

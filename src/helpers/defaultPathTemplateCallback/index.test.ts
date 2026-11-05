@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { defaultPath, defaultPathTemplateData } from '#__testUtils__/helpers/index.ts';
 import { DEFAULT_PATH_TEMPLATE_REGEX } from '#constants.ts';
 import { defaultPathTemplateCallback } from './index.ts';

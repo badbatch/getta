@@ -7,7 +7,7 @@ export const buildEndpoint = (
   basePath: string,
   path: string,
   { optionalPathTemplateRegExp, pathTemplateCallback, pathTemplateData, pathTemplateRegExp }: BuildEndpointOptions,
-) => {
+): string => {
   const pathJoiner = basePath.endsWith('/') || path.startsWith('/') ? '' : '/';
   let endpoint = `${basePath}${pathJoiner}${path}`;
 
@@ -28,7 +28,7 @@ export const appendSearchParams = (
   endpoint: string,
   searchParams: SearchParams,
   extraSearchParam: Record<string, string> = {},
-) => {
+): string => {
   const mergedSearchParams = {
     ...(isFunction(searchParams) ? searchParams(endpoint, extraSearchParam) : searchParams),
     ...extraSearchParam,
@@ -40,7 +40,7 @@ export const appendSearchParams = (
 
   if (Object.keys(sanitisedSearchParams).length > 0) {
     const queryJoin = queryString.extract(endpoint) ? '&' : '?';
-    endpoint = `${endpoint}${queryJoin}${queryString.stringify(sanitisedSearchParams)}`;
+    endpoint += `${queryJoin}${queryString.stringify(sanitisedSearchParams)}`;
   }
 
   return endpoint;

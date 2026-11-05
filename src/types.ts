@@ -98,7 +98,7 @@ export interface ConstructorOptions<D extends PlainObject = PlainObject> {
 
 export type Context<T extends PlainObject = PlainObject> = T;
 
-export type FetchMethod = 'get' | 'post' | 'put' | 'delete';
+export type FetchMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options';
 
 export interface FetchOptions {
   body?: BodyInit;
@@ -150,11 +150,13 @@ export type MetadataExtensions = {
 
 export type PathTemplateCallback = (path: string, data: Record<string, string>, pathTemplateRegExp: RegExp) => string;
 
-export type PendingRequestResolver = (value: FetchResponse) => void;
+export type PendingRequestResolver<Resource = unknown> = {
+  bivarianceHack(value: FetchResponse<Resource>): void;
+}['bivarianceHack'];
 
-export interface PendingRequestResolvers {
+export interface PendingRequestResolvers<Resource = unknown> {
   reject: (error: Error) => void;
-  resolve: PendingRequestResolver;
+  resolve: PendingRequestResolver<Resource>;
 }
 
 export interface Performance {
@@ -204,8 +206,7 @@ export interface RequestTracker {
 }
 
 export type SearchParams =
-  | Record<string, string>
-  | ((endpoint: string, extraSearchParams?: Record<string, string>) => Record<string, string>);
+  Record<string, string> | ((endpoint: string, extraSearchParams?: Record<string, string>) => Record<string, string>);
 
 export type ShortcutProperties<T extends string | number> = Record<
   T,

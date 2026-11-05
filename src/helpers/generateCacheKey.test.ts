@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { generateCacheKey } from './generateCacheKey.ts';
 
 describe('Given a URL and request headers', () => {

@@ -18,7 +18,6 @@ import {
   type Log,
   type MetadataExtensions,
   type PathTemplateCallback,
-  type PendingRequestResolver,
   type PendingRequestResolvers,
   type Performance,
   type PlainObject,
@@ -31,29 +30,39 @@ import {
   type StreamReader,
 } from './types.ts';
 
+const headersToRecord = (headers: Headers): Record<string, string> => {
+  const result: Record<string, string> = {};
+
+  headers.forEach((value, name) => {
+    result[name] = value;
+  });
+
+  return result;
+};
+
 export class Getta {
-  private _basePath: string;
-  private _bodyParser: Func;
-  private _cache?: Core;
-  private _conditionalRequestsEnabled: boolean;
-  private _fetchTimeout: number;
-  private _headers: Record<string, string>;
-  private _log: Log | undefined;
-  private _maxRedirects: number;
-  private _maxRetries: number;
-  private _optionalPathTemplateRegExp: RegExp;
-  private _pathTemplateCallback: PathTemplateCallback;
-  private _pathTemplateRegExp: RegExp;
-  private _performance: Performance;
-  private _queryParams: SearchParams;
-  private _rateLimit: boolean;
+  private readonly _basePath: string;
+  private readonly _bodyParser: Func;
+  private readonly _cache?: Core;
+  private readonly _conditionalRequestsEnabled: boolean;
+  private readonly _fetchTimeout: number;
+  private readonly _headers: Record<string, string>;
+  private readonly _log: Log | undefined;
+  private readonly _maxRedirects: number;
+  private readonly _maxRetries: number;
+  private readonly _optionalPathTemplateRegExp: RegExp;
+  private readonly _pathTemplateCallback: PathTemplateCallback;
+  private readonly _pathTemplateRegExp: RegExp;
+  private readonly _performance: Performance;
+  private readonly _queryParams: SearchParams;
+  private readonly _rateLimit: boolean;
   private _rateLimitCount = 0;
   private _rateLimitedRequestQueue: RequestQueue<unknown> = [];
-  private _rateLimitPerSecond: number;
+  private readonly _rateLimitPerSecond: number;
   private _rateLimitTimer?: ReturnType<typeof setTimeout>;
-  private _requestRetryWait: number;
-  private _requestTracker: RequestTracker = { active: new Set(), pending: new Map() };
-  private _streamReader: StreamReader;
+  private readonly _requestRetryWait: number;
+  private readonly _requestTracker: RequestTracker = { active: new Set(), pending: new Map() };
+  private readonly _streamReader: StreamReader;
 
   constructor(options: ConstructorOptions) {
     const {
@@ -101,63 +110,9 @@ export class Getta {
     this._streamReader = streamReader;
   }
 
-  get cache(): Core | undefined {
-    return this._cache;
-  }
-
-  public createShortcut(
-    name: string,
-    path: string,
-    { method, ...otherOptions }: SetRequired<RequestOptions, 'method'>,
-  ) {
-    if (name in this) {
-      throw new Error(`Shortcut "${name}" already exists`);
-    }
-
-    if (!consts.FETCH_METHODS.includes(method)) {
-      throw new Error(`${consts.INVALID_FETCH_METHOD_ERROR} ${method}`);
-    }
-
-    // Struggle to type this well
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    (this as unknown as PlainObject)[name] = async <Resource extends PlainObject>(
-      { method: requestMethod, ...otherOptionOverrides }: RequestOptions = {},
-      context?: Context,
-    ) =>
-      // @ts-expect-error Type 'undefined' is not assignable to type 'BodyInit'
-      // To generic and complex to type without casting.
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      this[requestMethod ?? method](path, merge({}, otherOptions, otherOptionOverrides), context) as Promise<
-        FetchResponse<Resource>
-      >;
-  }
-
-  public async delete(path: string, options: Omit<RequestOptions, 'method'> = {}, context?: Context) {
-    return this._delete(path, options, context);
-  }
-
-  public async get<T>(
-    path: string,
-    options: Omit<RequestOptions, 'method'> = {},
-    context?: Context,
-  ): Promise<FetchResponse<T>> {
-    // For ease of use for consumer, casting to passed in type as any
-    // errors will be thrown.
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    return this._get<T>(path, options, context) as Promise<FetchResponse<T>>;
-  }
-
-  public async post(path: string, options: Omit<SetRequired<RequestOptions, 'body'>, 'method'>, context?: Context) {
-    return this._request(path, { ...options, method: consts.POST_METHOD }, context);
-  }
-
-  public async put(path: string, options: Omit<SetRequired<RequestOptions, 'body'>, 'method'>, context?: Context) {
-    return this._request(path, { ...options, method: consts.PUT_METHOD }, context);
-  }
-
-  private _addRequestToRateLimitedQueue<T>(callback: () => Promise<FetchResponse<T>>) {
+  private _addRequestToRateLimitedQueue<T>(callback: () => Promise<FetchResponse<T>>): Promise<FetchResponse<T>> {
     return new Promise((resolve: (value: FetchResponse<T>) => void, reject: (error: unknown) => void) => {
-      // @ts-expect-error Struggling to line up types in this situation
+      // @ts-expect-error Struggle to line up types in this situation
       this._rateLimitedRequestQueue.push([resolve, reject, callback]);
     });
   }
@@ -186,12 +141,12 @@ export class Getta {
     return this._cache.has(cacheKey);
   }
 
-  private _cacheEntrySet(cacheKey: string, data: unknown, setOptions: SetOptions): void {
+  private _cacheEntrySet(cacheKey: string, data: unknown, cacheOptions: SetOptions): void {
     if (!this._cache) {
       return;
     }
 
-    this._cache.set(cacheKey, data, setOptions);
+    this._cache.set(cacheKey, data, cacheOptions);
   }
 
   private async _createFetchResponse<T>(res: Response): Promise<FetchResponse<T>> {
@@ -210,7 +165,7 @@ export class Getta {
     path: string,
     { headers = {}, pathTemplateData, queryParams = {}, ...rest }: Omit<RequestOptions, 'method'>,
     context?: Context,
-  ) {
+  ): Promise<FetchResponse> {
     let endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,
@@ -276,7 +231,7 @@ export class Getta {
       return await fetch(endpoint, { ...rest, signal: controller.signal });
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error(`${consts.FETCH_TIMEOUT_ERROR} ${String(this._fetchTimeout)}ms.`);
+        throw new Error(`${consts.FETCH_TIMEOUT_ERROR} ${String(this._fetchTimeout)}ms.`, { cause: error });
       }
 
       throw error;
@@ -369,7 +324,7 @@ export class Getta {
     options: FetchOptions,
     context: Context,
     startTime: number,
-  ) {
+  ): Promise<FetchResponse<T>> {
     const { retries = 1, ...rest } = options;
 
     if (retries === this._maxRetries) {
@@ -385,7 +340,7 @@ export class Getta {
     path: string,
     { headers = {}, pathTemplateData, queryParams = {} }: Omit<RequestOptions, 'method'>,
     context?: Context,
-  ) {
+  ): Promise<FetchResponse<T>> {
     let endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,
@@ -440,13 +395,13 @@ export class Getta {
       headers[consts.IF_NONE_MATCH_HEADER] = entry.extensions.etag;
     }
 
-    const pendingRequest = this._trackRequest(cacheKey);
+    const pendingRequest = this._trackRequest<T>(cacheKey);
 
     if (pendingRequest) {
       return pendingRequest;
     }
 
-    const getResolve = async () => {
+    const getResolve = async (): Promise<FetchResponse<T>> => {
       try {
         return this._getResolve<T>(
           cacheKey,
@@ -471,13 +426,15 @@ export class Getta {
     return this._schedule(getResolve);
   }
 
-  private _getResolve<T>(cacheKey: string, res: FetchResponse<T>) {
+  private _getResolve<T>(cacheKey: string, res: FetchResponse<T>): FetchResponse<T> {
     const { data, headers, status } = res;
 
     if (status === consts.NOT_FOUND_STATUS_CODE) {
       this._cacheEntryDelete(cacheKey);
       throw new Error(consts.RESOURCE_NOT_FOUND_ERROR);
-    } else if (status === consts.NOT_MODIFIED_STATUS_CODE) {
+    }
+
+    if (status === consts.NOT_MODIFIED_STATUS_CODE) {
       const cachedData = this._cacheEntryGet<T>(cacheKey, { ignoreCacheExpiry: true });
       const cachedMetadata = this._cache?.getMetadataEntry<MetadataExtensions>(cacheKey)?.extensions;
 
@@ -488,7 +445,7 @@ export class Getta {
           },
           extensions: {
             etag: headers.get(consts.ETAG_HEADER) ?? undefined,
-            responseHeaders: { ...cachedMetadata?.responseHeaders, ...Object.fromEntries(headers.entries()) },
+            responseHeaders: { ...cachedMetadata?.responseHeaders, ...headersToRecord(headers) },
             status: cachedMetadata?.status ?? 200,
             statusText: cachedMetadata?.statusText ?? 'OK',
           },
@@ -503,7 +460,7 @@ export class Getta {
         },
         extensions: {
           etag: headers.get(consts.ETAG_HEADER) ?? undefined,
-          responseHeaders: Object.fromEntries(headers.entries()),
+          responseHeaders: headersToRecord(headers),
           status,
           statusText: res.statusText,
         },
@@ -520,7 +477,7 @@ export class Getta {
     options: FetchOptions,
     context: Context,
     startTime: number,
-  ) {
+  ): void {
     const { headers, status } = res;
     const { method, redirects, retries } = options;
     const endTime = this._performance.now();
@@ -530,7 +487,7 @@ export class Getta {
       context: {
         fetchMethod: method,
         fetchRedirects: redirects,
-        fetchResponseHeaders: Object.fromEntries(headers.entries()),
+        fetchResponseHeaders: headersToRecord(headers),
         fetchResponseStatus: status,
         fetchRetries: retries,
         fetchUrl: endpoint,
@@ -538,11 +495,11 @@ export class Getta {
         ...context,
       },
       stats: { duration, endTime, startTime },
-      ...(isFetchResponse(res) ? { data: res.data } : {}),
+      ...(isFetchResponse(res) && { data: res.data }),
     });
   }
 
-  private _rejectPendingRequests(cacheKey: string, error: Error) {
+  private _rejectPendingRequests(cacheKey: string, error: Error): void {
     const pendingRequests = this._requestTracker.pending.get(cacheKey);
 
     if (!pendingRequests) {
@@ -556,7 +513,7 @@ export class Getta {
     this._requestTracker.pending.delete(cacheKey);
   }
 
-  private _releaseRateLimitedRequestQueue() {
+  private _releaseRateLimitedRequestQueue(): void {
     while (this._rateLimitedRequestQueue.length > 0 && this._rateLimitCount < this._rateLimitPerSecond) {
       const available = this._rateLimitPerSecond - this._rateLimitCount;
 
@@ -566,15 +523,22 @@ export class Getta {
 
       const queue = [...this._rateLimitedRequestQueue];
       this._rateLimitedRequestQueue = [];
-      const toProcess = queue.slice(0, available);
+      const forProcessing = queue.slice(0, available);
       const remaining = queue.slice(available);
 
-      for (const [resolve, reject, callback] of toProcess) {
+      for (const [resolve, reject, callback] of forProcessing) {
         this._startRateLimit();
 
         try {
-          const result = callback();
-          result.then(resolve, reject);
+          const processRequest = async (): Promise<void> => {
+            try {
+              resolve(await callback());
+            } catch (error) {
+              reject(error);
+            }
+          };
+
+          void processRequest();
         } catch (error) {
           reject(error);
         }
@@ -590,7 +554,7 @@ export class Getta {
     path: string,
     { body, headers, method, pathTemplateData, queryParams, ...rest }: SetRequired<RequestOptions, 'method'>,
     context?: Context,
-  ) {
+  ): Promise<FetchResponse> {
     let endpoint = buildEndpoint(this._basePath, path, {
       optionalPathTemplateRegExp: this._optionalPathTemplateRegExp,
       pathTemplateCallback: this._pathTemplateCallback,
@@ -614,7 +578,7 @@ export class Getta {
     );
   }
 
-  private _resolvePendingRequests(cacheKey: string, responseData: FetchResponse) {
+  private _resolvePendingRequests(cacheKey: string, responseData: FetchResponse): void {
     const pendingRequests = this._requestTracker.pending.get(cacheKey);
 
     if (!pendingRequests) {
@@ -628,7 +592,7 @@ export class Getta {
     this._requestTracker.pending.delete(cacheKey);
   }
 
-  private async _schedule<T>(callback: () => Promise<FetchResponse<T>>) {
+  private async _schedule<T>(callback: () => Promise<FetchResponse<T>>): Promise<FetchResponse<T>> {
     if (this._rateLimit && this._rateLimitCount >= this._rateLimitPerSecond) {
       return this._addRequestToRateLimitedQueue(callback);
     }
@@ -637,14 +601,14 @@ export class Getta {
     return await callback();
   }
 
-  private _setPendingRequest(cacheKey: string, resolver: PendingRequestResolvers) {
+  private _setPendingRequest(cacheKey: string, resolver: PendingRequestResolvers): void {
     let pending = this._requestTracker.pending.get(cacheKey);
     pending ??= [];
     pending.push(resolver);
     this._requestTracker.pending.set(cacheKey, pending);
   }
 
-  private _startRateLimit() {
+  private _startRateLimit(): void {
     if (!this._rateLimit) {
       return;
     }
@@ -661,9 +625,9 @@ export class Getta {
     this._rateLimitCount += 1;
   }
 
-  private _trackRequest(cacheKey: string): Promise<FetchResponse> | undefined {
+  private _trackRequest<T>(cacheKey: string): Promise<FetchResponse<T>> | undefined {
     if (this._requestTracker.active.has(cacheKey)) {
-      return new Promise((resolve: PendingRequestResolver, reject) => {
+      return new Promise((resolve: (response: FetchResponse<T>) => void, reject) => {
         this._setPendingRequest(cacheKey, { reject, resolve });
       });
     }
@@ -671,12 +635,94 @@ export class Getta {
     this._requestTracker.active.add(cacheKey);
     return;
   }
+
+  get cache(): Core | undefined {
+    return this._cache;
+  }
+
+  public createShortcut(
+    name: string,
+    path: string,
+    { method, ...otherOptions }: SetRequired<RequestOptions, 'method'>,
+  ): void {
+    if (Reflect.has(this, name)) {
+      throw new Error(`Shortcut "${name}" already exists`);
+    }
+
+    if (!consts.FETCH_METHODS.includes(method)) {
+      throw new Error(`${consts.INVALID_FETCH_METHOD_ERROR} ${method}`);
+    }
+
+    // Struggle to type this well
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    (this as unknown as PlainObject)[name] = async <Resource extends PlainObject>(
+      { method: requestMethod, ...otherOptionOverrides }: RequestOptions = {},
+      context?: Context,
+    ): Promise<FetchResponse<Resource> | FetchResponse> => {
+      const options = merge({}, otherOptions, otherOptionOverrides);
+      const resolvedMethod = requestMethod ?? method;
+
+      if (resolvedMethod === consts.GET_METHOD) {
+        return this.get<Resource>(path, options, context);
+      }
+
+      if (resolvedMethod === consts.DELETE_METHOD) {
+        return this.delete(path, options, context);
+      }
+
+      return this.request(path, { ...options, method: resolvedMethod }, context);
+    };
+  }
+
+  public async delete(
+    path: string,
+    options: Omit<RequestOptions, 'method'> = {},
+    context?: Context,
+  ): Promise<FetchResponse> {
+    return this._delete(path, options, context);
+  }
+
+  public async get<T>(
+    path: string,
+    options: Omit<RequestOptions, 'method'> = {},
+    context?: Context,
+  ): Promise<FetchResponse<T>> {
+    return this._get<T>(path, options, context);
+  }
+
+  public async post(
+    path: string,
+    options: Omit<SetRequired<RequestOptions, 'body'>, 'method'>,
+    context?: Context,
+  ): Promise<FetchResponse> {
+    return this._request(path, { ...options, method: consts.POST_METHOD }, context);
+  }
+
+  public async put(
+    path: string,
+    options: Omit<SetRequired<RequestOptions, 'body'>, 'method'>,
+    context?: Context,
+  ): Promise<FetchResponse> {
+    return this._request(path, { ...options, method: consts.PUT_METHOD }, context);
+  }
+
+  public async request(
+    path: string,
+    options: SetRequired<RequestOptions, 'method'>,
+    context?: Context,
+  ): Promise<FetchResponse> {
+    if (!consts.FETCH_METHODS.includes(options.method)) {
+      throw new Error(`${consts.INVALID_FETCH_METHOD_ERROR} ${options.method}`);
+    }
+
+    return this._request(path, options, context);
+  }
 }
 
 export const createRestClient = <N extends string, LogData extends PlainObject = PlainObject>(
   options: ConstructorOptions<LogData>,
   shortcuts?: Shortcuts,
-) => {
+): Getta & ShortcutProperties<N> => {
   // @ts-expect-error Typing proving too complex without casting.
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const getta = new Getta(options) as Getta & ShortcutProperties<N>;
@@ -685,12 +731,8 @@ export const createRestClient = <N extends string, LogData extends PlainObject =
     return getta;
   }
 
-  for (const key of Object.keys(shortcuts)) {
-    const shortcut = shortcuts[key];
-
-    if (shortcut) {
-      getta.createShortcut(key, ...shortcut);
-    }
+  for (const [key, shortcut] of Object.entries(shortcuts)) {
+    getta.createShortcut(key, ...shortcut);
   }
 
   return getta;

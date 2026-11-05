@@ -29,7 +29,7 @@ const restClient = createRestClient({
     name: 'restClient',
     type: 'example',
   }),
-  performance
+  performance,
 });
 ```
 
@@ -109,7 +109,7 @@ The stream reader to use when parsing the response body. Default is `'json'`.
 
 ### Making requests
 
-The rest client supports `GET`, `POST`, `PUT` and `DELETE` methods and has functions for each method. The first argument is the path to make the request to. This can also be a path template with variable placeholders that will be replaced with data passed in on the `pathTemplateData` request option.
+The rest client supports `GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `HEAD` and `OPTIONS` methods. It has convenience functions for `GET`, `POST`, `PUT` and `DELETE`, and a `request` function for all supported methods. The first argument is the path to make the request to. This can also be a path template with variable placeholders that will be replaced with data passed in on the `pathTemplateData` request option.
 
 ```typescript
 // GET
@@ -117,16 +117,22 @@ const getResponse = await restClient.get('/path/to/resource');
 
 // POST
 const postResponse = await restClient.post('/graphql/api', {
-  body: JSON.stringify({ /* payload */ }),
+  body: JSON.stringify({/* payload */}),
 });
 
 // PUT
 const putResponse = await restClient.put('/path/to/resource', {
-  body: JSON.stringify({ /* payload */ }),
+  body: JSON.stringify({/* payload */}),
 });
 
 // DELETE
 const deleteResponse = await restClient.delete('/path/to/resource');
+
+// PATCH
+const patchResponse = await restClient.request('/path/to/resource', {
+  body: JSON.stringify({/* payload */}),
+  method: 'patch',
+});
 ```
 
 ### Request options
@@ -139,7 +145,7 @@ For `POST` and `PUT` methods, the body to send with the request.
 
 Any headers to attach to the request.
 
-**method?: `'get' | 'post' | 'put' | 'delete'`**
+**method?: `'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options'`**
 
 The fetch method.
 
@@ -169,11 +175,83 @@ const restClient = createRestClient<'getProduct'>(
         pathTemplateData: { 'brief|standard': 'standard', type: 'product' },
       },
     ],
-  }
+  },
 );
 
 const getResponse = await restClient.getProduct({ pathTemplateData: { 'id,+': '136-7317' } });
 ```
+
+### Generate an API client
+
+The `getta` command generates a TypeScript client from an OpenAPI 3.x JSON or YAML document. Install Getta in your project, then run the command with the spec path and an optional output path. The default output is `api.generated.ts`.
+
+```shell
+pnpm exec getta generate-openapi ./openapi.json ./src/api.generated.ts
+```
+
+The command accepts a `--name` option to change the exported client factory name. YAML specs should use a `.yaml` or `.yml` file extension.
+
+The generated module exports `createApiClient`. Pass it a configured Getta instance to create methods for the operations in the spec. Path parameters are positional arguments, in the order they appear in the operation. Query parameters, headers, and JSON request bodies go in an optional second argument:
+
+```typescript
+import { createRestClient } from 'getta';
+import { performance } from 'node:perf_hooks';
+import { createApiClient } from './api.generated';
+
+const restClient = createRestClient({ basePath: 'https://www.example.com', performance });
+const apiClient = createApiClient(restClient);
+
+const response = await apiClient.getProduct('123', {
+  query: { includeDetails: true },
+});
+
+const product = response.data;
+```
+
+#### Using the client with React context
+
+Use the generated factory's return type for the context value. This keeps the context methods and parameters in sync when you regenerate the client:
+
+```tsx
+import { createContext, useContext, type ReactNode } from 'react';
+import { createApiClient } from './api.generated';
+
+type ApiClient = ReturnType<typeof createApiClient>;
+
+const ApiContext = createContext<ApiClient | null>(null);
+
+export const ApiProvider = ({ client, children }: { client: ApiClient; children: ReactNode }) => (
+  <ApiContext.Provider value={client}>{children}</ApiContext.Provider>
+);
+
+export const useApi = (): ApiClient => {
+  const client = useContext(ApiContext);
+
+  if (!client) {
+    throw new Error('useApi must be used within an ApiProvider.');
+  }
+
+  return client;
+};
+
+export const ProductButton = () => {
+  const getta = useApi();
+
+  return <button onClick={() => void getta.getProduct('123')}>Load product</button>;
+};
+```
+
+Create the generated client once and pass it to the provider as its `client` prop. Components using `useApi()` can call typed methods such as `getProduct('123')`.
+
+For an operation with a JSON request body, pass the body in the `body` property:
+
+```typescript
+await apiClient.createProduct({ body: { name: 'Desk lamp' } });
+```
+
+Operation names come from `operationId`; when it is missing, the command derives a name from the HTTP method and path. The generated module also exports types for schemas in `components.schemas`, and each operation's response is typed as `FetchResponse<T>` with the response body available as `data`. Configure Getta's `basePath` separately from the OpenAPI `servers` value.
+
+The generator supports local component schema references, path/query/header parameters, JSON request bodies, and JSON success responses. It uses basic parameter serialization and does not generate cookie parameters, external references, callbacks, security configuration, non-JSON request bodies, or custom array/object parameter styles.
 
 ### Responses and errors
 

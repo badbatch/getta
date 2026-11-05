@@ -12,7 +12,7 @@ export const STREAM_READERS = {
   TEXT_FORMAT,
 };
 
-export const DEFAULT_BODY_PARSER = (body: unknown) => body;
+export const DEFAULT_BODY_PARSER = (body: unknown): unknown => body;
 export const DEFAULT_FETCH_TIMEOUT = 5000;
 export const DEFAULT_HEADERS = { 'content-type': 'application/json' };
 export const DEFAULT_MAX_REDIRECTS = 5;
@@ -29,7 +29,7 @@ export const MAX_REDIRECTS_EXCEEDED_ERROR = 'The request exceeded the maximum nu
 
 export const MAX_RETRIES_EXCEEDED_ERROR = 'The request exceeded the maximum number of retries, which is';
 
-export const INVALID_FETCH_METHOD_ERROR = "Getta expected to receive 'get', 'post', 'put' or 'delete', but received";
+export const INVALID_FETCH_METHOD_ERROR = 'Getta expected to receive a supported Fetch method, but received';
 
 export const RESOURCE_NOT_FOUND_ERROR = 'The requested resource could not been found.';
 
@@ -39,8 +39,19 @@ export const GET_METHOD = 'get';
 export const POST_METHOD = 'post';
 export const PUT_METHOD = 'put';
 export const DELETE_METHOD = 'delete';
+export const PATCH_METHOD = 'patch';
+export const HEAD_METHOD = 'head';
+export const OPTIONS_METHOD = 'options';
 
-export const FETCH_METHODS = [GET_METHOD, POST_METHOD, PUT_METHOD, DELETE_METHOD];
+export const FETCH_METHODS = [
+  GET_METHOD,
+  POST_METHOD,
+  PUT_METHOD,
+  DELETE_METHOD,
+  PATCH_METHOD,
+  HEAD_METHOD,
+  OPTIONS_METHOD,
+];
 
 export const INFORMATION_REPSONSE = 'information';
 export const SUCCESSFUL_REPSONSE = 'successful';

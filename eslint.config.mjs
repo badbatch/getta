@@ -12,12 +12,6 @@ export default [
   {
     files: ['**/*.{spec,test}.*'],
     rules: {
-      'jest/max-nested-describe': [
-        2,
-        {
-          max: 7,
-        },
-      ],
       'jest/no-duplicate-hooks': 0,
     },
   },

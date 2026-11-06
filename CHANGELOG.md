@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.27 (2026-11-06)
+
+### Refactors
+
+* change command name (111a233c)
+
 ## 1.0.26 (2026-11-06)
 
 ### Bug Fixes

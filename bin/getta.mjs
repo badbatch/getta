@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-// Is unresolved before library has been built.
-// eslint-disable-next-line import-x/no-unresolved
-import { runGettaCli } from 'getta/cli.mjs';
+// Subpath does not support extension
+// eslint-disable-next-line import-x/extensions
+import { runGettaCli } from 'getta/cli';
 
 await runGettaCli();

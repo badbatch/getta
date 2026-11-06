@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import yargs, { type Argv } from 'yargs';
 import * as generateOpenApiCommand from './command.ts';
 
-describe('generate-openapi command', () => {
+describe('generate-client command', () => {
   it('When help is requested, then it displays the command usage and options', async () => {
     // Arrange
     // @ts-expect-error not important in test
@@ -18,7 +18,7 @@ describe('generate-openapi command', () => {
 
     // Assert
     expect(help).toMatchInlineSnapshot(`
-      "getta generate-openapi <schema> [output]
+      "getta generate-client <schema> [output]
 
       Generate a typed Getta client from an OpenAPI 3.x document.
 

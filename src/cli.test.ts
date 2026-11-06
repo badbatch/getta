@@ -26,14 +26,14 @@ describe('runGettaCli', () => {
     }
   });
 
-  it('When invoked with generate-openapi arguments, then it runs the command and writes the client', async () => {
+  it('When invoked with generate-client arguments, then it runs the command and writes the client', async () => {
     // Arrange
     directory = await mkdtemp(join(tmpdir(), 'getta-cli-'));
     originalWorkingDirectory = process.cwd();
     originalArguments = process.argv;
     process.chdir(directory);
     await writeFile('spec.json', JSON.stringify({ openapi: '3.0.0', paths: {} }));
-    process.argv = ['node', 'getta', 'generate-openapi', 'spec.json', 'generated.ts'];
+    process.argv = ['node', 'getta', 'generate-client', 'spec.json', 'generated.ts'];
 
     // Act
     await runGettaCli();

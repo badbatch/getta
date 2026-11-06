@@ -186,7 +186,7 @@ const getResponse = await restClient.getProduct({ pathTemplateData: { 'id,+': '1
 The `getta` command generates a TypeScript client from an OpenAPI 3.x JSON or YAML document. Install Getta in your project, then run the command with the spec path and an optional output path. The default output is `api.generated.ts`.
 
 ```shell
-pnpm exec getta generate-openapi ./openapi.json ./src/api.generated.ts
+pnpm exec getta generate-client ./openapi.json ./src/api.generated.ts
 ```
 
 The command accepts a `--name` option to change the exported client factory name. YAML specs should use a `.yaml` or `.yml` file extension.

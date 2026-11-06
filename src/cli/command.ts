@@ -26,6 +26,6 @@ export const builder: CommandBuilder<object, GenerateOpenApiArguments> = yargs =
       return true;
     });
 
-export const command = 'generate-openapi <schema> [output]';
+export const command = 'generate-client <schema> [output]';
 export const describe = 'Generate a typed Getta client from an OpenAPI 3.x document.';
 export { handler } from './handler.ts';

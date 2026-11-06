@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { handler } from './handler.ts';
 
-describe('generate-openapi handler', () => {
+describe('generate-client handler', () => {
   let directory: string | undefined;
   let originalWorkingDirectory: string | undefined;
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.26 (2026-11-06)
+
+### Bug Fixes
+
+* subpath import error (2b4738a9)
+
 ## 1.0.25 (2026-11-06)
 
 ### Bug Fixes

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.25 (2026-11-06)
+
+### Bug Fixes
+
+* linting issue (76ab3a9e)
+
 ## 1.0.24 (2026-11-05)
 
 ### Bug Fixes

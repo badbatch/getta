@@ -1,5 +1,5 @@
 import { type Core, type GetOptions, type SetOptions } from '@cachemap/core';
-import { merge } from 'lodash-es';
+import { mergeDeep } from 'remeda';
 import { type SetRequired } from 'type-fest';
 import { generateCacheKey } from '#helpers/generateCacheKey.ts';
 import { isFetchResponse } from '#helpers/isFetchResponse.ts';
@@ -252,7 +252,7 @@ export class Getta {
       const { headers, status } = res;
       const responseGroup = getResponseGroup(status);
 
-      if (responseGroup === consts.REDIRECTION_REPSONSE && headers.has(consts.LOCATION_HEADER)) {
+      if (responseGroup === consts.REDIRECTION_RESPONSE && headers.has(consts.LOCATION_HEADER)) {
         return await this._fetchRedirectHandler<T>(
           res,
           // Has check above means this cannot be undefined.
@@ -268,7 +268,7 @@ export class Getta {
         );
       }
 
-      if (responseGroup === consts.SERVER_ERROR_REPSONSE) {
+      if (responseGroup === consts.SERVER_ERROR_RESPONSE) {
         return await this._fetchRetryHandler<T>(
           res,
           endpoint,
@@ -649,7 +649,7 @@ export class Getta {
       throw new Error(`Shortcut "${name}" already exists`);
     }
 
-    if (!consts.FETCH_METHODS.includes(method)) {
+    if (!consts.HTTP_METHODS.includes(method)) {
       throw new Error(`${consts.INVALID_FETCH_METHOD_ERROR} ${method}`);
     }
 
@@ -659,7 +659,7 @@ export class Getta {
       { method: requestMethod, ...otherOptionOverrides }: RequestOptions = {},
       context?: Context,
     ): Promise<FetchResponse<Resource> | FetchResponse> => {
-      const options = merge({}, otherOptions, otherOptionOverrides);
+      const options = mergeDeep(otherOptions, otherOptionOverrides);
       const resolvedMethod = requestMethod ?? method;
 
       if (resolvedMethod === consts.GET_METHOD) {
@@ -711,7 +711,7 @@ export class Getta {
     options: SetRequired<RequestOptions, 'method'>,
     context?: Context,
   ): Promise<FetchResponse> {
-    if (!consts.FETCH_METHODS.includes(options.method)) {
+    if (!consts.HTTP_METHODS.includes(options.method)) {
       throw new Error(`${consts.INVALID_FETCH_METHOD_ERROR} ${options.method}`);
     }
 

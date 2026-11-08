@@ -1,10 +1,9 @@
 import { load } from 'js-yaml';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, relative, resolve } from 'node:path';
-import { generateOpenApiClient } from './generator.ts';
-
-const isMissingFile = (error: unknown): boolean =>
-  !!error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT';
+import { relative, resolve } from 'node:path';
+import { format } from 'prettier';
+import { generateOpenApiClient } from '#generator/generateOpenApiClient.ts';
+import { generateOpenApiTypes } from '#generator/generateOpenApiTypes.ts';
 
 export interface GenerateOpenApiArguments {
   name: string;
@@ -20,21 +19,20 @@ export const handler = async ({ name, output, schema }: GenerateOpenApiArguments
   // JSON.parse returns any type
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const document = isYaml ? load(source) : (JSON.parse(source) as unknown);
-  const contents = generateOpenApiClient(document, name);
-  let existingContents: string | undefined;
+  const clientOutputPath = resolve(outputPath, 'client.ts');
+  const typesOutputPath = resolve(outputPath, 'types.ts');
 
-  try {
-    existingContents = await readFile(outputPath, 'utf8');
-  } catch (error) {
-    if (!isMissingFile(error)) {
-      throw error;
-    }
-  }
+  const clientContents = await format(generateOpenApiClient(document, name), {
+    filepath: clientOutputPath,
+  });
 
-  if (existingContents !== contents) {
-    await mkdir(dirname(outputPath), { recursive: true });
-    await writeFile(outputPath, contents, 'utf8');
-  }
+  const typesContents = await format(await generateOpenApiTypes(document), {
+    filepath: typesOutputPath,
+  });
+
+  await mkdir(outputPath, { recursive: true });
+  await writeFile(clientOutputPath, clientContents, 'utf8');
+  await writeFile(typesOutputPath, typesContents, 'utf8');
 
   process.stdout.write(`Generated ${relative(process.cwd(), outputPath)}\n`);
 };

@@ -18,18 +18,18 @@ describe('generate-client command', () => {
 
     // Assert
     expect(help).toMatchInlineSnapshot(`
-      "getta generate-client <schema> [output]
+     "getta generate-client <schema> [output]
 
-      Generate a typed Getta client from an OpenAPI 3.x document.
+     Generate a typed Getta client from an OpenAPI 3.x document.
 
-      Positionals:
-        schema  OpenAPI 3.x JSON or YAML document.                            [string]
-        output  TypeScript module to generate.  [string] [default: "api.generated.ts"]
+     Positionals:
+       schema  OpenAPI 3.x JSON or YAML document.                            [string]
+       output  TypeScript module to generate.      [string] [default: "generatedApi"]
 
-      Options:
-        --version  Show version number                                       [boolean]
-        --name     Exported client factory name. [string] [default: "createApiClient"]
-        --help     Show help                                                 [boolean]"
+     Options:
+       --version  Show version number                                       [boolean]
+       --name     Exported client factory name. [string] [default: "createApiClient"]
+       --help     Show help                                                 [boolean]"
     `);
   });
 });

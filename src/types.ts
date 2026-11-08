@@ -98,12 +98,12 @@ export interface ConstructorOptions<D extends PlainObject = PlainObject> {
 
 export type Context<T extends PlainObject = PlainObject> = T;
 
-export type FetchMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options';
+export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options';
 
 export interface FetchOptions {
   body?: BodyInit;
   headers: Record<string, string>;
-  method: FetchMethod;
+  method: HttpMethod;
   redirects?: number;
   retries?: number;
 }
@@ -117,7 +117,7 @@ export interface FetchRedirectHandlerOptions extends FetchOptions {
 export type Func = (...args: unknown[]) => unknown;
 
 export interface LogDataContext {
-  fetchMethod?: FetchMethod;
+  fetchMethod?: HttpMethod;
   fetchRedirects?: number;
   fetchResponseHeaders?: Record<string, string>;
   fetchResponseStatus?: number;
@@ -183,7 +183,7 @@ export interface RequestOptions {
   /**
    * The fetch method.
    */
-  method?: FetchMethod;
+  method?: HttpMethod;
   /**
    * Data to be injected into the path template.
    */
@@ -191,7 +191,7 @@ export interface RequestOptions {
   /**
    * Any query params to attach to the request.
    */
-  queryParams?: Record<string, string>;
+  queryParams?: Record<string, string | string[]>;
 }
 
 export type RequestQueue<T> = QueuedRequest<T>[];
@@ -206,7 +206,8 @@ export interface RequestTracker {
 }
 
 export type SearchParams =
-  Record<string, string> | ((endpoint: string, extraSearchParams?: Record<string, string>) => Record<string, string>);
+  | Record<string, string | string[]>
+  | ((endpoint: string, extraSearchParams?: Record<string, string | string[]>) => Record<string, string | string[]>);
 
 export type ShortcutProperties<T extends string | number> = Record<
   T,

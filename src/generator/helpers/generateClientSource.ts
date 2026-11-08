@@ -1,0 +1,53 @@
+const identifier = (value: string): string => {
+  const normalized = value.replaceAll(/[^\w$]/gu, '_');
+  return /^[A-Za-z_$]/u.test(normalized) ? normalized : `_${normalized}`;
+};
+
+export const generateClientSource = (
+  clientName: string,
+  typesImportPath: string,
+  operationTypes: string[],
+  operations: string[],
+): string =>
+  [
+    "import { type Getta, type FetchResponse } from 'getta';",
+    `import type { paths } from '${typesImportPath}';`,
+    '',
+    'type __PathParameters<T> = T extends { parameters?: infer P }',
+    '  ? P extends { path?: infer V } ? V : {}',
+    '  : {};',
+    '',
+    'type __QueryParameters<T> = T extends { parameters?: infer P }',
+    '  ? P extends { query?: infer V } ? V : {}',
+    '  : {};',
+    '',
+    'type __HeaderParameters<T> = T extends { parameters?: infer P }',
+    '  ? P extends { header?: infer V } ? V : {}',
+    '  : {};',
+    '',
+    'type __RequestBody<T> = T extends { requestBody?: { content: infer C } }',
+    "  ? C extends { 'application/json': infer J } ? J",
+    "    : C extends { 'multipart/form-data': infer M } ? M",
+    '    : C extends Record<string, infer V> ? V',
+    '    : never',
+    '  : never;',
+    '',
+    'type __IsSuccess<S> = S extends number',
+    '  ? `${S}` extends `2${string}` ? true : false',
+    '  : S extends `2${string}` ? true : false;',
+    '',
+    'type __ResponseContent<R> = R extends { content: infer C }',
+    '  ? C extends Record<string, infer V> ? V : unknown',
+    '  : unknown;',
+    '',
+    'type __Response<T> = T extends { responses: infer R }',
+    '  ? { [S in keyof R]: __IsSuccess<S> extends true ? __ResponseContent<R[S]> : never }[keyof R]',
+    '  : unknown;',
+    '',
+    ...operationTypes,
+    '',
+    `export const ${identifier(clientName)} = (client: Getta) => ({`,
+    ...operations,
+    '});',
+    '',
+  ].join('\n');

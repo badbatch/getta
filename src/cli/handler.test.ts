@@ -41,11 +41,11 @@ describe('generate-client handler', () => {
       ].join('\n'),
     );
 
-    const args = { name: 'createProductsApi', output: 'src/api.generated.ts', schema: 'openapi.yaml' };
+    const args = { name: 'createProductsApi', output: 'src/generatedApi', schema: 'openapi.yaml' };
 
     // Act
     await handler(args);
-    const generated = await readFile(args.output, 'utf8');
+    const generated = await readFile(join(args.output, 'client.ts'), 'utf8');
 
     // Assert
     expect(generated).toContain('export const createProductsApi');
@@ -58,13 +58,13 @@ describe('generate-client handler', () => {
     originalWorkingDirectory = process.cwd();
     process.chdir(directory);
     await writeFile('openapi.json', JSON.stringify({ openapi: '3.0.0', paths: {} }));
-    const args = { name: 'createApiClient', output: 'api.generated.ts', schema: 'openapi.json' };
+    const args = { name: 'createApiClient', output: 'generatedApi', schema: 'openapi.json' };
     await handler(args);
-    const firstContents = await readFile(args.output, 'utf8');
+    const firstContents = await readFile(join(args.output, 'client.ts'), 'utf8');
 
     // Act
     await handler(args);
-    const secondContents = await readFile(args.output, 'utf8');
+    const secondContents = await readFile(join(args.output, 'client.ts'), 'utf8');
 
     // Assert
     expect(secondContents).toBe(firstContents);

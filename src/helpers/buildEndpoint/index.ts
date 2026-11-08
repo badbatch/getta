@@ -1,5 +1,4 @@
-import { isFunction, omitBy } from 'lodash-es';
-import queryString from 'query-string';
+import { isFunction, omitBy } from 'remeda';
 import { type SearchParams } from '#types.js';
 import { type BuildEndpointOptions } from './types.ts';
 
@@ -27,20 +26,35 @@ export const buildEndpoint = (
 export const appendSearchParams = (
   endpoint: string,
   searchParams: SearchParams,
-  extraSearchParam: Record<string, string> = {},
+  extraSearchParam: Record<string, string | string[]> = {},
 ): string => {
   const mergedSearchParams = {
     ...(isFunction(searchParams) ? searchParams(endpoint, extraSearchParam) : searchParams),
     ...extraSearchParam,
   };
 
-  // We have seen instances where value can be undefined
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const sanitisedSearchParams = omitBy<Record<string, string>>(mergedSearchParams, entry => entry === undefined);
+  const sanitisedSearchParams = omitBy<Record<string, string | string[]>>(
+    mergedSearchParams,
+    // We have seen instances where value can be undefined
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    entry => entry === undefined,
+  );
 
-  if (Object.keys(sanitisedSearchParams).length > 0) {
-    const queryJoin = queryString.extract(endpoint) ? '&' : '?';
-    endpoint += `${queryJoin}${queryString.stringify(sanitisedSearchParams)}`;
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(sanitisedSearchParams)) {
+    const entries = Array.isArray(value) ? value : [value];
+
+    for (const entry of entries) {
+      params.append(key, entry);
+    }
+  }
+
+  const query = params.toString();
+
+  if (query) {
+    const separator = endpoint.includes('?') ? (endpoint.endsWith('?') || endpoint.endsWith('&') ? '' : '&') : '?';
+    endpoint += `${separator}${query}`;
   }
 
   return endpoint;

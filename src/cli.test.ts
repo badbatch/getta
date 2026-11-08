@@ -33,11 +33,11 @@ describe('runGettaCli', () => {
     originalArguments = process.argv;
     process.chdir(directory);
     await writeFile('spec.json', JSON.stringify({ openapi: '3.0.0', paths: {} }));
-    process.argv = ['node', 'getta', 'generate-client', 'spec.json', 'generated.ts'];
+    process.argv = ['node', 'getta', 'generate-client', 'spec.json', 'generated'];
 
     // Act
     await runGettaCli();
-    const contents = await readFile('generated.ts', 'utf8');
+    const contents = await readFile('generated/client.ts', 'utf8');
 
     // Assert
     expect(contents).toContain('export const createApiClient');

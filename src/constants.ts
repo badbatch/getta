@@ -43,7 +43,7 @@ export const PATCH_METHOD = 'patch';
 export const HEAD_METHOD = 'head';
 export const OPTIONS_METHOD = 'options';
 
-export const FETCH_METHODS = [
+export const HTTP_METHODS = [
   GET_METHOD,
   POST_METHOD,
   PUT_METHOD,
@@ -51,13 +51,13 @@ export const FETCH_METHODS = [
   PATCH_METHOD,
   HEAD_METHOD,
   OPTIONS_METHOD,
-];
+] as const;
 
-export const INFORMATION_REPSONSE = 'information';
-export const SUCCESSFUL_REPSONSE = 'successful';
-export const REDIRECTION_REPSONSE = 'redirection';
-export const CLIENT_ERROR_REPSONSE = 'clientError';
-export const SERVER_ERROR_REPSONSE = 'serverError';
+export const INFORMATION_RESPONSE = 'information';
+export const SUCCESSFUL_RESPONSE = 'successful';
+export const REDIRECTION_RESPONSE = 'redirection';
+export const CLIENT_ERROR_RESPONSE = 'clientError';
+export const SERVER_ERROR_RESPONSE = 'serverError';
 
 export const NOT_MODIFIED_STATUS_CODE = 304;
 export const NOT_FOUND_STATUS_CODE = 404;

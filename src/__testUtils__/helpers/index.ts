@@ -1,9 +1,9 @@
 import { Core } from '@cachemap/core';
-import { DEFAULT_PATH_TEMPLATE_REGEX } from '../../constants.ts';
-import { buildEndpoint } from '../../helpers/buildEndpoint/index.ts';
-import { defaultPathTemplateCallback } from '../../helpers/defaultPathTemplateCallback/index.ts';
-import { OPTIONAL_PATH_TEMPLATE_REGEX } from '../../index.ts';
-import { type RequestOptions } from '../../types.ts';
+import { DEFAULT_PATH_TEMPLATE_REGEX } from '#constants.ts';
+import { buildEndpoint } from '#helpers/buildEndpoint/index.ts';
+import { defaultPathTemplateCallback } from '#helpers/defaultPathTemplateCallback/index.ts';
+import { OPTIONAL_PATH_TEMPLATE_REGEX } from '#index.ts';
+import { type RequestOptions } from '#types.ts';
 
 export const basePath = 'https://example.com';
 

@@ -9,7 +9,7 @@ export const builder: CommandBuilder<object, GenerateOpenApiArguments> = yargs =
       type: 'string',
     })
     .positional('output', {
-      default: 'api.generated.ts',
+      default: 'generatedApi',
       describe: 'TypeScript module to generate.',
       type: 'string',
     })

@@ -183,10 +183,10 @@ const getResponse = await restClient.getProduct({ pathTemplateData: { 'id,+': '1
 
 ### Generate an API client
 
-The `getta` command generates a TypeScript client from an OpenAPI 3.x JSON or YAML document. Install Getta in your project, then run the command with the spec path and an optional output path. The default output is `api.generated.ts`.
+The `getta` command generates a TypeScript client from an OpenAPI 3.x JSON or YAML document. Install Getta in your project, then run the command with the spec path and an optional output path. The default output is `generatedApi/`.
 
 ```shell
-pnpm exec getta generate-client ./openapi.json ./src/api.generated.ts
+pnpm exec getta generate-client ./openapi.json ./src/generatedApi
 ```
 
 The command accepts a `--name` option to change the exported client factory name. YAML specs should use a `.yaml` or `.yml` file extension.
@@ -196,7 +196,7 @@ The generated module exports `createApiClient`. Pass it a configured Getta insta
 ```typescript
 import { createRestClient } from 'getta';
 import { performance } from 'node:perf_hooks';
-import { createApiClient } from './api.generated';
+import { createApiClient } from './generatedApi/client.ts';
 
 const restClient = createRestClient({ basePath: 'https://www.example.com', performance });
 const apiClient = createApiClient(restClient);
@@ -214,7 +214,7 @@ Use the generated factory's return type for the context value. This keeps the co
 
 ```tsx
 import { createContext, useContext, type ReactNode } from 'react';
-import { createApiClient } from './api.generated';
+import { createApiClient } from './generatedApi/client.ts';
 
 type ApiClient = ReturnType<typeof createApiClient>;
 
@@ -249,7 +249,7 @@ For an operation with a JSON request body, pass the body in the `body` property:
 await apiClient.createProduct({ body: { name: 'Desk lamp' } });
 ```
 
-Operation names come from `operationId`; when it is missing, the command derives a name from the HTTP method and path. The generated module also exports types for schemas in `components.schemas`, and each operation's response is typed as `FetchResponse<T>` with the response body available as `data`. Configure Getta's `basePath` separately from the OpenAPI `servers` value.
+Operation names come from `operationId`; when it is missing, the command derives a name from the HTTP method and path. The generated module also exports types for schemas in `./generatedApi/types.ts`, and each operation's response is typed as `FetchResponse<T>` with the response body available as `data`.
 
 The generator supports local component schema references, path/query/header parameters, JSON request bodies, and JSON success responses. It uses basic parameter serialization and does not generate cookie parameters, external references, callbacks, security configuration, non-JSON request bodies, or custom array/object parameter styles.
 

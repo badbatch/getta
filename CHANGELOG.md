@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.28 (2026-11-08)
+
+### Bug Fixes
+
+* update readme (eb8c72f3)
+
+### Refactors
+
+* rewrite generator in cli tool (26569ea4)
+
 ## 1.0.27 (2026-11-06)
 
 ### Refactors

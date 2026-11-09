@@ -171,7 +171,7 @@ export type QueuedRequest<T> = [
   () => Promise<FetchResponse<T>>,
 ];
 
-export interface RequestOptions {
+export interface RequestOptions extends RequestInit {
   /**
    * For POST and PUT methods, the body to send with the request.
    */

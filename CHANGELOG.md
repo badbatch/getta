@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.31 (2026-11-09)
+
+### Bug Fixes
+
+* core getta client to support request init options (355fd9b2)
+
 ## 1.0.30 (2026-11-09)
 
 ### Bug Fixes

@@ -44,6 +44,7 @@ export const renderOperationRequest = (
   return {
     declarations: multipartSetup,
     expression: `return client.${isDirectMethod ? method : 'request'}(path, {
+      ...options,
       ${isDirectMethod ? '' : `method: ${JSON.stringify(method)},`}
       queryParams: ${queryParameters},
       headers: ${headers},

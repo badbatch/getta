@@ -91,7 +91,7 @@ describe('generateOpenApiClient', () => {
      type __Operation0 = NonNullable<paths["/products/{productId}"]["get"]>;
 
      export const createApiClient = (client: Getta) => ({
-       getProduct: (productId: NonNullable<__PathParameters<__Operation0>["productId"]>, options?: {
+       getProduct: (productId: NonNullable<__PathParameters<__Operation0>["productId"]>, options?: RequestInit & {
        query?: __QueryParameters<__Operation0>;
        headers?: ( [__HeaderParameters<__Operation0>] extends [never] ? {} : __HeaderParameters<__Operation0> ) & Record<string, string | number | boolean>;
      }) => {
@@ -109,6 +109,7 @@ describe('generateOpenApiClient', () => {
          },
        );
          return client.get(path, {
+           ...options,
            
            queryParams: Object.fromEntries(
            Object.entries(options?.query ?? {}).map(([key, value]) => [
@@ -279,12 +280,13 @@ describe('generateOpenApiClient', () => {
      type __Operation0 = NonNullable<paths["/products"]["post"]>;
 
      export const createApiClient = (client: Getta) => ({
-       createProduct: (options: {
+       createProduct: (options: RequestInit & {
        headers?: ( [__HeaderParameters<__Operation0>] extends [never] ? {} : __HeaderParameters<__Operation0> ) & Record<string, string | number | boolean>;
        body: __RequestBody<__Operation0>;
      }) => {
          const path = "/products";
          return client.request(path, {
+           ...options,
            method: "post",
            queryParams: {},
            headers: Object.fromEntries(

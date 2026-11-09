@@ -21,7 +21,7 @@ export const renderOperationOptions = (
   const isRequired = requestBodyContentType?.required === true;
 
   return {
-    declarations: members.length > 0 ? `options${isRequired ? '' : '?'}: {\n${members.join('\n')}\n}` : '',
+    declarations: `options${isRequired ? '' : '?'}: RequestInit${members.length > 0 ? ` & {\n${members.join('\n')}\n}` : ''}`,
     isRequired,
   };
 };

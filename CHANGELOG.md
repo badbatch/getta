@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.30 (2026-11-09)
+
+### Bug Fixes
+
+* add eslint ignore comments to generated files (51d3a7a3)
+
 ## 1.0.29 (2026-11-09)
 
 ### Bug Fixes

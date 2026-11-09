@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.29 (2026-11-09)
+
+### Bug Fixes
+
+* allow request init options to be passed into methods (77255a07)
+* jest config being overriden (97b7c091)
+
 ## 1.0.28 (2026-11-08)
 
 ### Bug Fixes

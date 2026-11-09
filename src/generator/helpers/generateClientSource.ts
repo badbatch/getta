@@ -10,6 +10,7 @@ export const generateClientSource = (
   operations: string[],
 ): string =>
   [
+    '/* eslint-disable */',
     "import { type Getta, type FetchResponse } from 'getta';",
     `import type { paths } from '${typesImportPath}';`,
     '',

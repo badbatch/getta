@@ -7,5 +7,5 @@ export const generateOpenApiTypes = async (input: unknown): Promise<string> => {
   }
 
   const ast = await openapiTS(input);
-  return astToString(ast);
+  return `/*eslint-disable*/\n${astToString(ast)}`;
 };

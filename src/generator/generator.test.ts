@@ -54,7 +54,8 @@ describe('generateOpenApiClient', () => {
     // The snapshot contains an OpenAPI path placeholder that resembles template interpolation.
     /* eslint-disable unicorn/no-incorrect-template-string-interpolation -- OpenAPI placeholders use braces literally. */
     expect(generated).toMatchInlineSnapshot(`
-     "import { type Getta, type FetchResponse } from 'getta';
+     "/* eslint-disable */
+     import { type Getta, type FetchResponse } from 'getta';
      import type { paths } from './types.ts';
 
      type __PathParameters<T> = T extends { parameters?: infer P }
@@ -243,7 +244,8 @@ describe('generateOpenApiClient', () => {
 
     // Assert
     expect(generated).toMatchInlineSnapshot(`
-     "import { type Getta, type FetchResponse } from 'getta';
+     "/* eslint-disable */
+     import { type Getta, type FetchResponse } from 'getta';
      import type { paths } from './types.ts';
 
      type __PathParameters<T> = T extends { parameters?: infer P }

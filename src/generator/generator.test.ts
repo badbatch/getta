@@ -111,7 +111,6 @@ describe('generateOpenApiClient', () => {
        );
          return client.get(path, {
            ...options,
-           
            queryParams: Object.fromEntries(
            Object.entries(options?.query ?? {}).map(([key, value]) => [
              key,

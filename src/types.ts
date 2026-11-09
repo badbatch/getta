@@ -101,7 +101,7 @@ export type Context<T extends PlainObject = PlainObject> = T;
 export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options';
 
 export interface FetchOptions {
-  body?: BodyInit;
+  body?: BodyInit | null;
   headers: Record<string, string>;
   method: HttpMethod;
   redirects?: number;

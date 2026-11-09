@@ -43,10 +43,10 @@ export const renderOperationRequest = (
 
   const parts: string[] = [
     '...options',
-    isDirectMethod ? '' : `method: ${JSON.stringify(method)}`,
-    `queryParams: ${queryParameters}`,
-    `headers: ${headers}`,
-    body,
+    isDirectMethod ? '' : `      method: ${JSON.stringify(method)}`,
+    `      queryParams: ${queryParameters}`,
+    `      headers: ${headers}`,
+    `      ${body}`,
   ].filter(Boolean);
 
   return {

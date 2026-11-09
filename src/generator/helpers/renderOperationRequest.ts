@@ -41,14 +41,18 @@ export const renderOperationRequest = (
 
   const isDirectMethod = method === 'get' || method === 'delete';
 
+  const parts: string[] = [
+    '...options',
+    isDirectMethod ? '' : `method: ${JSON.stringify(method)}`,
+    `queryParams: ${queryParameters}`,
+    `headers: ${headers}`,
+    body,
+  ].filter(Boolean);
+
   return {
     declarations: multipartSetup,
     expression: `return client.${isDirectMethod ? method : 'request'}(path, {
-      ...options,
-      ${isDirectMethod ? '' : `method: ${JSON.stringify(method)},`}
-      queryParams: ${queryParameters},
-      headers: ${headers},
-      ${body}
+      ${parts.join(',\n')}
     })`,
   };
 };

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.32 (2026-11-09)
+
+### Bug Fixes
+
+* more minor issues (4afe5e02)
+* minor bugs (60e4907e)
+
 ## 1.0.31 (2026-11-09)
 
 ### Bug Fixes

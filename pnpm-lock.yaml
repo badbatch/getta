@@ -64,8 +64,8 @@ importers:
         specifier: ^3.0.8
         version: 3.0.8(prettier@3.9.10)
       '@repodog/rollup-config':
-        specifier: ^4.0.20
-        version: 4.0.20(@types/node@26.6.6)(jiti@2.7.0)(rolldown@1.2.16)(rollup@4.67.5)(terser@5.51.2)(yaml@2.9.1)
+        specifier: ^4.0.21
+        version: 4.0.21(@types/node@26.6.6)(jiti@2.7.0)(rolldown@1.2.16)(rollup@4.67.5)(terser@5.51.2)(yaml@2.9.1)
       '@repodog/swc-config':
         specifier: ^1.0.17
         version: 1.0.17(@rollup/plugin-swc@0.4.1(@swc/core@1.16.21)(rollup@4.67.5))(@swc/core@1.16.21)(core-js@3.51.0)
@@ -856,8 +856,8 @@ packages:
     peerDependencies:
       prettier: <4
 
-  '@repodog/rollup-config@4.0.20':
-    resolution: {integrity: sha512-xAr2sQ5zLA4PGJMSWI6h0K8yeoeGRedKBkjWm10JumWcA2CpvlmyMj3JZpWP3gS+aXW0vqgRktJ0mnZvemprQg==}
+  '@repodog/rollup-config@4.0.21':
+    resolution: {integrity: sha512-aNr8pX7/9r0V13LzGV+gJ2+Oo0/RlHVBB+/7TVEoRvT2paK07htvhRJ/XWxPg/REhZZ1WoGCxiFUTz3SFccBtw==}
     peerDependencies:
       rollup: <5
 
@@ -5453,7 +5453,7 @@ snapshots:
     dependencies:
       prettier: 3.9.10
 
-  '@repodog/rollup-config@4.0.20(@types/node@26.6.6)(jiti@2.7.0)(rolldown@1.2.16)(rollup@4.67.5)(terser@5.51.2)(yaml@2.9.1)':
+  '@repodog/rollup-config@4.0.21(@types/node@26.6.6)(jiti@2.7.0)(rolldown@1.2.16)(rollup@4.67.5)(terser@5.51.2)(yaml@2.9.1)':
     dependencies:
       '@rollup/plugin-commonjs': 29.0.3(rollup@4.67.5)
       '@rollup/plugin-image': 3.0.3(rollup@4.67.5)

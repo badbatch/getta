@@ -84,7 +84,7 @@
     "@repodog/jest-config": "^30.0.8",
     "@repodog/markdownlint-config": "^1.2.8",
     "@repodog/prettier-config": "^3.0.8",
-    "@repodog/rollup-config": "^4.0.20",
+    "@repodog/rollup-config": "^4.0.21",
     "@repodog/swc-config": "^1.0.17",
     "@repodog/syncpack-config": "^15.0.7",
     "@repodog/ts-config": "^6.0.5",

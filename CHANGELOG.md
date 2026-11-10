@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.33 (2026-11-10)
+
+### Bug Fixes
+
+* output bundle getting treeshaken (845e188f)
+
 ## 1.0.32 (2026-11-09)
 
 ### Bug Fixes

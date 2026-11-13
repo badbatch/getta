@@ -1,4 +1,4 @@
-# Getta
+<img src="assets/getta-logo.svg" alt="Getta" width="360">
 
 An isomorphic rest client based on the Fetch API.
 

@@ -70,13 +70,6 @@ describe('generateOpenApiClient', () => {
        ? P extends { header?: infer V } ? NonNullable<V> : {}
        : {};
 
-     type __RequestBody<T> = T extends { requestBody?: { content: infer C } }
-       ? C extends { 'application/json': infer J } ? J
-         : C extends { 'multipart/form-data': infer M } ? M
-         : C extends Record<string, infer V> ? V
-         : never
-       : never;
-
      type __IsSuccess<S> = S extends number
        ? \`\${S}\` extends \`2\${string}\` ? true : false
        : S extends \`2\${string}\` ? true : false;
@@ -243,6 +236,8 @@ describe('generateOpenApiClient', () => {
         module: ts.ModuleKind.ESNext,
         moduleResolution: ts.ModuleResolutionKind.Bundler,
         noEmit: true,
+        noUnusedLocals: true,
+        noUnusedParameters: true,
         strict: true,
         target: ts.ScriptTarget.ES2022,
       });
@@ -293,14 +288,6 @@ describe('generateOpenApiClient', () => {
      import { type Getta, type FetchResponse } from 'getta';
      import type { paths } from './types.ts';
 
-     type __PathParameters<T> = T extends { parameters?: infer P }
-       ? P extends { path?: infer V } ? V : {}
-       : {};
-
-     type __QueryParameters<T> = T extends { parameters?: infer P }
-       ? P extends { query?: infer V } ? V : {}
-       : {};
-
      type __HeaderParameters<T> = T extends { parameters?: infer P }
        ? P extends { header?: infer V } ? NonNullable<V> : {}
        : {};
@@ -348,6 +335,122 @@ describe('generateOpenApiClient', () => {
      "
     `);
   });
+
+  it.each([
+    {
+      expectedHelpers: ['__HeaderParameters', '__IsSuccess', '__ResponseContent', '__Response'],
+      name: 'an operation without parameters or a body',
+      paths: { '/items': { get: { responses: { '200': { description: 'OK' } } } } },
+    },
+    {
+      expectedHelpers: ['__PathParameters', '__HeaderParameters', '__IsSuccess', '__ResponseContent', '__Response'],
+      name: 'path parameters',
+      paths: {
+        '/items/{id}': {
+          get: {
+            parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'string' } }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    },
+    {
+      expectedHelpers: ['__QueryParameters', '__HeaderParameters', '__IsSuccess', '__ResponseContent', '__Response'],
+      name: 'inherited query parameters',
+      paths: {
+        '/items': {
+          get: { responses: { '200': { description: 'OK' } } },
+          parameters: [{ in: 'query', name: 'search', schema: { type: 'string' } }],
+        },
+      },
+    },
+    {
+      expectedHelpers: ['__HeaderParameters', '__RequestBody', '__IsSuccess', '__ResponseContent', '__Response'],
+      name: 'an optional JSON body',
+      paths: {
+        '/items': {
+          post: {
+            requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    },
+    {
+      expectedHelpers: ['__HeaderParameters', '__RequestBody', '__IsSuccess', '__ResponseContent', '__Response'],
+      name: 'a multipart body',
+      paths: {
+        '/items': {
+          post: {
+            requestBody: {
+              content: {
+                'multipart/form-data': {
+                  schema: { properties: { title: { type: 'string' } }, type: 'object' },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    },
+    { expectedHelpers: [], name: 'no operations', paths: {} },
+  ])(
+    'When the document contains $name, then only required helpers are emitted and unused checks pass',
+    async ({ expectedHelpers, paths }) => {
+      // Arrange
+      const document = { openapi: '3.0.3', paths };
+      const directory = await mkdtemp(join(tmpdir(), 'getta-required-helpers-'));
+      const clientPath = join(directory, 'client.ts');
+      const typesPath = join(directory, 'types.ts');
+      const gettaPath = join(directory, 'getta.d.ts');
+
+      try {
+        // Act
+        const source = generateOpenApiClient(document);
+        await writeFile(clientPath, source);
+        await writeFile(typesPath, await generateOpenApiTypes(document));
+
+        await writeFile(
+          gettaPath,
+          [
+            "declare module 'getta' {",
+            '  export interface Getta {',
+            '    get(path: string, options?: unknown): Promise<FetchResponse>;',
+            '    request(path: string, options?: unknown): Promise<FetchResponse>;',
+            '  }',
+            '  export interface FetchResponse<T = unknown> { data: T; }',
+            '}',
+          ].join('\n'),
+        );
+
+        const program = ts.createProgram([clientPath, typesPath, gettaPath], {
+          module: ts.ModuleKind.ESNext,
+          moduleResolution: ts.ModuleResolutionKind.Bundler,
+          noEmit: true,
+          noUnusedLocals: true,
+          noUnusedParameters: true,
+          strict: true,
+          target: ts.ScriptTarget.ES2022,
+        });
+
+        const diagnostics = ts
+          .getPreEmitDiagnostics(program)
+          .map(diagnostic => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
+
+        const helpers = source
+          .matchAll(/^type (__\w+)<[A-Z]/gmu)
+          .map(match => match[1])
+          .toArray();
+
+        // Assert
+        expect(helpers).toEqual(expectedHelpers);
+        expect(diagnostics).toEqual([]);
+      } finally {
+        await rm(directory, { force: true, recursive: true });
+      }
+    },
+  );
 
   it('When the document is not OpenAPI 3.x, then it throws a useful error', () => {
     // Arrange

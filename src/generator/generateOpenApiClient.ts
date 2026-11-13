@@ -14,7 +14,7 @@ export const generateOpenApiClient = (
 
   const { paths = {} } = input;
   const generateOperations = createGenerateOperations(input);
-  const { availableOperations, operations } = generateOperations(paths);
+  const { availableOperations, operations, requiredHelpers } = generateOperations(paths);
   const operationTypes = generateOperationTypes(availableOperations, operations);
-  return generateClientSource(clientName, typesImportPath, operationTypes, operations);
+  return generateClientSource(clientName, typesImportPath, operationTypes, operations, requiredHelpers);
 };

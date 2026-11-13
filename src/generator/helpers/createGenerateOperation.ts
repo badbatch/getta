@@ -12,6 +12,13 @@ import { renderPathParameters } from '#generator/helpers/renderPathParameters.ts
 import { sanitiseOperationId } from '#generator/helpers/sanitiseOperationId.ts';
 import { type HttpMethod } from '#types.ts';
 
+export type OperationHelper = 'pathParameters' | 'queryParameters' | 'requestBody';
+
+export type GenerateOperationResult = {
+  requiredHelpers: Set<OperationHelper>;
+  source: string;
+};
+
 export const createGenerateOperation = (document: OpenAPI3) => {
   const getOperationParameters = createGetOperationParameters(document);
   const getRequestBodyContentType = createGetRequestBodyContentType(document);
@@ -23,7 +30,7 @@ export const createGenerateOperation = (document: OpenAPI3) => {
     operation: OperationObject,
     usedOperationNames: Set<string>,
     index: number,
-  ): string => {
+  ): GenerateOperationResult => {
     const baseOperationName =
       isString(operation.operationId) && operation.operationId.length > 0
         ? sanitiseOperationId(operation.operationId)
@@ -42,14 +49,31 @@ export const createGenerateOperation = (document: OpenAPI3) => {
     const renderedOperationPath = renderOperationPath(path, renderedPathParameters);
     const renderedOperationRequest = renderOperationRequest(hasQueryParameters, method, requestBodyContentType);
 
-    return renderOperation({
-      operationName,
-      operationType,
-      parameters: [...renderedPathParameters.declarations, renderedOperationOptions.declarations],
-      pathDeclarations: renderedOperationPath.declarations,
-      pathExpression: renderedOperationPath.expression,
-      requestDeclarations: renderedOperationRequest.declarations,
-      requestExpression: renderedOperationRequest.expression,
-    });
+    const requiredHelpers = new Set<OperationHelper>();
+
+    if (pathParameters.length > 0) {
+      requiredHelpers.add('pathParameters');
+    }
+
+    if (hasQueryParameters) {
+      requiredHelpers.add('queryParameters');
+    }
+
+    if (requestBodyContentType) {
+      requiredHelpers.add('requestBody');
+    }
+
+    return {
+      requiredHelpers,
+      source: renderOperation({
+        operationName,
+        operationType,
+        parameters: [...renderedPathParameters.declarations, renderedOperationOptions.declarations],
+        pathDeclarations: renderedOperationPath.declarations,
+        pathExpression: renderedOperationPath.expression,
+        requestDeclarations: renderedOperationRequest.declarations,
+        requestExpression: renderedOperationRequest.expression,
+      }),
+    };
   };
 };

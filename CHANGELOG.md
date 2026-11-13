@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.34 (2026-11-13)
+
+### New Features
+
+* remove unused types in generated output (acba9a1d)
+
+### Bug Fixes
+
+* type issue in generator (eb50654c)
+
 ## 1.0.33 (2026-11-10)
 
 ### Bug Fixes

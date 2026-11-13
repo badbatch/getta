@@ -67,7 +67,7 @@ describe('generateOpenApiClient', () => {
        : {};
 
      type __HeaderParameters<T> = T extends { parameters?: infer P }
-       ? P extends { header?: infer V } ? V : {}
+       ? P extends { header?: infer V } ? NonNullable<V> : {}
        : {};
 
      type __RequestBody<T> = T extends { requestBody?: { content: infer C } }
@@ -92,7 +92,7 @@ describe('generateOpenApiClient', () => {
      type __Operation0 = NonNullable<paths["/products/{productId}"]["get"]>;
 
      export const createApiClient = (client: Getta) => ({
-       getProduct: (productId: NonNullable<__PathParameters<__Operation0>["productId"]>, options?: RequestInit & {
+       getProduct: (productId: NonNullable<__PathParameters<__Operation0>["productId"]>, options?: Omit<RequestInit, 'body' | 'headers'> & {
        query?: __QueryParameters<__Operation0>;
        headers?: ( [__HeaderParameters<__Operation0>] extends [never] ? {} : __HeaderParameters<__Operation0> ) & Record<string, string | number | boolean>;
      }) => {
@@ -133,7 +133,7 @@ describe('generateOpenApiClient', () => {
     /* eslint-enable unicorn/no-incorrect-template-string-interpolation */
   });
 
-  it('When generated path methods are called, then it type-checks positional parameters', async () => {
+  it('When generated methods receive parameters and JSON bodies, then their options type-check without Fetch type conflicts', async () => {
     // Arrange
     const directory = await mkdtemp(join(tmpdir(), 'getta-generator-'));
 
@@ -157,14 +157,45 @@ describe('generateOpenApiClient', () => {
       },
     };
 
+    const bodySchema = {
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+      type: 'object',
+    };
+
+    const documentWithBodies = {
+      ...document,
+      paths: {
+        ...document.paths,
+        '/products': {
+          post: {
+            operationId: 'createProduct',
+            parameters: [
+              { in: 'header', name: 'x-attempt', schema: { type: 'number' } },
+              { in: 'header', name: 'x-preview', schema: { type: 'boolean' } },
+            ],
+            requestBody: { content: { 'application/json': { schema: bodySchema } }, required: true },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+        '/search': {
+          post: {
+            operationId: 'searchProducts',
+            requestBody: { content: { 'application/json': { schema: bodySchema } } },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    };
+
     const generatedClientPath = join(directory, 'client.ts');
     const generatedTypesPath = join(directory, 'types.ts');
     const usagePath = join(directory, 'usage.ts');
     const gettaTypesPath = join(directory, 'getta.d.ts');
 
     try {
-      await writeFile(generatedClientPath, generateOpenApiClient(document));
-      await writeFile(generatedTypesPath, await generateOpenApiTypes(document));
+      await writeFile(generatedClientPath, generateOpenApiClient(documentWithBodies));
+      await writeFile(generatedTypesPath, await generateOpenApiTypes(documentWithBodies));
 
       await writeFile(
         usagePath,
@@ -172,7 +203,21 @@ describe('generateOpenApiClient', () => {
           "import { createApiClient } from './client';",
           "declare const client: import('getta').Getta;",
           'const getta = createApiClient(client);',
-          "void getta.getProduct('123');",
+          "void getta.getProduct('123', { headers: { 'x-extra': true } });",
+          "void getta.createProduct({ body: { name: 'Product' }, headers: { 'x-attempt': 1, 'x-preview': true }, cache: 'no-store' });",
+          "void getta.searchProducts({ body: { name: 'Product' } });",
+          'void getta.searchProducts();',
+          '// @ts-expect-error Declared header types remain constrained by the schema.',
+          "void getta.createProduct({ body: { name: 'Product' }, headers: { 'x-attempt': 'invalid' } });",
+          '// @ts-expect-error A required JSON body cannot be omitted.',
+          'void getta.createProduct();',
+          '// @ts-expect-error Required JSON properties cannot be omitted.',
+          'void getta.createProduct({ body: {} });',
+          '// @ts-expect-error JSON properties retain their schema types.',
+          'void getta.createProduct({ body: { name: 123 } });',
+          '// @ts-expect-error Optional bodies retain their schema types when provided.',
+          'void getta.searchProducts({ body: { name: 123 } });',
+
           '// @ts-expect-error A product ID is required.',
           'void getta.getProduct();',
           '',
@@ -184,6 +229,7 @@ describe('generateOpenApiClient', () => {
         [
           "declare module 'getta' {",
           '  export interface Getta {',
+          '    request(path: string, options?: RequestInit & { queryParams?: Record<string, string> }): Promise<FetchResponse>;',
           '    get(path: string, options?: { headers?: Record<string, string>; queryParams?: Record<string, string> }): Promise<FetchResponse>;',
           '  }',
           '  export interface FetchResponse<T = unknown> { data: T; }',
@@ -256,7 +302,7 @@ describe('generateOpenApiClient', () => {
        : {};
 
      type __HeaderParameters<T> = T extends { parameters?: infer P }
-       ? P extends { header?: infer V } ? V : {}
+       ? P extends { header?: infer V } ? NonNullable<V> : {}
        : {};
 
      type __RequestBody<T> = T extends { requestBody?: { content: infer C } }
@@ -281,7 +327,7 @@ describe('generateOpenApiClient', () => {
      type __Operation0 = NonNullable<paths["/products"]["post"]>;
 
      export const createApiClient = (client: Getta) => ({
-       createProduct: (options: RequestInit & {
+       createProduct: (options: Omit<RequestInit, 'body' | 'headers'> & {
        headers?: ( [__HeaderParameters<__Operation0>] extends [never] ? {} : __HeaderParameters<__Operation0> ) & Record<string, string | number | boolean>;
        body: __RequestBody<__Operation0>;
      }) => {

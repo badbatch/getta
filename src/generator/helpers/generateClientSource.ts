@@ -23,7 +23,7 @@ export const generateClientSource = (
     '  : {};',
     '',
     'type __HeaderParameters<T> = T extends { parameters?: infer P }',
-    '  ? P extends { header?: infer V } ? V : {}',
+    '  ? P extends { header?: infer V } ? NonNullable<V> : {}',
     '  : {};',
     '',
     'type __RequestBody<T> = T extends { requestBody?: { content: infer C } }',

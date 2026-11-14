@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.35 (2026-11-14)
+
+### New Features
+
+* support lazy headers (62a0109b)
+* add logo (c4070f16)
+
+### Bug Fixes
+
+* linting (ed49cb80)
+
 ## 1.0.34 (2026-11-13)
 
 ### New Features

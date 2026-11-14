@@ -55,9 +55,24 @@ Enables conditional requests with If-None-Match header. Default is `true`.
 
 How long to wait for a request to respond before timing out and returning an error. Default is `5000`.
 
-**headers?: `Record<string, string>`**
+**headers?: `Record<string, string> | HeadersFactory`**
 
-Any headers to attach to every request.
+Default headers to attach to every request. Supply a plain object or a synchronous function returning a fresh set of defaults:
+
+```ts
+const client = createRestClient({
+  basePath: 'https://api.example.com',
+  headers: () => ({
+    Authorization: `Bearer ${getAccessToken()}`,
+    'x-request-id': crypto.randomUUID(),
+  }),
+  performance,
+});
+```
+
+The factory is evaluated once when each logical request starts, before cache lookup and rate-limit queueing. Its resolved headers are reused for retries and redirects. Per-call headers override the defaults case-insensitively; the factory and per-call objects are not mutated. A thrown factory error rejects the request before fetching.
+
+GET cache hits and deduplicated calls also evaluate the factory so that the current authorization value selects the correct cache entry or pending request. Changing request IDs does not defeat caching: cache keys remain based on the endpoint and authorization value. Calls with different authorization values do not share cached data or pending requests.
 
 **log?: `(message: string, data: LogData) => void`**
 

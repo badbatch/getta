@@ -15,6 +15,7 @@ import {
   type FetchRedirectHandlerOptions,
   type FetchResponse,
   type Func,
+  type HeadersFactory,
   type Log,
   type MetadataExtensions,
   type PathTemplateCallback,
@@ -46,7 +47,7 @@ export class Getta {
   private readonly _cache?: Core;
   private readonly _conditionalRequestsEnabled: boolean;
   private readonly _fetchTimeout: number;
-  private readonly _headers: Record<string, string>;
+  private readonly _headers: Record<string, string> | HeadersFactory;
   private readonly _log: Log | undefined;
   private readonly _maxRedirects: number;
   private readonly _maxRetries: number;
@@ -95,7 +96,7 @@ export class Getta {
     this._cache = cache;
     this._conditionalRequestsEnabled = enableConditionalRequests;
     this._fetchTimeout = fetchTimeout;
-    this._headers = { ...consts.DEFAULT_HEADERS, ...headers };
+    this._headers = typeof headers === 'function' ? headers : { ...consts.DEFAULT_HEADERS, ...headers };
     this._log = log;
     this._maxRedirects = maxRedirects;
     this._maxRetries = maxRetries;
@@ -175,8 +176,10 @@ export class Getta {
 
     endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
 
+    const requestHeaders = this._resolveHeaders(headers);
+
     const cacheHeaders = Object.fromEntries(
-      Object.entries({ ...this._headers, ...headers }).map(([name, value]) => [name.toLowerCase(), value]),
+      Object.entries(requestHeaders).map(([name, value]) => [name.toLowerCase(), value]),
     );
 
     const cacheKey = generateCacheKey(endpoint, cacheHeaders);
@@ -190,7 +193,7 @@ export class Getta {
       this._fetch(
         endpoint,
         {
-          headers: { ...this._headers, ...headers },
+          headers: requestHeaders,
           method: consts.DELETE_METHOD,
           ...rest,
         },
@@ -350,8 +353,10 @@ export class Getta {
 
     endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
 
+    const requestHeaders = this._resolveHeaders(headers);
+
     const cacheHeaders = Object.fromEntries(
-      Object.entries({ ...this._headers, ...headers }).map(([name, value]) => [name.toLowerCase(), value]),
+      Object.entries(requestHeaders).map(([name, value]) => [name.toLowerCase(), value]),
     );
 
     const cacheKey = generateCacheKey(endpoint, cacheHeaders);
@@ -392,7 +397,7 @@ export class Getta {
     }
 
     if (this._conditionalRequestsEnabled && entry?.extensions?.etag) {
-      headers[consts.IF_NONE_MATCH_HEADER] = entry.extensions.etag;
+      requestHeaders[consts.IF_NONE_MATCH_HEADER] = entry.extensions.etag;
     }
 
     const pendingRequest = this._trackRequest<T>(cacheKey);
@@ -405,11 +410,7 @@ export class Getta {
       try {
         return this._getResolve<T>(
           cacheKey,
-          await this._fetch<T>(
-            endpoint,
-            { headers: { ...this._headers, ...headers }, method: consts.GET_METHOD },
-            context,
-          ),
+          await this._fetch<T>(endpoint, { headers: requestHeaders, method: consts.GET_METHOD }, context),
         );
       } catch (error) {
         this._rejectPendingRequests(
@@ -564,18 +565,34 @@ export class Getta {
 
     endpoint = appendSearchParams(endpoint, this._queryParams, queryParams);
 
+    const requestHeaders = this._resolveHeaders(headers);
+
     return this._schedule(() =>
       this._fetch(
         endpoint,
         {
           body,
-          headers: { ...this._headers, ...headers },
+          headers: requestHeaders,
           method,
           ...rest,
         },
         context,
       ),
     );
+  }
+
+  private _resolveHeaders(overrides: Record<string, string> = {}): Record<string, string> {
+    const defaults = typeof this._headers === 'function' ? this._headers() : this._headers;
+
+    const merged = new Map<string, [string, string]>();
+
+    for (const source of [consts.DEFAULT_HEADERS, defaults, overrides]) {
+      for (const [name, value] of Object.entries(source)) {
+        merged.set(name.toLowerCase(), [name, value]);
+      }
+    }
+
+    return Object.fromEntries(merged.values());
   }
 
   private _resolvePendingRequests(cacheKey: string, responseData: FetchResponse): void {

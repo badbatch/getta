@@ -1,6 +1,8 @@
 import { type Core } from '@cachemap/core';
 import { type SetRequired } from 'type-fest';
 
+export type HeadersFactory = () => Record<string, string>;
+
 export interface ConstructorOptions<D extends PlainObject = PlainObject> {
   /**
    * The base path of the url for all requests made from
@@ -30,9 +32,10 @@ export interface ConstructorOptions<D extends PlainObject = PlainObject> {
    */
   fetchTimeout?: number;
   /**
-   * Any headers to attach to every request.
+   * Default headers, or a synchronous factory evaluated once per logical request.
+   * Per-request headers override these defaults, regardless of header-name casing.
    */
-  headers?: Record<string, string>;
+  headers?: Record<string, string> | HeadersFactory;
   /**
    * Log function to pass rest client logs to a logger.
    */

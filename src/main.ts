@@ -31,6 +31,8 @@ import {
   type StreamReader,
 } from './types.ts';
 
+const bodylessResponseStatuses = new Set([204, 205, 304]);
+
 const headersToRecord = (headers: Headers): Record<string, string> => {
   const result: Record<string, string> = {};
 
@@ -153,7 +155,11 @@ export class Getta {
   private async _createFetchResponse<T>(res: Response): Promise<FetchResponse<T>> {
     Object.defineProperty(res, 'data', {
       enumerable: true,
-      value: res.body ? this._bodyParser(await res[this._streamReader]()) : undefined,
+      // A browser can expose an empty stream for a status that forbids a body.
+      value:
+        res.body && !bodylessResponseStatuses.has(res.status)
+          ? this._bodyParser(await res[this._streamReader]())
+          : undefined,
       writable: true,
     });
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.36 (2026-11-18)
+
+### Bug Fixes
+
+* handle responses with no body (041137f2)
+
 ## 1.0.35 (2026-11-14)
 
 ### New Features

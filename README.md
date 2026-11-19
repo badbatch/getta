@@ -51,6 +51,10 @@ An instance of the @cachemap/core cache for caching responses against requests. 
 
 Enables conditional requests with If-None-Match header. Default is `true`.
 
+**fetchCache?: `RequestCache`**
+
+The Fetch API cache mode to use for requests, such as `'no-store'`. An individual request's `cache` option overrides this default.
+
 **fetchTimeout?: `number`**
 
 How long to wait for a request to respond before timing out and returning an error. Default is `5000`.

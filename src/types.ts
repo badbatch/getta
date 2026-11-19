@@ -26,6 +26,10 @@ export interface ConstructorOptions<D extends PlainObject = PlainObject> {
    */
   enableConditionalRequests?: boolean;
   /**
+   * The Fetch API cache mode to use unless overridden for an individual request.
+   */
+  fetchCache?: RequestCache;
+  /**
    * How long to wait for a request to respond before timing out
    * and returning an error.
    * Default is 5000
@@ -105,6 +109,7 @@ export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 
 
 export interface FetchOptions {
   body?: BodyInit | null;
+  cache?: RequestCache;
   headers: Record<string, string>;
   method: HttpMethod;
   redirects?: number;

@@ -48,6 +48,7 @@ export class Getta {
   private readonly _bodyParser: Func;
   private readonly _cache?: Core;
   private readonly _conditionalRequestsEnabled: boolean;
+  private readonly _fetchCache?: RequestCache;
   private readonly _fetchTimeout: number;
   private readonly _headers: Record<string, string> | HeadersFactory;
   private readonly _log: Log | undefined;
@@ -73,6 +74,7 @@ export class Getta {
       bodyParser = consts.DEFAULT_BODY_PARSER,
       cache,
       enableConditionalRequests = true,
+      fetchCache,
       fetchTimeout = consts.DEFAULT_FETCH_TIMEOUT,
       headers,
       log,
@@ -97,6 +99,7 @@ export class Getta {
     this._bodyParser = bodyParser;
     this._cache = cache;
     this._conditionalRequestsEnabled = enableConditionalRequests;
+    this._fetchCache = fetchCache;
     this._fetchTimeout = fetchTimeout;
     this._headers = typeof headers === 'function' ? headers : { ...consts.DEFAULT_HEADERS, ...headers };
     this._log = log;
@@ -235,7 +238,7 @@ export class Getta {
     }
 
     try {
-      return await fetch(endpoint, { ...rest, signal });
+      return await fetch(endpoint, { ...rest, cache: rest.cache ?? this._fetchCache, signal });
     } catch (error) {
       if (!hasSignalOverride && error instanceof Error && timeoutSignal?.aborted) {
         throw new Error(`${consts.FETCH_TIMEOUT_ERROR} ${String(this._fetchTimeout)}ms.`, { cause: error });

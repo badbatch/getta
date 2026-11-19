@@ -215,11 +215,9 @@ export class Getta {
     startTime = this._performance.now(),
   ): Promise<Response> {
     const { redirects, retries, ...rest } = options;
-    const controller = new AbortController();
-
-    const fetchTimer = setTimeout(() => {
-      controller.abort();
-    }, this._fetchTimeout);
+    const hasSignalOverride = rest.signal !== undefined;
+    const timeoutSignal = hasSignalOverride ? undefined : AbortSignal.timeout(this._fetchTimeout);
+    const signal = hasSignalOverride ? rest.signal : timeoutSignal;
 
     if (!redirects && !retries) {
       this._log?.(consts.FETCH_REQUEST_SENT, {
@@ -237,15 +235,13 @@ export class Getta {
     }
 
     try {
-      return await fetch(endpoint, { ...rest, signal: controller.signal });
+      return await fetch(endpoint, { ...rest, signal });
     } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
+      if (!hasSignalOverride && error instanceof Error && timeoutSignal?.aborted) {
         throw new Error(`${consts.FETCH_TIMEOUT_ERROR} ${String(this._fetchTimeout)}ms.`, { cause: error });
       }
 
       throw error;
-    } finally {
-      clearTimeout(fetchTimer);
     }
   }
 

@@ -109,6 +109,7 @@ export interface FetchOptions {
   method: HttpMethod;
   redirects?: number;
   retries?: number;
+  signal?: AbortSignal | null;
 }
 
 export interface FetchResponse<Resource = unknown> extends ResponseData<Resource>, Response {}

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.37 (2026-11-19)
+
+### Bug Fixes
+
+* set abort signal timeout internally with option to override (4de7d583)
+
 ## 1.0.36 (2026-11-18)
 
 ### Bug Fixes

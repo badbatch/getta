@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.38 (2026-11-19)
+
+### New Features
+
+* allow fetch cache to be passed into contructor (ac9f9fe7)
+
 ## 1.0.37 (2026-11-19)
 
 ### Bug Fixes
